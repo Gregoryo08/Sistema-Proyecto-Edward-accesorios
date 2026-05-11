@@ -1,0 +1,35 @@
+#preloader-sistema {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #00162b; /* El azul oscuro de tu imagen */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}
+
+.spinner-azul {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 255, 255, 0.1);
+    border-top: 6px solid #3498db; /* Azul brillante para que se vea */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.texto-carga {
+    margin-top: 20px;
+    color: #ffffff;
+    font-family: sans-serif;
+    letter-spacing: 2px;
+    font-size: 14px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

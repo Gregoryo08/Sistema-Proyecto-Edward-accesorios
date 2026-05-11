@@ -1,0 +1,160 @@
+.table-container {
+    /* Fondo blanco para la tabla */
+    padding: 20px;
+    /* Espaciado interno */
+    border-radius: 8px;
+    /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Sombra suave */
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+    /* Centra verticalmente el contenido de las celdas */
+}
+
+.table th {
+    background-color: #343a40;
+    /* Color de fondo del encabezado */
+    color: white;
+    /* Color del texto del encabezado */
+}
+
+.table td {
+    background-color: #f8f9fa;
+    /* Color de fondo de las celdas */
+}
+
+.table-responsive {
+    margin-top: 20px;
+    /* Espaciado superior para la tabla */
+}
+
+.modal-content {
+    border-radius: 10px;
+    /* Bordes redondeados */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    /* Sombra más suave */
+}
+
+.modal-header {
+    border-bottom: none;
+    /* Eliminar el borde inferior */
+}
+
+.modal-title {
+    font-weight: bold;
+    /* Título en negrita */
+    color: #343a40;
+    /* Color del título */
+}
+
+.form-control {
+    border-radius: 5px;
+    /* Bordes redondeados para los campos */
+    border: 1px solid #ced4da;
+    /* Borde gris claro */
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    /* Color del borde al enfocar */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Sombra al enfocar */
+}
+
+
+#formRegistroCliente, #formModificar, #formPerfil, #formPerfilPreguntas{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.mensaje{
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    top: 85%;
+}
+
+.mensaje p{
+    position: absolute;
+    padding: 10px;
+    margin-right: 15px;
+    border-radius: 5px 0 5px 5px;
+    background: rgb(175, 0, 0);
+    top: 100%;
+    color: #f2f2f2;
+    display: none;
+    text-align: center;
+    transition: .5s;
+    z-index: 100;
+    clip-path: polygon(0 14%, 69% 14%, 80% 0, 80% 14%, 100% 14%, 100% 100%, 0 100%);
+}
+
+
+.modal-dialog{
+    min-width: 70%;
+}
+
+.form-group{
+    width: 45%;
+    position: relative;
+}
+
+.form-group label{
+    font-weight: bold;
+}
+
+.form-group .for{
+    flex-direction: row;
+    display: flex;
+}
+
+.form-group .for select{
+    width: 30%;
+}
+
+.form-group .for input{
+    width: 70%;
+}
+.form-group textarea{
+    width: 100%;
+    resize: none;
+}
+
+.confirmRegister{
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+
+.confirmRegister .titleConfirm{
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.confirmRegister .contData{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.confirmRegister .contData .data{
+    width: 45%;
+    padding: 15px;
+    margin: 5px 0;
+    background: #f2f2f2;
+    border-radius: 15px;
+}

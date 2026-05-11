@@ -1,0 +1,18 @@
+# Ignorar carpetas de dependencias (si usas Composer)
+/vendor/
+
+# Ignorar archivos de configuración del editor
+.vscode/
+.idea/
+
+# Ignorar archivos temporales o de errores
+*.log
+.DS_Store
+
+# MUY IMPORTANTE: Ignorar archivos con contraseñas
+# Si tienes un archivo llamado config.php con tus claves de DB, agrégalo aquí
+config_local.php
+
+# Dentro de tu archivo .gitignore
+src/Sistema/app/config/data.php
+src/Sistema/app/config/data-host.php

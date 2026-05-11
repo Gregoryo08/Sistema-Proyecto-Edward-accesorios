@@ -1,0 +1,68 @@
+.claveSolo{
+    height: 100vh;
+}
+
+.clave2{
+    height: 45vh;
+}
+
+.clave3{
+    margin-top: 3%;
+}
+
+.div_content_clave{
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.div_content_clave:nth-child(1){
+    width: 100%;
+}
+
+.div_content_clave label{
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.div_content_clave p{
+    text-align: center;
+}
+
+.div_content_clave .btn{
+    background: var(--color-dorado);
+    border: 1px solid rgb(209, 167, 1);
+    width: 30%;
+    margin-top: 15px;
+    font-size: 1.2rem;
+}
+
+.div_content_clave .btn:active{
+    background: rgb(209, 167, 1);
+    border: 1px solid var(--color-dorado);
+}
+
+.cont_button .btn{
+    background: transparent;
+    border: 2px solid rgb(209, 167, 1);
+    color: var(--color-dorado);
+    width: 20%;
+    box-shadow: 0 0 10px rgb(209, 167, 1, .5);
+}
+
+.cont_button .btn:hover{
+    background: var(--color-dorado);
+    border: 2px solid white;
+    color: white;
+}
+
+#formPerfil .groupClave{
+    width: 45%;
+    position: relative;
+}
+
+.cont_clave1{
+    height: 30vh;
+}

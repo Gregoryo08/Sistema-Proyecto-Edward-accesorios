@@ -1,0 +1,227 @@
+:root {
+    --header-height: 65px;
+    --nav-width-closed: 65px;
+    --nav-width-open: 260px;
+    
+   
+    --bg-body: #f4f7f9;
+    --sidebar-bg: #ffffff;
+    --accent-color: #3b82f6;     
+    --text-main: #1e293b;        
+    --text-muted: #64748b;       
+    --border-color: #e2e8f0;     
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.index-page {
+    background-color: var(--bg-body);
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    padding-left: var(--nav-width-closed);
+    transition: var(--transition);
+}
+
+
+header#header {
+    height: var(--header-height);
+    background-color: #ffffff !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1001;
+}
+
+.sitename {
+    color: #f8fafc !important;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding-left: 12px;
+    border-left: 3px solid #3b82f6; 
+    text-transform: none;
+    line-height: 1;
+    display: inline-block;
+}
+.btn_acciones .cta-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-main);
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+
+.btn_acciones .cta-btn:hover {
+    background: #fff5f5 !important; 
+    color: #3b82f6 !important; 
+    border-color: #3b82f6 !important; 
+    
+    
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6) !important;
+}
+
+
+.btn_acciones a.cta-btn[href*="salida"] {
+    background: #fff1f0 !important;
+    color: #cf1322 !important;
+    border: 1px solid #ffa39e;
+}
+
+
+.navmenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--nav-width-closed);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    transition: var(--transition);
+    z-index: 1000;
+    padding-top: var(--header-height);
+    
+    
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.navmenu:hover {
+    width: var(--nav-width-open);
+}
+
+
+.navmenu::-webkit-scrollbar {
+    width: 5px; 
+}
+
+.navmenu::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+.navmenu::-webkit-scrollbar-thumb {
+    background: #e2e8f0; 
+    border-radius: 10px;
+}
+
+.navmenu::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color); 
+}
+
+
+.navmenu {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+
+.lista_opciones {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.opcion {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-muted) !important;
+    text-decoration: none !important;
+    transition: var(--transition);
+    height: 48px;
+    position: relative;
+}
+
+.opcion i {
+    font-size: 1.25rem;
+    min-width: 25px;
+    margin-right: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.textoOption {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.navmenu:hover .textoOption {
+    opacity: 1;
+}
+
+.opcion:hover, 
+.dropdown.open > .opcion {
+    background-color: #f1f5f9;
+    color: var(--accent-color) !important;
+}
+
+
+.opcion:hover::before,
+.dropdown.open > .opcion::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 4px;
+    height: 70%;
+    background-color: var(--accent-color);
+    border-radius: 0 4px 4px 0;
+}
+
+
+.listOptionSlice {
+    background: #f8fafc;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.dropdown.open .listOptionSlice {
+    max-height: 500px;
+}
+
+.header:hover{
+background-color:red ;
+}
+
+.listOptionSlice li a {
+    padding: 10px 20px 10px 70px;
+    color: var(--text-muted) !important;
+    font-size: 0.85rem;
+    display: block;
+    text-decoration: none !important;
+    transition: var(--transition);
+}
+
+.listOptionSlice li a:hover {
+    color: var(--accent-color) !important;
+    background-color: #e2e8f0;
+}
+
+
+#container_notificacion {
+    border-radius: 10px;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    margin-top: 10px;
+}
+
+.header_cuadro {
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--border-color);
+}

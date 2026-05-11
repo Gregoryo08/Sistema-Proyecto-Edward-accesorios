@@ -1,0 +1,185 @@
+.content_data{
+    width: 100%;
+    padding: 10px;
+    /* padding: 60px 0; */
+    scroll-margin-top: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content_data .div_data{
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 1.5% 0 0 0;
+}
+
+.content_data .cont_title{
+    width: 100%;
+    background: var(--color-oscuro);
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    overflow: visible;
+}
+
+.content_data .cont_title .img_title{
+    width: 5%;
+}
+
+.content_data .cont_title .title{
+    font-weight: bold;
+}
+
+.content_data .div_data .cont_content{
+    width: 100%;
+    padding: 10px;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.content_data .div_data .cont_content .cont_space{
+    width: 45%;
+    padding: 5px 15px;
+    background: #e4e4e4;
+    margin: 5px 0;
+    border-radius: 8px;
+    overflow-wrap: break-word;
+}
+
+.content_data .div_data .cont_content .cont_space:nth-child(7){
+    width: 100%;
+}
+
+.content_data .div_data .cont_content .cont_space label{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.content_data .div_data .cont_button{
+    width: 100%;
+    background: var(--color-oscuro);
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 0 0 5px 5px;
+    position: relative;
+    overflow: visible;
+}
+
+.content_data .div_data .cont_button button{
+    color: var(--color-dorado);
+    background-color: var(--color-titulo);
+    border: 1px solid var(--color-dorado);
+    font-weight: bold;
+    box-shadow: 0px 0 18px var(--color-dorado-hover);
+}
+
+.content_data .div_data .cont_button button:hover{
+    background: rgb(223, 147, 6);
+}
+
+
+#formRegistroCliente, #formModificar, #formPerfil, #formPerfilPreguntas{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.modal-dialog{
+    min-width: 70%;
+}
+
+.form-group{
+    width: 45%;
+    position: relative;
+}
+
+.form-group label{
+    font-weight: bold;
+}
+
+.form-group .for{
+    flex-direction: row;
+    display: flex;
+}
+
+.form-group .for select{
+    width: 30%;
+}
+
+.form-group .for input{
+    width: 70%;
+}
+
+.direccion textarea{
+    width: 100%;
+    resize: none;
+}
+
+.confirmRegister{
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+
+.confirmRegister .titleConfirm{
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.confirmRegister .contData{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.confirmRegister .contData .data{
+    width: 45%;
+    padding: 15px;
+    margin: 5px 0;
+    background: #f2f2f2;
+    border-radius: 15px;
+}
+
+.mensaje{
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    top: 85%;
+}
+
+.mensaje p{
+    position: absolute;
+    padding: 10px;
+    margin-right: 15px;
+    border-radius: 5px 0 5px 5px;
+    background: rgb(175, 0, 0);
+    top: 100%;
+    color: #f2f2f2;
+    display: none;
+    text-align: center;
+    transition: .5s;
+    z-index: 100;
+    clip-path: polygon(0 14%, 69% 14%, 80% 0, 80% 14%, 100% 14%, 100% 100%, 0 100%);
+}

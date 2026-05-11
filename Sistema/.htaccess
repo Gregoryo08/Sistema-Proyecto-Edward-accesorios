@@ -1,0 +1,17 @@
+# Evitar listar el contenido de carpetas
+Options -Indexes
+
+# Activar mod_rewrite
+RewriteEngine On
+
+# Obtener la carpeta actual como base
+RewriteBase /sistemaL/sistema
+
+# Bloquear acceso directo a carpetas internas y redirigir al index del sistema
+RewriteCond %{REQUEST_URI} /(models|controllers|views|config) [NC]
+RewriteRule .* index.php [L,R=302]
+
+# Redirigir todas las demás peticiones inexistentes al index
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
