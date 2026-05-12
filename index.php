@@ -59,7 +59,7 @@
         <ul class="nav-links">
             <li><a href="#home">Inicio</a></li>
             <li><a href="#financiados">Financiados</a></li>
-            <li><a href="#catalogo">Catálogo</a></li>
+            <li><a href="productos.php">Catálogo</a></li>
             <li><a href="#servicio">Soporte Técnico</a></li>
             <li><a href="#ubicacion">Ubicación</a></li>
             <li><a href="Sistema/index.php" class="btn-sistema">Mi Sistema</a></li>

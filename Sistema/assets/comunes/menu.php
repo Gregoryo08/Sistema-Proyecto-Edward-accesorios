@@ -228,11 +228,11 @@ if (!isset($obj_usuario)) {
     </a>
     <ul class="listOptionSlice">
         <?php if ($obj_usuario->tienePermiso("Administrar Ventas", "listar")): ?>
-            <li><a href="?pagina=producto"><i class="bi bi-arrow-return-right"></i> Ventas De Pisos</a></li>
+            <li><a href="?pagina=ventas"><i class="bi bi-arrow-return-right"></i> Ventas</a></li>
         <?php endif; ?>
         
-        <?php if ($obj_usuario->tienePermiso("Administrar Ventas Online", "listar")): ?>
-            <li><a href="?pagina=entradas_almacen"><i class="bi bi-arrow-return-right"></i> Ventas Online</a></li>
+        <?php if ($obj_usuario->tienePermiso("Administrar Chequeo", "listar")): ?>
+            <li><a href="?pagina=chequeo"><i class="bi bi-arrow-return-right"></i> Ventas Online</a></li>
         <?php endif; ?>
     </ul>
 </li>
@@ -250,7 +250,7 @@ if (!isset($obj_usuario)) {
     </a>
     <ul class="listOptionSlice">
         <?php if ($obj_usuario->tienePermiso("Administrar Productos", "listar")): ?>
-            <li><a href="?pagina=areas"><i class="bi bi-arrow-return-right"></i> Articulos/productos</a></li>
+            <li><a href="?pagina=productos"><i class="bi bi-arrow-return-right"></i> Productos</a></li>
         <?php endif; ?>
 
         <?php if ($obj_usuario->tienePermiso("Entrada de Artículos", "listar")): ?>
