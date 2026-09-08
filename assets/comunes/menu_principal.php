@@ -31,6 +31,7 @@
                     <li><a href="#servicio">Soporte Técnico</a></li>
                     <li><a href="#ubicacion">Ubicación</a></li>
                     <li><a href="?pagina=iniciarsesion" class="btn-sistema">Mi Sistema</a></li>
+
                 </ul>
 
                 <div class="user-actions">
@@ -194,6 +195,18 @@
     height: 1px;
     background: rgba(255, 255, 255, 0.08);
     margin: 4px 6px;
+}
+
+
+.btn-sistema {
+  color: white; 
+  text-decoration: none; 
+}
+
+
+.btn-sistema:hover {
+  color: #000000 !important; 
+  
 }
 
 
