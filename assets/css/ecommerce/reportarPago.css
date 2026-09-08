@@ -1,0 +1,16 @@
+/* =============================================
+   reportarPago.css - Estilos de la página Reportar Pago
+   ============================================= */
+
+.paso {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.navbar-brand span.text-primary {
+    color: #0d6efd !important;
+}

@@ -1,0 +1,91 @@
+/* --- PERFIL: PREMIUM DARK UI --- */
+
+:root {
+    --primary-dark: #0A2647;
+    --secondary-dark: #144272;
+    --accent-cyan: #0ef;
+    --bg-card: #ffffff;
+    --text-dark: #0A2647;
+}
+
+.content_data {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.content_data .div_data {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Encabezado del Perfil */
+.content_data .cont_title {
+    background: var(--primary-dark) !important;
+    color: white;
+    padding: 20px;
+}
+
+/* Contenido interno */
+.content_data .div_data .cont_content {
+    background: #f8fafc !important; /* Un gris casi blanco, muy limpio */
+    padding: 25px;
+}
+
+.content_data .div_data .cont_content .cont_space {
+    width: 48%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    margin: 8px 0;
+    padding: 15px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.content_data .div_data .cont_content .cont_space:hover {
+    border-color: var(--secondary-dark);
+}
+
+/* Botones */
+.content_data .div_data .cont_button {
+    background: var(--primary-dark) !important;
+    padding: 20px;
+}
+
+.content_data .div_data .cont_button button {
+    background: var(--secondary-dark) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 25px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.content_data .div_data .cont_button button:hover {
+    background: var(--accent-cyan) !important;
+    color: var(--primary-dark) !important;
+    box-shadow: 0 0 15px rgba(0, 238, 255, 0.4);
+}
+z
+/* Formularios y Inputs */
+.form-group label {
+    color: var(--primary-dark);
+}
+
+.form-group input, .form-group select {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+/* Ajuste de mensajes de error */
+.mensaje p {
+    background: #cf1322 !important;
+    border-radius: 8px;
+    padding: 10px 20px;
+}

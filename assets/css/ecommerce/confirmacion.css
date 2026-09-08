@@ -1,0 +1,13 @@
+/* =============================================
+   confirmacion.css - Estilos de la página de confirmación
+   ============================================= */
+
+.check-icon {
+    font-size: 6rem;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}

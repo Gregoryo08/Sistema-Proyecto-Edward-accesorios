@@ -1,0 +1,72 @@
+/* =============================================
+   loginEcommerce.css
+   Estilos de layout para login/registro/recuperación
+   ============================================= */
+
+/* Contenedor scroll del formulario de registro */
+.form-scroll-container {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.form-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-scroll-container::-webkit-scrollbar-thumb {
+    background: #0ef;
+    border-radius: 10px;
+}
+
+/* Botón toggle tema día/noche */
+.theme-toggle-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 9999;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #0ef;
+    background: rgba(8, 27, 41, 0.7);
+    color: #0ef;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.theme-toggle-btn:hover {
+    background: #0ef;
+    color: #081b29;
+    transform: rotate(30deg);
+}
+
+body.light-mode .theme-toggle-btn {
+    border-color: #0077b6;
+    background: rgba(255, 255, 255, 0.85);
+    color: #0077b6;
+}
+
+body.light-mode .theme-toggle-btn:hover {
+    background: #0077b6;
+    color: #fff;
+}
+
+/* Transiciones para el modo claro/oscuro */
+body { transition: background 0.4s ease, color 0.4s ease; }
+.wrapper { transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease; }
+.wrapper .form-box { transition: background 0.4s ease; }
+.wrapper .info-text { transition: background 0.4s ease; }
+.form-box h2, .info-text h2, .info-text p,
+.form-box .logreg-link, .form-box .logreg-link p,
+.input-box input, .input-box label, .input-box i,
+.forgot-pass a, .btn, .btn-regresar, .recover-header h2,
+.recover-header p, .back-to-login {
+    transition: color 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+}
+

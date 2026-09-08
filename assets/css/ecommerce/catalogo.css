@@ -1,0 +1,87 @@
+/* =============================================
+   catalogo.css - Estilos de la página de catálogo
+   ============================================= */
+
+.card { transition: transform 0.3s, background 0.3s, color 0.3s; border-radius: 10px; }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+.precio { font-size: 1.5rem; font-weight: bold; }
+.btn-comprar { background-color: #3498db; color: white; }
+.btn-comprar:hover { background-color: #2980b9; }
+.cart-icon { font-size: 1.5rem; position: relative; }
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* ===== ESTADO POR DEFECTO = MODO OSCURO ===== */
+body { background: #0f172a; color: #e0e0e0; transition: background 0.4s, color 0.4s; }
+.container h2 { color: #f0f0f0; }
+.card { background: #1e293b; border: 1px solid #334155; }
+.card-title { color: #f1f5f9; }
+.card-text { color: #94a3b8; }
+.card-img-top { border-bottom: 1px solid #334155; }
+.precio { color: #38bdf8; }
+.text-muted { color: #94a3b8 !important; }
+.navbar { background: #0b1120 !important; border-bottom: 1px solid #1e293b; }
+.navbar-brand { color: #f1f5f9 !important; }
+.navbar-brand .text-primary { color: #38bdf8 !important; }
+.nav-link { color: #cbd5e1 !important; }
+.nav-link:hover { color: #38bdf8 !important; }
+.btn-outline-light { color: #e2e8f0; border-color: #475569; }
+.btn-outline-light:hover { background: #334155; color: #f1f5f9; border-color: #64748b; }
+.btn-outline-danger:hover { background: #dc2626; }
+.alert-info { background: #1e293b; color: #7dd3fc; border-color: #0e7490; }
+.text-white { color: #e2e8f0 !important; }
+.badge.bg-danger { background: #ef4444 !important; }
+
+.theme-toggle-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 9999;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #facc15;
+    background: rgba(15,23,42,0.85);
+    color: #facc15;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: #facc15;
+    color: #0f172a;
+    transform: rotate(30deg);
+}
+
+/* ===== MODO CLARO (light-mode) ===== */
+body.light-mode { background: #f0f4f8; color: #333; }
+body.light-mode .container h2 { color: #333; }
+body.light-mode .card { background: #fff; border: 1px solid #e2e8f0; }
+body.light-mode .card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+body.light-mode .card-title { color: #1e293b; }
+body.light-mode .card-text { color: #64748b; }
+body.light-mode .card-img-top { border-bottom: 1px solid #e2e8f0; }
+body.light-mode .precio { color: #2563eb; }
+body.light-mode .text-muted { color: #64748b !important; }
+body.light-mode .text-white { color: #333 !important; }
+body.light-mode .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
+body.light-mode .navbar-brand { color: #1e293b !important; }
+body.light-mode .navbar-brand .text-primary { color: #2563eb !important; }
+body.light-mode .nav-link { color: #475569 !important; }
+body.light-mode .nav-link:hover { color: #2563eb !important; }
+body.light-mode .btn-outline-light { color: #475569; border-color: #94a3b8; }
+body.light-mode .btn-outline-light:hover { background: #e2e8f0; color: #1e293b; }
+body.light-mode .alert-info { background: #e0f2fe; color: #0c4a6e; border-color: #7dd3fc; }
+body.light-mode .btn-comprar { background-color: #2563eb; }
+body.light-mode .btn-comprar:hover { background-color: #1d4ed8; }
+body.light-mode .theme-toggle-btn { border-color: #2563eb; background: rgba(255,255,255,0.9); color: #2563eb; }
+body.light-mode .theme-toggle-btn:hover { background: #2563eb; color: #fff; }

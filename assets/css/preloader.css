@@ -1,0 +1,42 @@
+/* --- PRELOADER: PREMIUM DARK --- */
+
+#preloader-sistema {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    /* Usamos tu color principal para el fondo */
+    background-color: #000910 !important; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}
+
+.spinner-azul {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 255, 255, 0.05);
+    /* El borde superior usa tu tono Cian para un look tecnológico */
+    border-top: 6px solid #0ef; 
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    box-shadow: 0 0 15px rgba(0, 238, 255, 0.3);
+}
+
+.texto-carga {
+    margin-top: 25px;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 3px;
+    font-size: 13px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
