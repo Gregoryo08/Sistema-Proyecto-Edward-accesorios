@@ -24,7 +24,7 @@
                                 <th>Nombre del Banco</th>
                                 <th>Telefono</th>
                                 <th>Cedula / RIF</th>
-                                <th>Estatus</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>

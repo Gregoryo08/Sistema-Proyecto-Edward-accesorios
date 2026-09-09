@@ -153,8 +153,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 $vista = 'app/views/bancos.php';
 
 if (file_exists($vista)) {
-    include $vista;
+    require_once $vista;
 } else {
-    include 'App/views/error_404.php';
+    require_once 'App/views/error_404.php';
 }
 ?>

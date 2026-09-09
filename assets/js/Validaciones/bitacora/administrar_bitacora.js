@@ -23,12 +23,23 @@ function cargarBitacora(usuario = "", accionU = "") {
                         case "Acceder": accionTexto = `Accedió a ${v.modulo}`; break;
                         default: accionTexto = (v.accion && v.accion.includes("Acceder")) ? `Accedió a ${v.modulo}` : v.accion;
                     }
+                    
+                    let fechaOriginal = v.fecha_registro || '';
+                    let timestampOrden = fechaOriginal;
+                    if (fechaOriginal.includes('/')) {
+                        let partes = fechaOriginal.split(' ');
+                        let fechaPartes = partes[0].split('/');
+                        if (fechaPartes.length === 3) {
+                            timestampOrden = `${fechaPartes[2]}-${fechaPartes[1]}-${fechaPartes[0]} ${partes[1] || '00:00:00'}`;
+                        }
+                    }
+
                     return `<tr>
                         <td>${v.rol || 'Sin Rol'}</td>
                         <td>${v.usuario_info || 'Sin datos'}</td>
                         <td>${accionTexto}</td>
                         <td>${v.modulo || ''}</td>
-                        <td>${v.fecha_registro || ''}</td>
+                        <td data-order="${timestampOrden}">${fechaOriginal}</td>
                         <td>
                             <button class="btn btn-sm btn-info ver-detalles" 
                                 data-antiguo='${v.valor_antiguo || 'Sin datos'}' 
