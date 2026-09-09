@@ -12,6 +12,8 @@
         </div>
         <div class="chat-body" id="chat-content">
             <p class="bot-msg">¡Hola! Soy Ed-AI de <strong>Edward Accesorios</strong>. ¿En qué puedo ayudarte hoy?</p>
+
+            <h1>Francheska come moco</h1>
         </div>
         <div class="chat-footer">
             <input type="text" id="chat-input" placeholder="Escribe tu duda...">
