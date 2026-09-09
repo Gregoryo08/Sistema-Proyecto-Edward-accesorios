@@ -13,7 +13,7 @@
         <div class="chat-body" id="chat-content">
             <p class="bot-msg">¡Hola! Soy Ed-AI de <strong>Edward Accesorios</strong>. ¿En qué puedo ayudarte hoy?</p>
 
-            <h1>Francheska come moco</h1>
+            
         </div>
         <div class="chat-footer">
             <input type="text" id="chat-input" placeholder="Escribe tu duda...">
@@ -30,7 +30,7 @@
 <main>
     <header id="home" class="hero">
         <div class="hero-content reveal">
-            <span class="badge">C.C. COSMOS - Barquisimeto</span>
+            <span class="badge">C.C. COSMOS - Barquisimeto</span> <H1>fRANCHESKA NO SABE Y ES INFIEL</H1>
             <h1>Expertos en <br><span class="highlight">Telefonía Móvil</span></h1>
             <p>Encuentra accesorios premium, cornetas y los mejores equipos financiados para que estrenes hoy mismo.</p>
             <div class="hero-btns">
