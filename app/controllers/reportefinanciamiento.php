@@ -92,4 +92,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar2'])) {
     exit();
 }
 
-include 'app/views/reportefinanciamiento.php';
+require_once 'app/views/reportefinanciamiento.php';
