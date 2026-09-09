@@ -1,95 +1,230 @@
 $(document).ready(function () {
+    let graficoEstados;
+    let graficoMeses;
+    const coloresEstados = ['#2563eb', '#f59e0b', '#16a34a', '#dc2626', '#7c3aed', '#0891b2', '#64748b'];
+    const formatoMoneda = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'USD' });
+    const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-    function showLoadingOverlay(containerId) {
-        const container = $(`#${containerId}`);
-        if(container.find('.loading-overlay').length === 0) {
-            container.append(`
-                <div class="loading-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-                    <div class="spinner-border text-warning" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                </div>
-            `);
-            container.css('position', 'relative');
+    function filtros() {
+        return {
+            cedula: $('#reporteBuscar').val().trim(),
+            estado: $('#reporteEstado').val(),
+            fecha_desde: $('#reporteDesde').val(),
+            fecha_hasta: $('#reporteHasta').val(),
+            monto_min: $('#reporteMontoMin').val(),
+            monto_max: $('#reporteMontoMax').val(),
+            ordenar_por: $('#reporteOrden').val()
+        };
+    }
+
+    function cargarReporte() {
+        const filtrosActuales = filtros();
+
+        $.ajax({
+            url: '?pagina=reporteFinanciamiento',
+            data: {
+                accion: 'obtenerDatosGraficos',
+                cedula: filtrosActuales.cedula,
+                estado: filtrosActuales.estado,
+                fecha_desde: filtrosActuales.fecha_desde,
+                fecha_hasta: filtrosActuales.fecha_hasta,
+                monto_min: filtrosActuales.monto_min,
+                monto_max: filtrosActuales.monto_max,
+                ordenar_por: filtrosActuales.ordenar_por
+            },
+            dataType: 'json',
+            success: function (respuesta) {
+                pintarReporte(respuesta);
+            },
+            error: function () {
+                pintarReporte({ estados: [], cuotas: [], ranking: [] });
+            }
+        });
+    }
+
+    function pintarReporte(data) {
+        let montoTotal = 0;
+        let financiamientos = 0;
+        let vigentes = 0;
+        const estados = {};
+        const meses = {};
+        let filas = '';
+
+        (data.ranking || []).forEach(function (item) {
+            const monto = parseFloat(item.monto_acumulado) || 0;
+            const cantidad = parseInt(item.total_financiamientos, 10) || 0;
+            montoTotal += monto;
+            financiamientos += cantidad;
+            if ((item.estado || '').toLowerCase() === 'vigente') vigentes += cantidad;
+
+            filas += `
+                <tr>
+                    <td>${item.cedula_persona || ''}</td>
+                    <td>${item.cliente || ''}</td>
+                    <td>${cantidad}</td>
+                    <td>${formatoMoneda.format(monto)}</td>
+                    <td>${(item.productos || '').slice(0, 60) || 'Sin productos'}</td>
+                </tr>
+            `;
+        });
+
+        (data.estados || []).forEach(function (item) {
+            const estado = (item.estado || 'Sin estado').trim();
+            estados[estado] = parseInt(item.total, 10) || 0;
+        });
+
+        (data.cuotas || []).forEach(function (item) {
+            const mes = item.mes || '';
+            meses[mes] = parseInt(item.total_cuotas, 10) || 0;
+        });
+
+        if (!filas) {
+            filas = '<tr><td colspan="5" class="text-center text-muted py-4">No se encontraron financiamientos con los criterios seleccionados.</td></tr>';
         }
+
+        $('#tablaReporteFinanciamiento').html(filas);
+        $('#kpiFinanciamientos').text(financiamientos);
+        $('#kpiMontoFinanciamiento').text(formatoMoneda.format(montoTotal));
+        $('#kpiVigentes').text(vigentes);
+        dibujarGraficos(estados, meses, financiamientos, montoTotal);
     }
 
-    function hideLoadingOverlay(containerId) {
-        $(`#${containerId} .loading-overlay`).remove();
-    }
+    function dibujarGraficos(estados, meses, totalFinanciamientos, montoTotal) {
+        if (graficoEstados) graficoEstados.destroy();
+        if (graficoMeses) graficoMeses.destroy();
 
-    function renderCharts(data) {
-        if (typeof Highcharts === 'undefined') {
-            return;
-        }
+        const labelsEstados = Object.keys(estados);
+        const dataEstados = Object.values(estados);
+        const totalEstado = dataEstados.reduce((sum, value) => sum + value, 0);
+        $('#totalEstadosFinanciamiento').text(totalEstado + (totalEstado === 1 ? ' financiamiento' : ' financiamientos'));
 
-        Highcharts.chart("graficoBarraFinanciamiento", {
-            chart: { type: "column" },
-            title: { text: "Cuotas por Mes" },
-            xAxis: { categories: (data.cuotas || []).map(item => item.mes) },
-            yAxis: { title: { text: "Cantidad" } },
-            series: [{ 
-                name: "Cuotas", 
-                data: (data.cuotas || []).map(item => parseFloat(item.total_cuotas)), 
-                color: "#FFD700" 
-            }],
-            credits: { enabled: false }
+        const totalCuotas = Object.values(meses).reduce((sum, value) => sum + value, 0);
+        $('#totalMesesFinanciamiento').text(totalCuotas + (totalCuotas === 1 ? ' cuota' : ' cuotas'));
+
+        const centroDoughnut = {
+            id: 'centroDoughnutFinanciamiento',
+            afterDraw: function (chart) {
+                if (!totalEstado) return;
+                const context = chart.ctx;
+                const centroX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                const centroY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                context.save();
+                context.textAlign = 'center';
+                context.fillStyle = '#1f2937';
+                context.font = '700 26px sans-serif';
+                context.fillText(totalEstado, centroX, centroY + 5);
+                context.fillStyle = '#64748b';
+                context.font = '12px sans-serif';
+                context.fillText('financiamientos', centroX, centroY + 24);
+                context.restore();
+            }
+        };
+
+        graficoEstados = new Chart(document.getElementById('graficoEstadosFinanciamiento'), {
+            type: 'doughnut',
+            data: {
+                labels: labelsEstados,
+                datasets: [{
+                    data: dataEstados,
+                    backgroundColor: coloresEstados,
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            plugins: [centroDoughnut],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+                    tooltip: { callbacks: { label: function (context) { return ' ' + context.label + ': ' + context.raw + ' (' + ((context.raw / totalEstado) * 100 || 0).toFixed(1) + '%)'; } } }
+                }
+            }
         });
 
-        Highcharts.chart("graficoPastelFinanciamiento", {
-            chart: { type: "pie", options3d: { enabled: true, alpha: 45 } },
-            title: { text: "Estado de Financiamientos" },
-            series: [{
-                name: "Cantidad",
-                colorByPoint: true,
-                data: (data.estados || []).map(item => ({ name: item.estado, y: parseFloat(item.total) }))
-            }],
-            credits: { enabled: false }
+        const mesesOrdenados = Object.keys(meses).sort();
+        const etiquetasMeses = mesesOrdenados.map(function (mes) {
+            const partes = mes.split('-');
+            if (partes.length === 2) {
+                const anio = partes[0];
+                const indiceMes = parseInt(partes[1], 10) - 1;
+                return (nombresMeses[indiceMes] || mes) + ' ' + anio;
+            }
+            return mes;
+        });
+
+        graficoMeses = new Chart(document.getElementById('graficoFechasFinanciamiento'), {
+            type: 'bar',
+            data: {
+                labels: etiquetasMeses,
+                datasets: [{
+                    label: 'Cuotas',
+                    data: mesesOrdenados.map(function (mes) { return meses[mes]; }),
+                    backgroundColor: '#2563eb',
+                    borderRadius: 8,
+                    maxBarThickness: 46
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+                    tooltip: { callbacks: { label: function (context) { return ' ' + context.dataset.label + ': ' + context.raw + ' cuotas'; } } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#64748b' } },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e5e7eb' },
+                        ticks: { color: '#64748b', precision: 0, stepSize: 1 }
+                    }
+                }
+            }
         });
     }
 
-    function fetchAndRenderCharts(filters = {}) {
-        showLoadingOverlay("graficoBarraFinanciamiento");
-        showLoadingOverlay("graficoPastelFinanciamiento");
-
-        const urlParams = new URLSearchParams();
-        urlParams.append('accion', 'obtenerDatosGraficos');
-        if (filters.cedula) urlParams.append('cedula', filters.cedula);
-        if (filters.estado) urlParams.append('estado', filters.estado);
-        if (filters.fecha_desde) urlParams.append('fecha_desde', filters.fecha_desde);
-        if (filters.fecha_hasta) urlParams.append('fecha_hasta', filters.fecha_hasta);
-        if (filters.monto_min && parseFloat(filters.monto_min) > 0) urlParams.append('monto_min', filters.monto_min);
-        if (filters.monto_max && parseFloat(filters.monto_max) > 0) urlParams.append('monto_max', filters.monto_max);
-        if (filters.ordenar_por) urlParams.append('ordenar_por', filters.ordenar_por);
-
-        fetch(`?pagina=reporteFinanciamiento&ajax=true&${urlParams.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                hideLoadingOverlay("graficoBarraFinanciamiento");
-                hideLoadingOverlay("graficoPastelFinanciamiento");
-                renderCharts(data);
-            })
-            .catch(error => {
-                hideLoadingOverlay("graficoBarraFinanciamiento");
-                hideLoadingOverlay("graficoPastelFinanciamiento");
-                console.error("Error:", error);
-            });
-    }
-
-    $('#aplicarFiltrosGraficos').on('click', function () {
-        fetchAndRenderCharts({
-            cedula: $('#filtro_cedula').val(),
-            estado: $('#filtro_estado').val(),
-            fecha_desde: $('#filtro_desde').val(),
-            fecha_hasta: $('#filtro_hasta').val(),
-            monto_min: $('#filtro_monto_min').val(),
-            monto_max: $('#filtro_monto_max').val(),
-            ordenar_por: $('#filtro_orden').val()
-        });
+    $('#btnAplicarFiltrosFinanciamiento').on('click', cargarReporte);
+    $('#btnLimpiarFiltrosFinanciamiento').on('click', function () {
+        $('#reporteBuscar, #reporteDesde, #reporteHasta, #reporteMontoMin, #reporteMontoMax').val('');
+        $('#reporteEstado, #reporteOrden').val('');
+        cargarReporte();
     });
 
-    fetchAndRenderCharts({
-        fecha_desde: $('#filtro_desde').val(),
-        fecha_hasta: $('#filtro_hasta').val()
+    $('#reporteBuscar').on('keypress', function (evento) {
+        if (evento.key === 'Enter') cargarReporte();
     });
+
+    $('#btnDescargarReporteFinanciamiento').on('click', function () {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '?pagina=reporteFinanciamiento';
+        form.target = '_blank';
+
+        const campos = {
+            generar2: '1',
+            cedula: $('#reporteBuscar').val().trim(),
+            estado: $('#reporteEstado').val(),
+            fecha_desde: $('#reporteDesde').val(),
+            fecha_hasta: $('#reporteHasta').val(),
+            monto_min: $('#reporteMontoMin').val(),
+            monto_max: $('#reporteMontoMax').val()
+        };
+
+        Object.keys(campos).forEach(function (clave) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = clave;
+            input.value = campos[clave] || '';
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+    });
+
+    cargarReporte();
 });
