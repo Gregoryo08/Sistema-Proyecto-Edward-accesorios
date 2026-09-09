@@ -61,33 +61,30 @@
                 <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalBuscarCliente" aria-label="Volver"></button>
             </div>
 
-            <form id="formRegistrarCliente" onsubmit="guardarNuevoCliente(event)">
+            <form id="formRegistrarCliente">
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-4">Completa los campos obligatorios para dar de alta al cliente en el sistema.</p>
+                    <p class="text-muted small mb-4">Completa los campos obligatorios para registrar al cliente en el sistema.</p>
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <div class="input-group">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Cédula</label>
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cédula</label>
                             <div class="input-group">
                                 <select name="prefijo" class="form-select bg-light border-light-subtle" id="prefijo" style="max-width: 80px;">
                                     <option value="V-">V-</option>
                                     <option value="E-">E-</option>
                                 </select>
-                                <input type="text" class="form-control bg-light border-light-subtle" id="cedula" placeholder="Ej: 12345678" required>
-                            </div>
-                            <p id="texto_mensaje_cedula" class="text-danger small mt-1"></p>
+                                <input type="text" class="form-control bg-light border-light-subtle" id="cedula" placeholder="Ej: 12345678">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
-                            <input type="text" class="form-control bg-light border-light-subtle" id="nombre" placeholder="Nombre completo" required>
+                            <input type="text" class="form-control bg-light border-light-subtle" id="nombre" placeholder="Nombre completo">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Apellido</label>
-                            <input type="text" class="form-control bg-light border-light-subtle" id="apellido" placeholder="Apellido completo" required>
+                            <input type="text" class="form-control bg-light border-light-subtle" id="apellido" placeholder="Apellido completo">
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Teléfono</label>
@@ -100,7 +97,7 @@
                                     <option value="0424">0424</option>
                                     <option value="0426">0426</option>
                                 </select>
-                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" required>
+                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567 (Opcional)">
                             </div>
                         </div>
                     </div>
@@ -111,7 +108,7 @@
                         <i class="fa-solid fa-arrow-left me-1"></i> Volver
                     </button>
                     <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm rounded-3">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cliente
+                        Guardar Cliente
                     </button>
                 </div>
             </form>
@@ -119,3 +116,5 @@
     </div>
 </div>
 </div>
+
+<script src="assets/js/validaciones/ventas/ventas2.js"></script>

@@ -207,8 +207,8 @@ class ventas extends Conexion
                 ":sexo" => $this->getSexo(), ":fecha" => $this->getEdad(), ":direccion" => $this->getDireccion()
             ]);
 
-            $sqlCliente = "INSERT INTO clientes (cedula_persona, residencia, estado) VALUES (:cedula, :residencia, 'activo')";
-            $this->prepare($sqlCliente)->execute([":cedula" => $cedula, ":residencia" => $this->getDireccion()]);
+            $sqlCliente = "INSERT INTO clientes (cedula_persona,  estado) VALUES (:cedula, :estado)";
+            $this->prepare($sqlCliente)->execute([":cedula" => $cedula, ":estado" => "activo"]);
 
             $this->commit();
             return true;

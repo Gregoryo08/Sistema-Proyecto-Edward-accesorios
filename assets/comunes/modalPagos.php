@@ -62,7 +62,7 @@
                             
                             <div class="input-group">
                                 <span class="input-group-text fw-bold" id="simboloMonedaInput" style="border-color: #475569;">$</span>
-                                <input type="number" id="montoPagoInput" step="0.01" class="form-control text-end fw-bold" placeholder="0.00" style="border-color: #475569; font-size: 20px; padding: 10px 15px;">
+                                <input type="text" id="montoPagoInput" step="0.01" class="form-control text-end fw-bold" placeholder="0.00" style="border-color: #475569; font-size: 20px; padding: 10px 15px;">
                                 <span class="input-group-text fw-semibold text-muted" id="siglaMoneda" style="border-color: #475569; font-size: 12px;">USD</span>
                             </div>
                             
