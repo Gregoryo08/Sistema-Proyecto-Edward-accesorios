@@ -161,5 +161,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-include 'app/views/metodo.php';
+require_once 'app/views/metodo.php';
 ?>

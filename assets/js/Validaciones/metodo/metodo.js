@@ -24,7 +24,7 @@ $(document).ready(function () {
             columns: [
                 { data: "id_metodopago", visible: false },
                 { data: "nombre_metodopago" },
-                { data: "moneda" }, // Nueva columna de Moneda en la tabla
+                { data: "moneda" }, 
                 {
                     data: "estado",
                     render: function (data) {

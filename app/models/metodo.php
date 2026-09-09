@@ -13,6 +13,7 @@ class metodo extends Conexion
     private $moneda;
     private $cuenta;
     private $estado;
+    private $mensaje;
 
     public function __construct()
     {

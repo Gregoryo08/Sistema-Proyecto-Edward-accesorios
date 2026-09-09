@@ -1,15 +1,19 @@
 <!-- Modal 1: Seguridad -->
 <form id="formSeguridad">
     <input type="hidden" id="accion" name="accion">
-    <div class="modal fade" id="modalSeguridad" data-bs-backdrop="static">
+    <div class="modal fade" id="modalSeguridad" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header"><h5>Credenciales</h5></div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Credenciales</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <input type="text" class="form-control mb-3" id="cedula" name="cedula" value="V-" placeholder="V-12345678">
                     <input type="password" class="form-control" id="clave" name="clave" placeholder="Clave">
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="limpiarFormularioSeguridad()">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="btnSiguiente" data-bs-target="#modalDatosPersonales" data-bs-toggle="modal">Siguiente</button>
                 </div>
             </div>
@@ -38,14 +42,30 @@ inputCedula.addEventListener('input', function() {
     let numeros = this.value.substring(2).replace(/[^0-9]/g, '');
     this.value = 'V-' + numeros;
 });
+
+function limpiarFormularioSeguridad() {
+    document.getElementById('formSeguridad').reset();
+    document.getElementById('cedula').value = 'V-';
+}
+
+function limpiarFormularioDatos() {
+    document.getElementById('formDatosPersonales').reset();
+}
+
+function limpiarFormularioClasificacion() {
+    document.getElementById('formClasificacion').reset();
+}
 </script>
 
 <!-- Modal 2: Datos Personales -->
 <form id="formDatosPersonales">
-    <div class="modal fade" id="modalDatosPersonales" data-bs-backdrop="static">
+    <div class="modal fade" id="modalDatosPersonales" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header"><h5>Información Personal</h5></div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Información Personal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <input type="text" class="form-control mb-2" name="nombre" placeholder="Nombre" required>
                     <input type="text" class="form-control mb-2" name="apellido" placeholder="Apellido" required>
@@ -61,6 +81,7 @@ inputCedula.addEventListener('input', function() {
                     </select>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="limpiarFormularioDatos()">Cancelar</button>
                     <button type="button" class="btn btn-secondary" data-bs-target="#modalSeguridad" data-bs-toggle="modal">Atrás</button>
                     <button type="button" class="btn btn-primary" data-bs-target="#modalClasificacion" data-bs-toggle="modal">Siguiente</button>
                 </div>
@@ -69,11 +90,15 @@ inputCedula.addEventListener('input', function() {
     </div>
 </form>
 
+<!-- Modal 3: Clasificación -->
 <form id="formClasificacion">
-    <div class="modal fade" id="modalClasificacion" data-bs-backdrop="static">
+    <div class="modal fade" id="modalClasificacion" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header"><h5>Clasificación, Rol y Cargo</h5></div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Clasificación, Rol y Cargo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <select class="form-select mb-3" id="tipoUsuario" name="tipo_usuario" onchange="toggleOpciones(this.value)">
                         <option value="cliente">Cliente</option>
@@ -91,13 +116,13 @@ inputCedula.addEventListener('input', function() {
                         <label class="form-label">Cargo</label>
                         <select class="form-select" id="id_cargo" name="id_cargo">
                             <option value="">Seleccione un cargo</option>
-                            <!-- Agrega tus opciones de cargo aquí o cárgalas mediante AJAX igual que los roles -->
                             <option value="1">Gerente</option>
                             <option value="2">Vendedor</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="limpiarFormularioClasificacion()">Cancelar</button>
                     <button type="button" class="btn btn-secondary" data-bs-target="#modalDatosPersonales" data-bs-toggle="modal">Atrás</button>
                     <button type="button" class="btn btn-success" id="btnFinalizarRegistro">Registrar Todo</button>
                 </div>
@@ -106,22 +131,14 @@ inputCedula.addEventListener('input', function() {
     </div>
 </form>
 
-
-
-
-
-
-<!-- Modal: Registrar Usuario (Mantiene los pasos o estructura de registro) -->
-<!-- Puedes dejar tu estructura de registro aquí con su id="modalRegistro" si lo tenías separado -->
-
-
-<!-- Modal: Modificar Usuario (Un solo modal directo para editar) -->
+<!-- Modal: Modificar Usuario -->
 <form id="formModificarUsuario">
-    <div class="modal fade" id="modalModificar" data-bs-backdrop="static">
+    <div class="modal fade" id="modalModificar" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 id="modalTitle">Modificar Usuario</h5>
+                    <h5 class="modal-title" id="modalTitle">Modificar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="accion_mod" name="accion" value="modificar">

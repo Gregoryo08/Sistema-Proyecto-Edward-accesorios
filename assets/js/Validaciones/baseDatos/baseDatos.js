@@ -15,7 +15,7 @@ $(document).ready(function () {
         mensajeBackupDiv.innerHTML = '<div class="alert alert-info">Procesando backup...</div>';
 
         try {
-            const response = await fetch("?pagina=baseDatos", {
+            const response = await fetch("?pagina=baseDatos_1", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "accion=realizar_backup",
@@ -33,15 +33,13 @@ $(document).ready(function () {
             }
             
             if (data.resultado === "exito") {
-                const urlDescarga = `?pagina=baseDatos&accion=descargar_backup&archivo=${encodeURIComponent(data.archivo)}`;
+                const urlDescarga = `?pagina=baseDatos_1&accion=descargar_backup&archivo=${encodeURIComponent(data.archivo)}`;
                 
                 mensajeBackupDiv.innerHTML = `
                     <div class="alert alert-success">
                         Backup generado correctamente. 
                         <a id="btnDescargar" href="${urlDescarga}" class="btn btn-sm btn-success" style="cursor: pointer; margin-left: 10px; color: white;" download="${data.archivo}">Descargar archivo</a>
                     </div>`;
-                
-                window.location.href = urlDescarga;
 
             } else {
                 mensajeBackupDiv.innerHTML = `<div class="alert alert-danger">${data.mensaje}</div>`;
