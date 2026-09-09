@@ -5,104 +5,31 @@
 console.log('✅ reporte_pagos_online.js cargado');
 
 // =============================================
-// VALIDACIÓN DE PASOS
+// CARGAR BANCOS (select dinámico)
 // =============================================
-
-function validarPaso1() {
-    var ref = document.querySelector('[name="referencia"]')?.value?.trim() || '';
-    var msg = document.getElementById('msg-ref');
-    if (!ref) {
-        msg.textContent = 'La referencia es obligatoria';
-        msg.style.display = 'block';
-        return;
-    }
-    if (!/^[0-9]+$/.test(ref)) {
-        msg.textContent = 'La referencia solo debe contener números';
-        msg.style.display = 'block';
-        return;
-    }
-    if (!validarReferencia(ref)) {
-        msg.textContent = 'La referencia debe tener entre 12 y 13 dígitos';
-        msg.style.display = 'block';
-        return;
-    }
-    msg.style.display = 'none';
-    siguientePaso(2);
-}
-
-function validarPaso2() {
-    var banco = document.querySelector('[name="banco_emisor"]')?.value || '';
-    var msg = document.getElementById('msg-banco');
-    if (!banco) {
-        msg.textContent = 'Seleccione el banco emisor';
-        msg.style.display = 'block';
-        return;
-    }
-    msg.style.display = 'none';
-    siguientePaso(3);
-}
 
 function cargarBancos() {
     var select = document.querySelector('[name="banco_emisor"]');
     if (!select) return;
     select.innerHTML = '<option value="">Cargando...</option>';
-    // Si existe otro select de banco emisor (modal legado con id), lo sincroniza también
-    var selectExtra = document.querySelector('#banco_emisor');
-    if (selectExtra && selectExtra !== select) {
-        selectExtra.innerHTML = '<option value="">Cargando...</option>';
-    }
     fetch('?pagina=listarBancos')
         .then(r => r.json())
         .then(data => {
             select.innerHTML = '<option value="">Seleccione su banco</option>';
-            if (selectExtra && selectExtra !== select) {
-                selectExtra.innerHTML = '<option value="">Seleccione su banco</option>';
-            }
             if (data.success && data.bancos && data.bancos.length > 0) {
                 data.bancos.forEach(function(b) {
                     var opt = document.createElement('option');
                     opt.value = b.nombre_banco;
                     opt.textContent = b.nombre_banco;
                     select.appendChild(opt);
-                    if (selectExtra && selectExtra !== select) {
-                        selectExtra.appendChild(opt.cloneNode(true));
-                    }
                 });
             } else {
                 select.innerHTML = '<option value="">No hay bancos disponibles</option>';
-                if (selectExtra && selectExtra !== select) {
-                    selectExtra.innerHTML = '<option value="">No hay bancos disponibles</option>';
-                }
             }
         })
         .catch(function() {
             select.innerHTML = '<option value="">Error al cargar bancos</option>';
-            if (selectExtra && selectExtra !== select) {
-                selectExtra.innerHTML = '<option value="">Error al cargar bancos</option>';
-            }
         });
-}
-
-function validarPaso3() {
-    var telf = document.querySelector('[name="telefono"]')?.value?.trim() || '';
-    var msg = document.getElementById('msg-telf');
-    if (!telf) {
-        msg.textContent = 'El teléfono es obligatorio';
-        msg.style.display = 'block';
-        return;
-    }
-    if (!/^[0-9]+$/.test(telf)) {
-        msg.textContent = 'El teléfono solo debe contener números';
-        msg.style.display = 'block';
-        return;
-    }
-    if (!validarTelefono(telf)) {
-        msg.textContent = 'El teléfono debe tener al menos 10 dígitos';
-        msg.style.display = 'block';
-        return;
-    }
-    msg.style.display = 'none';
-    siguientePaso(4);
 }
 
 // =============================================
@@ -188,14 +115,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const primerInput = document.querySelector('#paso1 input');
+    const primerInput = document.querySelector('[name="referencia"]');
     if (primerInput) {
         primerInput.focus();
     }
 
     cargarBancos();
 
-    console.log('✅ siguientePaso:', typeof siguientePaso);
-    console.log('✅ mostrarResumen:', typeof mostrarResumen);
+    console.log('✅ validarYEnviar:', typeof validarYEnviar);
     console.log('✅ enviarReporte:', typeof enviarReporte);
 });

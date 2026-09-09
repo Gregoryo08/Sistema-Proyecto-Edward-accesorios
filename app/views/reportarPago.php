@@ -27,10 +27,9 @@ $metodo = $metodo ?? 'transferencia';
         <div class="col-md-8 col-lg-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-credit-card"></i> Reporta tu pago paso a paso</h4>
+                    <h4 class="mb-0"><i class="fas fa-credit-card"></i> Reporta tu pago</h4>
                 </div>
                 <div class="card-body">
-                    <!-- ✅ SOLO HTML - NADA DE JAVASCRIPT AQUÍ -->
                     <form id="form-reporte" autocomplete="off">
                         <input type="hidden" name="id_pedido" value="<?= htmlspecialchars($id_pedido) ?>">
                         <input type="hidden" name="metodo" value="<?= htmlspecialchars($metodo) ?>">
@@ -46,58 +45,39 @@ $metodo = $metodo ?? 'transferencia';
                                 <span class="text-danger ms-2"><i class="fas fa-exclamation-triangle"></i> <?= $vigencia['mensaje'] ?></span>
                             <?php endif; ?>
                         </div>
-                        
-                        <!-- PASO 1 -->
-                        <div id="paso1" class="paso">
-                            <h5 class="text-primary">Paso 1 de 4</h5>
+
+                        <!-- REFERENCIA BANCARIA -->
+                        <div class="mb-3">
                             <label class="form-label fw-bold">📋 Referencia bancaria</label>
-                            <input type="text" class="form-control form-control-lg" name="referencia" 
+                            <input type="text" class="form-control form-control-lg" name="referencia"
                                    placeholder="Ej: 123456789012" required maxlength="13" autocomplete="off">
                             <div id="msg-ref" class="text-danger small" style="display:none;"></div>
                             <small class="text-muted">Número de confirmación de la transferencia (12-13 dígitos)</small>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-primary btn-lg w-100" onclick="validarPaso1()">
-                                    Confirmar Referencia <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
                         </div>
-                        
-                        <!-- PASO 2 -->
-                        <div id="paso2" class="paso" style="display:none;">
-                            <h5 class="text-primary">Paso 2 de 4</h5>
+
+                        <!-- BANCO EMISOR -->
+                        <div class="mb-3">
                             <label class="form-label fw-bold">🏦 Banco emisor</label>
                             <select class="form-select form-select-lg" name="banco_emisor" required>
                                 <option value="">Seleccione su banco</option>
                             </select>
                             <div id="msg-banco" class="text-danger small" style="display:none;"></div>
                             <small class="text-muted">Banco desde donde realizaste la transferencia</small>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-primary btn-lg w-100" onclick="validarPaso2()">
-                                    Confirmar Banco <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
                         </div>
-                        
-                        <!-- PASO 3 -->
-                        <div id="paso3" class="paso" style="display:none;">
-                            <h5 class="text-primary">Paso 3 de 4</h5>
+
+                        <!-- TELÉFONO -->
+                        <div class="mb-3">
                             <label class="form-label fw-bold">📱 Teléfono desde donde transfirió</label>
-                            <input type="tel" class="form-control form-control-lg" name="telefono" 
+                            <input type="tel" class="form-control form-control-lg" name="telefono"
                                    placeholder="Ej: 04121234567" required maxlength="15" autocomplete="off">
                             <div id="msg-telf" class="text-danger small" style="display:none;"></div>
                             <small class="text-muted">Número de teléfono asociado a la cuenta bancaria (mín. 10 dígitos)</small>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-primary btn-lg w-100" onclick="validarPaso3()">
-                                    Confirmar Teléfono <i class="fas fa-arrow-right"></i>
-                                </button>
-                            </div>
                         </div>
-                        
-                        <!-- PASO 4 -->
-                        <div id="paso4" class="paso" style="display:none;">
-                            <h5 class="text-primary">Paso 4 de 4</h5>
+
+                        <!-- MONTO -->
+                        <div class="mb-3">
                             <label class="form-label fw-bold">💵 Monto transferido</label>
-                            <input type="text" class="form-control form-control-lg" name="monto" 
+                            <input type="text" class="form-control form-control-lg" name="monto"
                                    placeholder="Ej: 1340.00" required autocomplete="off"
                                    oninput="this.value = this.value.replace(/[^0-9.,]/g, '')">
                             <div id="msg-monto" class="text-danger small" style="display:none;"></div>
@@ -109,57 +89,35 @@ $metodo = $metodo ?? 'transferencia';
                             <div id="msg-monto-usd" class="text-danger small fw-bold mt-1" style="display:none;">
                                 <i class="fas fa-exclamation-triangle"></i> Le falta dinero para cubrir el total del pedido
                             </div>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-primary btn-lg w-100" onclick="mostrarResumen()">
-                                    Revisar Todo <i class="fas fa-clipboard-check"></i>
-                                </button>
-                            </div>
                         </div>
-                        
-                        <!-- RESUMEN -->
-                        <div id="resumen" style="display:none;">
-                            <h5 class="text-success mb-3">✅ Confirma los datos de tu pago</h5>
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="mb-2"><strong>📋 Referencia:</strong> <span id="r_ref" class="text-primary"></span></li>
-                                        <li class="mb-2"><strong>🏦 Banco emisor:</strong> <span id="r_banco" class="text-primary"></span></li>
-                                        <li class="mb-2"><strong>📱 Teléfono:</strong> <span id="r_telf" class="text-primary"></span></li>
-                                        <li class="mb-2"><strong>💵 Monto:</strong> <span id="r_monto" class="text-primary"></span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">👤 Nombre del pagador</label>
-                                <input type="text" class="form-control" name="nombre_pagador" 
-                                       value="<?= htmlspecialchars($_SESSION['cliente_nombre'] ?? '') ?>"
-                                       placeholder="Tu nombre completo" autocomplete="off">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">🪪 Cédula del pagador</label>
-                                <div class="input-group">
-                                    <select name="tipo_cedula_pagador" class="form-select" style="max-width: 70px;">
-                                        <option value="V">V-</option>
-                                        <option value="E">E-</option>
-                                        <option value="J">J-</option>
-                                        <option value="G">G-</option>
-                                    </select>
-                                    <input type="text" class="form-control" name="cedula_pagador" 
-                                           value="<?= htmlspecialchars(preg_replace('/^[A-Z]-/', '', $_SESSION['cliente_cedula'] ?? '')) ?>"
-                                           placeholder="12345678" autocomplete="off" maxlength="8"
-                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                </div>
-                                <div id="msg-cedula-page" class="text-danger small" style="display:none;"></div>
-                            </div>
-                            
-                            <button type="button" class="btn btn-success btn-lg w-100" id="btn-enviar" onclick="enviarReporte()">
-                                <i class="fas fa-check-circle"></i> CONFIRMAR TODO Y ENVIAR
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="siguientePaso(1)">
-                                <i class="fas fa-edit"></i> Corregir datos
-                            </button>
+
+                        <!-- DATOS DEL PAGADOR -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">👤 Nombre del pagador</label>
+                            <input type="text" class="form-control" name="nombre_pagador"
+                                   value="<?= htmlspecialchars($_SESSION['cliente_nombre'] ?? '') ?>"
+                                   placeholder="Tu nombre completo" autocomplete="off">
                         </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">🪪 Cédula del pagador</label>
+                            <div class="input-group">
+                                <select name="tipo_cedula_pagador" class="form-select" style="max-width: 70px;">
+                                    <option value="V">V-</option>
+                                    <option value="E">E-</option>
+                                    <option value="J">J-</option>
+                                    <option value="G">G-</option>
+                                </select>
+                                <input type="text" class="form-control" name="cedula_pagador"
+                                       value="<?= htmlspecialchars(preg_replace('/^[A-Z]-/', '', $_SESSION['cliente_cedula'] ?? '')) ?>"
+                                       placeholder="12345678" autocomplete="off" maxlength="8"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div id="msg-cedula-page" class="text-danger small" style="display:none;"></div>
+                        </div>
+
+                        <button type="button" class="btn btn-success btn-lg w-100" id="btn-enviar" onclick="validarYEnviar()">
+                            <i class="fas fa-check-circle"></i> CONFIRMAR TODO Y ENVIAR
+                        </button>
                     </form>
                 </div>
             </div>
@@ -186,8 +144,6 @@ $metodo = $metodo ?? 'transferencia';
     <i class="fas fa-sun" id="themeIcon"></i>
 </button>
 <script src="assets/js/ecommerce/temaBoton.js"></script>
-
-
 
 
 

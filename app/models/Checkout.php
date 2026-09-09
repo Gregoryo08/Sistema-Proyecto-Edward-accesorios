@@ -50,7 +50,6 @@ class Checkout {
             case 'obtenerDatosPagoMovil': return $this->_obtenerDatosPagoMovil();
             case 'obtenerPedidoPendiente': return $this->_obtenerPedidoPendiente($datos['cedula']);
             case 'obtenerPedidoPorId': return $this->_obtenerPedidoPorId($datos['id_pedido'], $datos['cedula'] ?? null);
-            case 'registrarReporte': return $this->_registrarReporte($datos);
             case 'actualizarEstadoPedido': return $this->_actualizarEstadoPedido($datos['id_pedido'], $datos['estado']);
             case 'verificarPedido': return $this->_verificarPedido($datos['id_pedido'], $datos['cedula'] ?? null);
             default: return ['error' => 'Acción no válida'];
@@ -133,34 +132,6 @@ class Checkout {
         } catch (PDOException $e) {
             error_log("Error en _obtenerPedidoPorId: " . $e->getMessage());
             return null;
-        }
-    }
-
-    private function _registrarReporte($datos) {
-        try {
-            $sql = "INSERT INTO reportes_pago 
-                    (id_pedido, cedula_persona, referencia, banco_emisor, banco_receptor, 
-                     telefono_transferencia, monto_reportado, fecha_transferencia, 
-                     nombre_pagador, cedula_pagador, estado_verificacion) 
-                    VALUES 
-                    (:id_pedido, :cedula_persona, :referencia, :banco_emisor, :banco_receptor,
-                     :telefono, :monto, CURDATE(), :nombre_pagador, :cedula_pagador, 'pendiente')";
-            
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                ':id_pedido' => $datos['id_pedido'],
-                ':cedula_persona' => $datos['cedula_persona'],
-                ':referencia' => $datos['referencia'],
-                ':banco_emisor' => $datos['banco_emisor'],
-                ':banco_receptor' => $datos['banco_receptor'],
-                ':telefono' => $datos['telefono'],
-                ':monto' => $datos['monto'],
-                ':nombre_pagador' => $datos['nombre_pagador'],
-                ':cedula_pagador' => $datos['cedula_pagador']
-            ]);
-        } catch (PDOException $e) {
-            error_log("Error en _registrarReporte: " . $e->getMessage());
-            return false;
         }
     }
 

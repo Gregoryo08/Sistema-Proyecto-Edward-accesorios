@@ -127,24 +127,9 @@ function mostrarExito(mensaje, callback) {
 }
 
 /**
- * Navegación entre pasos del formulario
+ * Validación integral del formulario (un solo paso) antes de enviar
  */
-function siguientePaso(numero) {
-    console.log('🔄 Cambiando al paso:', numero);
-    document.querySelectorAll('[id^="paso"], #resumen').forEach(el => el.style.display = 'none');
-    if (numero === 1) {
-        var paso1 = document.getElementById('paso1');
-        if (paso1) paso1.style.display = 'block';
-    } else {
-        var paso = document.getElementById('paso' + numero);
-        if (paso) paso.style.display = 'block';
-    }
-}
-
-/**
- * Mostrar resumen con validaciones
- */
-function mostrarResumen() {
+function validarYEnviar() {
     let ref = document.querySelector('[name="referencia"]')?.value?.trim() || '';
     let banco = document.querySelector('[name="banco_emisor"]')?.value?.trim() || '';
     let telf = document.querySelector('[name="telefono"]')?.value?.trim() || '';
@@ -208,28 +193,13 @@ function mostrarResumen() {
             mostrarError('La cédula debe tener entre 7 y 8 dígitos numéricos');
             return;
         }
-        var cedulaCompleta = tipoCed + '-' + soloNumeros;
-        document.querySelector('[name="cedula_pagador"]').value = cedulaCompleta;
+        document.querySelector('[name="cedula_pagador"]').value = tipoCed + '-' + soloNumeros;
     }
-    // Si está vacía, no validar (es opcional)
 
-    var montoLimpio = parseFloat(montoNormalizado).toFixed(2);
     var montoInput = document.querySelector('[name="monto"]');
-    if (montoInput) montoInput.value = montoLimpio;
+    if (montoInput) montoInput.value = parseFloat(montoNormalizado).toFixed(2);
 
-    var rRef = document.getElementById('r_ref');
-    var rBanco = document.getElementById('r_banco');
-    var rTelf = document.getElementById('r_telf');
-    var rMonto = document.getElementById('r_monto');
-
-    if (rRef) rRef.textContent = ref;
-    if (rBanco) rBanco.textContent = banco;
-    if (rTelf) rTelf.textContent = telf;
-    if (rMonto) rMonto.textContent = montoLimpio;
-
-    document.querySelectorAll('[id^="paso"]').forEach(el => el.style.display = 'none');
-    var resumen = document.getElementById('resumen');
-    if (resumen) resumen.style.display = 'block';
+    enviarReporte();
 }
 
 /**
@@ -341,4 +311,4 @@ function mostrarPagoDuplicado(mensaje, redirectUrl) {
 }
 
 console.log('✅ validaciones.js cargado correctamente');
-console.log('✅ Funciones disponibles: siguientePaso, mostrarResumen, enviarReporte, mostrarPagoDuplicado, validarCedula, validarMonto');
+console.log('✅ Funciones disponibles: validarYEnviar, enviarReporte, mostrarPagoDuplicado, validarCedula, validarMonto');
