@@ -70,11 +70,11 @@ class cliente_financiamiento extends Conexion
         try {
             $conex = new conexion("sistema");
             $sql = "SELECT f.id_financiamiento, pr.nombre_producto, f.monto_total, 
-                           (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) 
-                           FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
-                           (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
-                           (SELECT id_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as id_cuota,
-                           (SELECT monto_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as monto_cuota
+                       (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) 
+                       FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
+                       (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
+                       (SELECT id_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as id_cuota,
+                       (SELECT monto_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as monto_cuota
                     FROM financiamientos f
                     JOIN detalles_financiamiento df ON f.id_financiamiento = df.id_financiamiento
                     JOIN productos pr ON df.id_productos = pr.id_producto
@@ -103,9 +103,9 @@ class cliente_financiamiento extends Conexion
 
         try {
             $conex = new conexion("sistema");
-            $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar Financiamiento'");
+            $user = $_SESSION["username"] ?? $_SESSION["cliente_cedula"] ?? 'Sistema';
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = 'Administrar Financiamiento'");
             $sql = "UPDATE cuotas 
                     SET estado_cuota = 'en_revision', 
                         monto_pagado = ?, 
