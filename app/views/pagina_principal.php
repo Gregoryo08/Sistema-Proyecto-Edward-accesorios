@@ -31,7 +31,7 @@
     <header id="home" class="hero">
         <div class="hero-content reveal">
             <span class="badge">C.C. COSMOS - Barquisimeto</span> 
-            <h1> Experto <br><span class="highlight">Telefonía Móvil</span></h1>
+            <h1>Expertos en <br><span class="highlight">Telefonía Móvil</span></h1>
             <p>Encuentra accesorios premium, cornetas y los mejores equipos financiados para que estrenes hoy mismo.</p>
             <div class="hero-btns">
                 <a href="#financiados" class="cta">Ver Planes</a>
