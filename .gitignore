@@ -1,2 +1,13 @@
-src/Sistema/app/config/data.php
-src/Sistema/app/config/data-host.php
+
+vendor/
+
+
+composer.phar
+
+
+databases/
+
+
+app/config/data.php
+app/config/data-host.php
+app/config/Conexion.php
