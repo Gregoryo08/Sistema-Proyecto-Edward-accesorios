@@ -141,11 +141,11 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-    private function listarBancos()
+   private function listarBancos()
     {
         try {
             $conex = new conexion("sistema");
-            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estado = 'activo'";
+            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estatus = 'activo'";
             return $conex->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
