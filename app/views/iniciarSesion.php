@@ -18,7 +18,14 @@
 </head>
 
 <body>
+    
+    <button id="theme-toggle" class="theme-toggle-btn" title="Cambiar modo claro/oscuro">
+        <i class='bx bx-moon' id="theme-icon"></i>
+    </button>
+
     <div class="wrapper">
+        
+        
         <span class="bg-animate"></span>
         <span class="bg-animate2"></span>
 
@@ -194,6 +201,94 @@
     <script src="assets/js/validaciones/iniciarSesion/iniciarSesion.js"></script>
     <script src="assets/js/validaciones/iniciarSesion/iniciarSesion2.js"></script>
     <script src="assets/js/validaciones/clave/recuperacion.js"></script>
+    <script>
+    $(document).ready(function() {
+        const $body = $('body');
+        const $themeIcon = $('#theme-icon');
+
+        if (localStorage.getItem('theme') === 'light') {
+            $body.addClass('light-mode');
+            $themeIcon.removeClass('bx-moon').addClass('bx-sun');
+        }
+
+        $('#theme-toggle').on('click', function() {
+            $body.toggleClass('light-mode');
+            if ($body.hasClass('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                $themeIcon.removeClass('bx-moon').addClass('bx-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                $themeIcon.removeClass('bx-sun').addClass('bx-moon');
+            }
+        });
+    });
+</script>
 </body>
+<STYle>
+     .theme-toggle-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 239, 255, 0.3);
+            color: #0ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 239, 255, 0.2);
+            border-color: #0ef;
+            box-shadow: 0 0 15px rgba(0, 239, 255, 0.4);
+        }
+
+        body.light-mode {
+          
+            color: #333;
+        }
+
+        body.light-mode .wrapper {
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .form-box h2,
+        body.light-mode .info-text h2 {
+            color: #333;
+        }
+
+        body.light-mode .input-box input {
+            color: #333;
+            border-bottom-color: #007bff;
+        }
+
+        body.light-mode .input-box label,
+        body.light-mode .input-box i {
+            color: #007bff;
+        }
+
+        body.light-mode .theme-toggle-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 123, 255, 0.3);
+            color: #007bff;
+        }
+
+        body.light-mode .theme-toggle-btn:hover {
+            background: rgba(0, 123, 255, 0.1);
+            border-color: #007bff;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.2);
+        }
+</STYle>
 
 </html>

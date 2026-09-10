@@ -54,57 +54,57 @@ $(function() {
         $('.wrapper').removeClass('show-recover');
     }
 
-  // =============================================
-// 2. LOGIN - ENVÍO AJAX
-// =============================================
-$('#clienteLoginForm').on('submit', function(e) {
-    e.preventDefault();
+    // =============================================
+    // 2. LOGIN - ENVÍO AJAX
+    // =============================================
+    $('#clienteLoginForm').on('submit', function(e) {
+        e.preventDefault();
 
-    var btn = $(this).find('button[type="submit"]');
-    var cedula = $('input[name="cedula"]').val().trim();
-    var password = $('input[name="clave"]').val();
+        var btn = $(this).find('button[type="submit"]');
+        var cedula = $('input[name="cedula"]').val().trim();
+        var password = $('input[name="clave"]').val();
 
-    if (!cedula || !password) {
-        Swal.fire('Error', 'Todos los campos son obligatorios', 'warning');
-        return;
-    }
+        if (!cedula || !password) {
+            Swal.fire('Error', 'Todos los campos son obligatorios', 'warning');
+            return;
+        }
 
-    btn.prop('disabled', true);
-    btn.html('<span class="spinner-border spinner-border-sm"></span> Ingresando...');
+        btn.prop('disabled', true);
+        btn.html('<span class="spinner-border spinner-border-sm"></span> Ingresando...');
 
-    $.ajax({
-        url: '?pagina=loginEcommerce&action=procesar',
-        type: 'POST',
-        data: {
-            
-            cedula: cedula, 
-            password: password
-        },
-        dataType: 'json',
-        success: function(res) {
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Bienvenido!',
-                    text: res.message || 'Inicio de sesión exitoso',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(function() {
-                    window.location.href = res.redirect || '?pagina=web_Catalogo';
-                });
-            } else {
-                Swal.fire('Error', res.message || 'Credenciales incorrectas', 'error');
+        $.ajax({
+            url: '?pagina=loginEcommerce&action=procesar',
+            type: 'POST',
+            data: {
+                cedula: cedula, 
+                password: password
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Bienvenido!',
+                        text: res.message || 'Inicio de sesión exitoso',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(function() {
+                        window.location.href = res.redirect || '?pagina=web_Catalogo';
+                    });
+                } else {
+                    Swal.fire('Error', res.message || 'Credenciales incorrectas', 'error');
+                    btn.prop('disabled', false);
+                    btn.html('Ingresar');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Error de conexión con el servidor', 'error');
                 btn.prop('disabled', false);
                 btn.html('Ingresar');
             }
-        },
-        error: function() {
-            Swal.fire('Error', 'Error de conexión con el servidor', 'error');
-            btn.prop('disabled', false);
-            btn.html('Ingresar');
-        }
+        });
     });
-});
+
     // =============================================
     // 3. RECUPERAR CONTRASEÑA - SOLICITAR
     // =============================================
@@ -142,27 +142,30 @@ $('#clienteLoginForm').on('submit', function(e) {
     // 4. MOSTRAR / OCULTAR CONTRASEÑA
     // (login, registro y recuperación)
     // =============================================
-    $('.input-box i[style*="cursor"]').each(function () {
+  $(document).on('click', '.toggle-password', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         var $icon = $(this);
-        var $input = $icon.siblings('input');
+        var $input = $icon.closest('.input-box').find('input[type="password"], input[type="text"]');
+        
         if (!$input.length) return;
 
-        $icon.on('click', function () {
-            var esClave = $input.attr('type') === 'password';
-            $input.attr('type', esClave ? 'text' : 'password');
-
-            if (esClave) {
-                $icon.removeClass('bx-lock-alt').addClass('bx-lock-open-alt');
-            } else {
-                $icon.removeClass('bx-lock-open-alt').addClass('bx-lock-alt');
-            }
-        });
+        var esPassword = $input.attr('type') === 'password';
+        
+        if (esPassword) {
+            
+            $input.attr('type', 'text');
+            $icon.removeClass('bx-show').addClass('bx-hide');
+        } else {
+            
+            $input.attr('type', 'password');
+            $icon.removeClass('bx-hide').addClass('bx-show');
+        }
     });
-
     // =============================================
     // 5. RESTABLECER CONTRASEÑA (token vía GET)
     // =============================================
-    var urlParams = new URLSearchParams(window.location.search);
     var token = urlParams.get('token');
     if (token) {
         $('#tokenHiddenInput').val(token);
