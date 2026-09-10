@@ -132,6 +132,7 @@
                             </select>
                             <input type="text" class="form-control" id="cedulaModificar" readonly>
                         </div>
+                        <p id="texto_mensaje_cedula_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
@@ -139,16 +140,19 @@
                         <select name="cargo" class="form-control" id="cargoModificar">
                             <option value="">Seleccione un cargo</option>
                         </select>
+                        <p id="texto_mensaje_cargo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
                         <label for="nombreModificar">Nombre</label>
                         <input type="text" class="form-control" id="nombreModificar" name="nombre" required>
+                        <p id="texto_mensaje_nombre_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
                         <label for="apellidoModificar">Apellido</label>
                         <input type="text" class="form-control" id="apellidoModificar" name="apellido" required>
+                        <p id="texto_mensaje_apellido_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
@@ -162,6 +166,7 @@
                     <div class="form-group">
                         <label for="correoModificar">Correo</label>
                         <input type="email" class="form-control" id="correoModificar" name="correo" required>
+                        <p id="texto_mensaje_correo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
@@ -176,11 +181,13 @@
                             </select>
                             <input type="text" class="form-control" id="telefonoModificar" name="telefono" required>
                         </div>
+                        <p id="texto_mensaje_telefono_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <div class="form-group">
                         <label for="direccionModificar">Dirección</label>
                         <textarea name="direccion" id="direccionModificar" class="form-control" required></textarea>
+                        <p id="texto_mensaje_direccion_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                     </div>
 
                     <input type="hidden" id="fecha_nacimiento_real" name="fecha_nacimiento_real">
@@ -251,3 +258,32 @@
     </div>
 </div>
 
+<style>
+    #modalRegistroEmpleados input,
+    #modalRegistroEmpleados select,
+    #modalRegistroEmpleados textarea,
+    #modalModificar input,
+    #modalModificar select,
+    #modalModificar textarea {
+        border: 1px solid #cfd4da !important;
+        box-shadow: none !important;
+        outline: none !important;
+        background-image: none !important;
+    }
+
+    #modalRegistroEmpleados .mensaje p,
+    #modalModificar .mensaje p,
+    #modalRegistroEmpleados [id^="texto_mensaje_"],
+    #modalModificar [id^="texto_mensaje_"] {
+        color: #ff4d4d !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        margin-top: 4px !important;
+        text-align: left !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        clip-path: none !important;
+        line-height: 1.3 !important;
+    }
+</style>

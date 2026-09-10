@@ -12,16 +12,46 @@ class Reportefinanciamiento extends Conexion
         parent::__construct();
     }
 
+    private function normalizarBusquedaFinanciamiento($valor)
+    {
+        if ($valor === null) {
+            return ['tipo' => null, 'valor' => null];
+        }
+
+        $valor = trim((string) $valor);
+        if ($valor === '') {
+            return ['tipo' => null, 'valor' => null];
+        }
+
+        $valorLimpio = preg_replace('/\s+/', '', $valor);
+        if (preg_match('/^[A-Za-z]-?\d+$/', $valorLimpio)) {
+            $cedula = strtoupper($valorLimpio);
+            $cedula = preg_replace('/^([A-Z])(?=\d)/', '$1-', $cedula);
+            return ['tipo' => 'cedula', 'valor' => $cedula];
+        }
+
+        return ['tipo' => 'nombre', 'valor' => preg_replace('/\s+/', ' ', $valor)];
+    }
+
     public function obtenerConteoFinanciamientosPorEstado($cedula = null, $estado = null, $fecha_desde = null, $fecha_hasta = null, $monto_min = null, $monto_max = null)
     {
         try {
             $sql = "SELECT estado_financiamiento AS estado, COUNT(*) AS total 
-                    FROM financiamientos WHERE 1=1";
+                    FROM financiamientos f
+                    LEFT JOIN clientes c ON f.cedula_persona = c.cedula_persona
+                    LEFT JOIN persona per ON c.cedula_persona = per.cedula_persona
+                    WHERE 1=1";
             
             $params = [];
             if (!empty($cedula)) {
-                $sql .= " AND cedula_persona = :cedula";
-                $params[':cedula'] = $cedula;
+                $busqueda = $this->normalizarBusquedaFinanciamiento($cedula);
+                if ($busqueda['tipo'] === 'cedula') {
+                    $sql .= " AND (LOWER(f.cedula_persona) = LOWER(:cedula) OR LOWER(per.cedula_persona) = LOWER(:cedula))";
+                    $params[':cedula'] = $busqueda['valor'];
+                } else {
+                    $sql .= " AND LOWER(TRIM(CONCAT(COALESCE(per.nombre, ''), ' ', COALESCE(per.apellido, '')))) LIKE :nombre";
+                    $params[':nombre'] = '%' . strtolower($busqueda['valor']) . '%';
+                }
             }
             if (!empty($estado) && $estado !== 'todos') {
                 $sql .= " AND estado_financiamiento = :estado";
@@ -97,8 +127,14 @@ class Reportefinanciamiento extends Conexion
 
             $params = [];
             if (!empty($cedula)) {
-                $sql .= " AND f.cedula_persona = :cedula";
-                $params[':cedula'] = $cedula;
+                $busqueda = $this->normalizarBusquedaFinanciamiento($cedula);
+                if ($busqueda['tipo'] === 'cedula') {
+                    $sql .= " AND (LOWER(f.cedula_persona) = LOWER(:cedula) OR LOWER(per.cedula_persona) = LOWER(:cedula))";
+                    $params[':cedula'] = $busqueda['valor'];
+                } else {
+                    $sql .= " AND LOWER(TRIM(CONCAT(COALESCE(per.nombre, ''), ' ', COALESCE(per.apellido, '')))) LIKE :nombre";
+                    $params[':nombre'] = '%' . strtolower($busqueda['valor']) . '%';
+                }
             }
             if (!empty($estado) && $estado !== 'todos') {
                 $sql .= " AND f.estado_financiamiento = :estado";
@@ -163,8 +199,14 @@ class Reportefinanciamiento extends Conexion
             $params = [];
 
             if (!empty($filtros['cedula'])) {
-                $sql .= " AND f.cedula_persona = :cedula";
-                $params[':cedula'] = $filtros['cedula'];
+                $busqueda = $this->normalizarBusquedaFinanciamiento($filtros['cedula']);
+                if ($busqueda['tipo'] === 'cedula') {
+                    $sql .= " AND (LOWER(f.cedula_persona) = LOWER(:cedula) OR LOWER(per.cedula_persona) = LOWER(:cedula))";
+                    $params[':cedula'] = $busqueda['valor'];
+                } else {
+                    $sql .= " AND LOWER(TRIM(CONCAT(COALESCE(per.nombre, ''), ' ', COALESCE(per.apellido, '')))) LIKE :nombre";
+                    $params[':nombre'] = '%' . strtolower($busqueda['valor']) . '%';
+                }
             }
 
             if (!empty($filtros['estado']) && $filtros['estado'] !== 'todos') {
