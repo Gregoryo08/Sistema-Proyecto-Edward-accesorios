@@ -3,7 +3,7 @@
 
 <main class="main m-4" id="main">
     <section id="hero" class="hero section p-4" style="height: auto;">
-            <h2 class="text-center">Administrar Usuario</h2>
+            <h2 class="text-center">Administrar Usuarios</h2>
             <div class="text-end mb-3">
                 <button type="button" id="btn_nuevo_usuario" class="btn btn-success rounded-pill px-4 shadow-sm" style="display: none;">
                     <i class="bi bi-person-add" style="font-size: 1.2rem;"></i> Registrar usuario
