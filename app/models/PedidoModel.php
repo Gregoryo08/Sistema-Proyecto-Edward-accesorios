@@ -407,7 +407,7 @@ class PedidoModel {
             $stmt->execute([$id_pedido]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return null;
+            throw new \Exception("Error SQL en obtenerPorId: " . $e->getMessage());
         }
     }
 
@@ -428,7 +428,7 @@ class PedidoModel {
             $stmt->execute([$cedula_persona]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return [];
+            throw new \Exception("Error SQL en obtenerPorCliente: " . $e->getMessage());
         }
     }
 
@@ -446,7 +446,7 @@ class PedidoModel {
             $stmt->execute([$id_pedido]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return [];
+            throw new \Exception("Error SQL en obtenerDetalle: " . $e->getMessage());
         }
     }
 
@@ -459,7 +459,7 @@ class PedidoModel {
             $stmt->execute([$id_pedido, $cedula_persona]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return null;
+            throw new \Exception("Error SQL en obtenerPorIdYCliente: " . $e->getMessage());
         }
     }
 
@@ -467,16 +467,16 @@ class PedidoModel {
         try {
             $sql = "INSERT INTO pedidos 
                     (cedula_persona, nombre_cliente, telefono_cliente, email_invitado, 
-                     subtotal, costo_envio, monto_total, metodo_pago, estado) 
+                     subtotal, costo_envio, total, metodo_pago, estado) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')";
             $stmt = $this->conn->prepare($sql);
             $resultado = $stmt->execute([$cedula, $nombre, $telefono, $email, $subtotal, $costo_envio, $total, $metodo_pago]);
             if ($resultado) {
                 return $this->conn->lastInsertId();
             }
-            return false;
+            throw new \Exception("No se pudo ejecutar la inserción del pedido.");
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en crear pedido: " . $e->getMessage());
         }
     }
 
@@ -484,7 +484,7 @@ class PedidoModel {
         try {
             $stmt = $this->conn->prepare("
                 INSERT INTO pedidos 
-                (cedula_persona, subtotal, costo_envio, monto_total, estado, metodo_pago, direccion_entrega)
+                (cedula_persona, subtotal, costo_envio, total, estado, metodo_pago, direccion_entrega)
                 VALUES (?, ?, ?, ?, 'pendiente', ?, ?)
             ");
             $resultado = $stmt->execute([
@@ -498,9 +498,9 @@ class PedidoModel {
             if ($resultado) {
                 return $this->conn->lastInsertId();
             }
-            return false;
+            throw new \Exception("No se pudo ejecutar la inserción del pedido con array.");
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en crearConArray: " . $e->getMessage());
         }
     }
 
@@ -509,9 +509,13 @@ class PedidoModel {
             $sql = "INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario, subtotal) 
                     VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$id_pedido, $id_producto, $cantidad, $precio_unitario, $subtotal]);
+            $resultado = $stmt->execute([$id_pedido, $id_producto, $cantidad, $precio_unitario, $subtotal]);
+            if ($resultado) {
+                return true;
+            }
+            throw new \Exception("No se pudo insertar el detalle del producto ID: " . $id_producto);
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en agregarDetalle: " . $e->getMessage());
         }
     }
 
@@ -531,10 +535,9 @@ class PedidoModel {
             $params[] = $id_pedido;
             
             $stmt = $this->conn->prepare($sql);
-            $resultado = $stmt->execute($params);
-            return $resultado;
+            return $stmt->execute($params);
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en actualizarEstado: " . $e->getMessage());
         }
     }
 
@@ -544,7 +547,7 @@ class PedidoModel {
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([$direccion, $id_pedido]);
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en actualizarDireccionEntrega: " . $e->getMessage());
         }
     }
 
@@ -554,7 +557,7 @@ class PedidoModel {
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([$datos_json, $id_pedido]);
         } catch (PDOException $e) {
-            return false;
+            throw new \Exception("Error SQL en actualizarDatosPago: " . $e->getMessage());
         }
     }
 }
