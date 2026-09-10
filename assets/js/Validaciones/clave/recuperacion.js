@@ -4,16 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const formSolicitarRecuperacion = document.getElementById('formSolicitarRecuperacion');
     const formRestablecerClave = document.getElementById('formRestablecerClave');
     const tokenHiddenInput = document.getElementById('tokenHiddenInput');
-    const alertMessageDiv = document.getElementById('alertMessage');
     const sectionSolicitar = document.getElementById('sectionSolicitar');
     const sectionRestablecer = document.getElementById('sectionRestablecer');
 
-    const showMessage = (message, type) => {
-        if (alertMessageDiv) {
-            alertMessageDiv.className = `alert alert-${type} mt-3 mb-4`;
-            alertMessageDiv.textContent = message;
-            alertMessageDiv.style.display = 'block';
-        }
+    const showSwal = (title, text, icon) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            confirmButtonColor: '#00d2ff',
+            background: '#0d1117',
+            color: '#fff',
+            customClass: {
+                popup: 'rounded-4 shadow-lg'
+            }
+        });
     };
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const controllerUrl = "index.php?pagina=iniciarSesion";
 
     if (token) {
-        // CORRECCIÓN: Usamos la clase que ya tienes en tu CSS para recuperación
         if (wrapper) {
             wrapper.classList.remove('active'); 
             wrapper.classList.add('show-recover'); 
@@ -31,21 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.valido) {
-                    // Ocultamos la parte de pedir correo y mostramos la de nueva clave
                     if (sectionSolicitar) sectionSolicitar.style.display = 'none';
                     if (sectionRestablecer) sectionRestablecer.style.display = 'block';
                     if (tokenHiddenInput) tokenHiddenInput.value = token;
                 } else {
-                    showMessage(data.mensaje || "El enlace es inválido o ha expirado.", "danger");
+                    showSwal(
+                        "Enlace Inválido",
+                        data.mensaje || "El enlace de recuperación es inválido o ha expirado.",
+                        "error"
+                    );
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showMessage("Error al verificar el enlace.", "danger");
+                showSwal("Error", "Ocurrió un problema al verificar el enlace.", "error");
             });
     }
 
-    // Listener para el link de "¿Olvidaste tu contraseña?"
     const recoverLink = document.querySelector('.recover-link');
     if (recoverLink) {
         recoverLink.addEventListener('click', (e) => {
@@ -54,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listener para volver al login
     const backToLogin = document.querySelector('.back-to-login');
     if (backToLogin) {
         backToLogin.addEventListener('click', (e) => {
@@ -67,6 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         formData.append('accion', accion);
 
+        Swal.fire({
+            title: 'Procesando...',
+            text: 'Por favor espera un momento.',
+            background: '#0d1117',
+            color: '#fff',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         try {
             const response = await fetch(controllerUrl, {
                 method: 'POST',
@@ -75,17 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                showMessage(data.success, "success");
+                showSwal(
+                    "¡Correo Enviado!",
+                    data.success,
+                    "success"
+                );
+
                 if (data.redirect) {
                     setTimeout(() => window.location.href = data.redirect, 2000);
                 }
                 form.reset();
             } else {
-                const errorMsg = data.error || data.invalido || data.incompleto || "Error inesperado.";
-                showMessage(errorMsg, "warning");
+                // Maneja los distintos tipos de error retornados por PHP
+                const errorMsg = data.not_found || data.error || data.invalido || data.incompleto || "Ocurrió un error inesperado.";
+                const titleModal = data.not_found ? "Correo No Registrado" : "Atención";
+                
+                showSwal(titleModal, errorMsg, data.not_found ? "warning" : "error");
             }
         } catch (error) {
-            showMessage("Error de conexión.", "danger");
+            showSwal("Error de Conexión", "No se pudo establecer comunicación con el servidor.", "error");
         }
     };
 
@@ -105,12 +129,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
             if (!passwordPattern.test(nClave.value)) {
-                showMessage("La clave debe tener 8 caracteres, una mayúscula y un número.", "warning");
+                showSwal(
+                    "Contraseña Débil",
+                    "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.",
+                    "warning"
+                );
                 return;
             }
 
             if (nClave.value !== rClave.value) {
-                showMessage("Las contraseñas no coinciden.", "warning");
+                showSwal(
+                    "Sin Coincidencia",
+                    "Las contraseñas ingresadas no coinciden.",
+                    "warning"
+                );
                 return;
             }
             

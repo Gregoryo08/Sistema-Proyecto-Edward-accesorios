@@ -319,6 +319,7 @@
 
 <script src="assets/js/ecommerce/loginEcommerce.js?v=3"></script>
 <script src="assets/js/ecommerce/registroEcommerce.js?v=3"></script>
+ <script src="assets/js/validaciones/clave/recuperacion.js"></script>
 
 </body>
 </html>

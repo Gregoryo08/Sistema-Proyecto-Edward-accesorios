@@ -33,53 +33,54 @@ class recuperacion
     public function getMensaje() { return $this->mensaje; }
     public function setMensaje($mensaje) { $this->mensaje = $mensaje; }
 
-    public function generarTokenRecuperacion()
-    {
-        $email = $this->getEmail();
+   public function generarTokenRecuperacion()
+{
+    $email = $this->getEmail();
 
-        if (empty($email)) {
-            return ["incompleto" => "El correo electrónico es requerido."];
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return ["invalido" => "Formato de correo electrónico inválido."];
-        }
-
-        try {
-            $conexSistema = new Conexion("sistema");
-            
-            $stmt = $conexSistema->prepare("SELECT cedula_persona FROM persona WHERE correo = :correo");
-            $stmt->execute([":correo" => $email]);
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$resultado) {
-                return ["success" => "Si el correo electrónico existe, se ha enviado un enlace de recuperación."]; 
-            }
-
-            $cedula = $resultado['cedula_persona'];
-            $token = bin2hex(random_bytes(32));
-            $expira_en = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-            $conexUsuario = new Conexion("usuario");
-            $stmt_update = $conexUsuario->prepare("UPDATE usuarios SET reset_token = :token, reset_token_expires_at = :expira WHERE cedula_usuario = :cedula");
-            $stmt_update->execute([
-                ":token" => $token,
-                ":expira" => $expira_en,
-                ":cedula" => $cedula
-            ]);
-
-            if (!$this->enviarCorreoRecuperacion($email, $token)) {
-                return ["error" => "Error al enviar el correo."];
-            }
-
-            return ["success" => "Si el correo existe, se ha enviado un enlace de recuperación."];
-
-        } catch (PDOException $e) {
-            return ["error" => "Error de conexión con la base de datos."];
-        } catch (Exception $e) {
-            return ["error" => "Error interno."];
-        }
+    if (empty($email)) {
+        return ["incompleto" => "El correo electrónico es requerido."];
     }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ["invalido" => "Formato de correo electrónico inválido."];
+    }
+
+    try {
+        $conexSistema = new Conexion("sistema");
+        
+        $stmt = $conexSistema->prepare("SELECT cedula_persona FROM persona WHERE correo = :correo");
+        $stmt->execute([":correo" => $email]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        
+        if (!$resultado) {
+            return ["not_found" => "El correo electrónico no se encuentra registrado en el sistema."]; 
+        }
+
+        $cedula = $resultado['cedula_persona'];
+        $token = bin2hex(random_bytes(32));
+        $expira_en = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        $conexUsuario = new Conexion("usuario");
+        $stmt_update = $conexUsuario->prepare("UPDATE usuarios SET reset_token = :token, reset_token_expires_at = :expira WHERE cedula_usuario = :cedula");
+        $stmt_update->execute([
+            ":token" => $token,
+            ":expira" => $expira_en,
+            ":cedula" => $cedula
+        ]);
+
+        if (!$this->enviarCorreoRecuperacion($email, $token)) {
+            return ["error" => "Error al enviar el correo de recuperación."];
+        }
+
+        return ["success" => "Se ha enviado un enlace de recuperación a tu correo electrónico."];
+
+    } catch (PDOException $e) {
+        return ["error" => "Error de conexión con la base de datos."];
+    } catch (Exception $e) {
+        return ["error" => "Error interno del servidor."];
+    }
+}
 
     public function validarTokenYRestablecerClave()
     {
