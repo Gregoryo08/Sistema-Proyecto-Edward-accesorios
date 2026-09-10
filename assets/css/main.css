@@ -21,11 +21,23 @@
   box-shadow: none !important; /* Apple no usa sombras pesadas */
 }
 
+html, body{
+  height: 100%;
+  margin: 0;
+}
 /* 3. Tipografía limpia */
 body {
+  display: flex;
+  flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   color: var(--text-main) !important;
 }
+
+.content-wrapper, main, .container-fluid {
+    flex: 1;
+}
+
+
 
 /* 4. Tablas (Estilo minimalist) */
 table.dataTable {
@@ -45,9 +57,6 @@ table.dataTable thead th {
   padding: 8px 16px !important;
   font-weight: 500 !important;
 }
-
-/* Ajuste de colores de elementos que se veían mal */
-.sitename { color: var(--text-main) !important; font-weight: 600; }
 
 :root {
   --color-dark: #0A2647;
@@ -173,13 +182,6 @@ button:hover {
   border-radius: 50%;
 }
 
-.header .logo h1 {
-  font-size: 30px;
-  margin: 0;
-  font-weight: 700;
-  color: white;
-  font-family: "Poppins", Lato, "Montserrat";
-}
 
 .header .cta-btn,
 .header .cta-btn:focus {
@@ -843,7 +845,6 @@ table thead tr th { text-align: center; }
   color: white;
 }
 
-.main { display: flex; flex: 1; height: 100%; }
 
 .text-right button { display: none; }
 

@@ -2,15 +2,10 @@
 
 <title>Dashboard | Edward Accesorios</title>
 
-<main id="main">
-    <div class="container-fluid">
-        <div class="mb-4">
+<main class="main m-4" id="main">
+    <section id="hero" class="section mt-4 pt-4" style="height: auto;">
+        <div class="mb-4 pt-4">
             <h2 class="fw-bold text-dark">DASHBOARD PRINCIPAL</h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb small">
-                    <li class="breadcrumb-item"><a href="">Inicio</a></li>
-                </ol>
-            </nav>
         </div>
 
         <div class="row g-4">
@@ -78,20 +73,12 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </main>
 <?php require_once("assets/comunes/footer.php"); ?>
 <script src="assets/js/dashboard.js"></script>
 
-
 <style>
-    #main {
-        margin-top: 45px !important;
-        padding: 2rem;
-        background: #f4f7f9;
-        min-height: calc(100vh - 80px);
-    }
-
     .card-custom {
         background: #ffffff !important;
         border: none !important;
@@ -111,7 +98,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1rem;
     }
 
     .placeholder-graph {
