@@ -9,134 +9,136 @@ $(document).ready(function () {
         inicializarTablaFinanciamiento();
     });
 
-    function inicializarTablaFinanciamiento() {
-        $("#financiamientotabla").DataTable({
-            destroy: true,
-            ajax: {
-                url: "?pagina=financiamiento&ajax=true&x=listado",
-                dataSrc: ""
-            },
-            columns: [
-                { data: "id_financiamiento", visible: false },
-                {
-                    data: null,
-                    render: function (data, type, row) { return `${row.nombre} ${row.apellido}`; }
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return `${row.nombre_producto} <br><small class="text-muted">${row.imei}</small>`;
-                    }
-                },
-                {
-                    data: "monto_total",
-                    render: function (data) { return `$${parseFloat(data).toFixed(2)}`; }
-                },
-                {
-                    data: "saldo_pendiente",
-                    render: function (data) {
-                        let monto = parseFloat(data).toFixed(2);
-                        let color = monto > 0 ? 'text-danger fw-bold' : 'text-success fw-bold';
-                        return `<span class="${color}">$${monto}</span>`;
-                    }
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        let montoCuota = parseFloat(row.monto_cuota).toFixed(2);
-                        return `<b class="text-primary">$${montoCuota}</b> <br> 
-                        <span class="badge badge-cuotas">${row.pagadas} / ${row.cantidad_cuotas}</span>`;
-                    }
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        if (!row.proximo_vencimiento) return '<span class="badge bg-success">PAGADO</span>';
-                        let dias = parseInt(row.dias_restantes);
-                        let clase = "text-dark";
-                        let texto = `En ${dias} días`;
-
-                        if (dias < 0) {
-                            clase = "text-danger fw-bold";
-                            texto = `ATRASADO (${Math.abs(dias)} d)`;
-                        } else if (dias === 0) {
-                            clase = "text-warning fw-bold";
-                            texto = "VENCE HOY";
-                        }
-                        return `<span class="${clase}">${texto}</span><br><small class="text-muted">${row.proximo_vencimiento}</small>`;
-                    }
-                },
-                {
-                    data: "estado_equipo",
-                    render: function (data) {
-                        let color = (data === 'activo') ? 'success' : 'danger';
-                        return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
-                    }
-                },
-                {
-                    data: "estado_financiamiento",
-                    render: function (data) {
-                        let color = (data === 'vigente') ? 'primary' : (data === 'finalizado' ? 'success' : (data === 'anulado' ? 'secondary' : 'warning'));
-                        return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
-                    }
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        let btnSeguimiento = permisos.registrar_pago ? 
-                            `<button class="btn btn-primary btn-sm btn-seguimiento" data-id="${row.id_financiamiento}"><i class="bi bi-list-check"></i></button>` : '';
-
-                        let btnModificar = permisos.modificar ? 
-                            `<button class="btn btn-outline-primary btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
-
-                        let btnBloqueo = permisos.modificar ? 
-                            `<button class="btn btn-outline-${row.estado_equipo === 'activo' ? 'danger' : 'success'} btn-sm btn-cambiar-estado" data-id="${row.id_financiamiento}" data-estado="${row.estado_equipo === 'activo' ? 'bloqueado' : 'activo'}" title="${row.estado_equipo === 'activo' ? 'Bloquear' : 'Desbloquear'}"><i class="bi ${row.estado_equipo === 'activo' ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i></button>` : '';
-
-                        let btnFinalizar = permisos.modificar && (row.estado_financiamiento === 'vigente') ?
-                            `<button class="btn btn-outline-dark btn-sm btn-finalizar-contrato" data-id="${row.id_financiamiento}" title="Finalizar"><i class="bi bi-check-all"></i></button>` : '';
-
-                        let btnAnular = permisos.modificar && (row.pagadas == 0 && row.estado_financiamiento === 'vigente') ?
-                            `<button class="btn btn-outline-danger btn-sm btn-anular" data-id="${row.id_financiamiento}" title="Anular"><i class="bi bi-trash"></i></button>` : '';
-
-                        let acciones = [];
-                        if (btnSeguimiento) acciones.push(btnSeguimiento);
-                        if (btnModificar) acciones.push(btnModificar);
-                        if (btnBloqueo) acciones.push(btnBloqueo);
-                        if (btnFinalizar) acciones.push(btnFinalizar);
-                        if (btnAnular) acciones.push(btnAnular);
-
-                        return `<div class="btn-group" role="group">
-                                    ${acciones.join('')}
-                                </div>`;
-                    }
+   function inicializarTablaFinanciamiento() {
+    $("#financiamientotabla").DataTable({
+        destroy: true,
+        ajax: {
+            url: "?pagina=financiamiento&ajax=true&x=listado",
+            dataSrc: ""
+        },
+        columns: [
+            { data: "id_financiamiento", visible: false },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `${row.nombre} ${row.apellido} <br><small class="text-muted">${row.cedula_persona}</small>`;
                 }
-            ],
-            language: {
-                "decimal": "",
-                "emptyTable": "No hay datos disponibles en la tabla",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "Mostrar _MENU_ registros",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "Buscar:",
-                "zeroRecords": "No se encontraron registros coincidentes",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                },
-                "aria": {
-                    "sortAscending": ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `${row.nombre_producto} <br><small class="text-muted">${row.imei}</small>`;
+                }
+            },
+            {
+                data: "monto_total",
+                render: function (data) { return `$${parseFloat(data).toFixed(2)}`; }
+            },
+            {
+                data: "saldo_pendiente",
+                render: function (data) {
+                    let monto = parseFloat(data).toFixed(2);
+                    let color = monto > 0 ? 'text-danger fw-bold' : 'text-success fw-bold';
+                    return `<span class="${color}">$${monto}</span>`;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let montoCuota = parseFloat(row.monto_cuota).toFixed(2);
+                    return `<b class="text-primary">$${montoCuota}</b> <br> 
+                    <span class="badge badge-cuotas">${row.pagadas} / ${row.cantidad_cuotas}</span>`;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    if (!row.proximo_vencimiento) return '<span class="badge bg-success">PAGADO</span>';
+                    let dias = parseInt(row.dias_restantes);
+                    let clase = "text-dark";
+                    let texto = `En ${dias} días`;
+
+                    if (dias < 0) {
+                        clase = "text-danger fw-bold";
+                        texto = `ATRASADO (${Math.abs(dias)} d)`;
+                    } else if (dias === 0) {
+                        clase = "text-warning fw-bold";
+                        texto = "VENCE HOY";
+                    }
+                    return `<span class="${clase}">${texto}</span><br><small class="text-muted">${row.proximo_vencimiento}</small>`;
+                }
+            },
+            {
+                data: "estado_equipo",
+                render: function (data) {
+                    let color = (data === 'activo') ? 'success' : 'danger';
+                    return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
+                }
+            },
+            {
+                data: "estado_financiamiento",
+                render: function (data) {
+                    let color = (data === 'vigente') ? 'primary' : (data === 'finalizado' ? 'success' : (data === 'anulado' ? 'secondary' : 'warning'));
+                    return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let btnSeguimiento = permisos.registrar_pago ? 
+                        `<button class="btn btn-primary btn-sm btn-seguimiento" data-id="${row.id_financiamiento}"><i class="bi bi-list-check"></i></button>` : '';
+
+                    let btnModificar = permisos.modificar ? 
+                        `<button class="btn btn-outline-primary btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
+
+                    let btnBloqueo = permisos.modificar ? 
+                        `<button class="btn btn-outline-${row.estado_equipo === 'activo' ? 'danger' : 'success'} btn-sm btn-cambiar-estado" data-id="${row.id_financiamiento}" data-estado="${row.estado_equipo === 'activo' ? 'bloqueado' : 'activo'}" title="${row.estado_equipo === 'activo' ? 'Bloquear' : 'Desbloquear'}"><i class="bi ${row.estado_equipo === 'activo' ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i></button>` : '';
+
+                    let btnFinalizar = permisos.modificar && (row.estado_financiamiento === 'vigente') ?
+                        `<button class="btn btn-outline-dark btn-sm btn-finalizar-contrato" data-id="${row.id_financiamiento}" title="Finalizar"><i class="bi bi-check-all"></i></button>` : '';
+
+                    let btnAnular = permisos.modificar && (row.pagadas == 0 && row.estado_financiamiento === 'vigente') ?
+                        `<button class="btn btn-outline-danger btn-sm btn-anular" data-id="${row.id_financiamiento}" title="Anular"><i class="bi bi-trash"></i></button>` : '';
+
+                    let acciones = [];
+                    if (btnSeguimiento) acciones.push(btnSeguimiento);
+                    if (btnModificar) acciones.push(btnModificar);
+                    if (btnBloqueo) acciones.push(btnBloqueo);
+                    if (btnFinalizar) acciones.push(btnFinalizar);
+                    if (btnAnular) acciones.push(btnAnular);
+
+                    return `<div class="btn-group" role="group">
+                                ${acciones.join('')}
+                            </div>`;
                 }
             }
-        });
-    }
+        ],
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "aria": {
+                "sortAscending": ": activar para ordenar la columna ascendente",
+                "sortDescending": ": activar para ordenar la columna descendente"
+            }
+        }
+    });
+}
 
 
 
