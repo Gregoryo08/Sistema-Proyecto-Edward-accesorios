@@ -470,12 +470,12 @@ function procesarErrores(res) {
   });
 
   $(document).on("click", ".btn-activar", function () {
-    var id = $(this).data("id");
-    var nombre = $(this).data("nombre")
-    $("#id_empleado_delete").val(id);
+  var id = $(this).data("id");
+  var nombre = $(this).data("nombre") || "";
+  $("#id_empleado_delete").val(id);
 
-    alertas("eliminar", "Estas seguro de activar al empleado '" + nombre + "'", "Espera un momento!", estado, "activo");
-  });
+  alertas("eliminar", "Estas seguro de activar al empleado " + nombre + "", "Espera un momento!", estado, "activo");
+});
 
   
 $(document).ready(function () {
