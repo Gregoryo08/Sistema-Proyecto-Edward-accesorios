@@ -133,7 +133,7 @@ if ($accion !== null) {
 $ruta_vista = "app/views/reporteVentas.php"; 
 
 if (file_exists($ruta_vista)) {
-    include $ruta_vista;
+    require_once $ruta_vista;
 } else {
     header("HTTP/1.0 404 Not Found");
     echo "<h3>Error 404: La vista reporteVentas no existe.</h3>";

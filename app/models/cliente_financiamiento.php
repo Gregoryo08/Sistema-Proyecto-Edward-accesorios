@@ -145,7 +145,7 @@ class cliente_financiamiento extends Conexion
     {
         try {
             $conex = new conexion("sistema");
-            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estatus = 'activo'";
+            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estado = 'activo'";
             return $conex->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];

@@ -201,7 +201,30 @@
     <script src="assets/js/validaciones/iniciarSesion/iniciarSesion.js"></script>
     <script src="assets/js/validaciones/iniciarSesion/iniciarSesion2.js"></script>
     <script src="assets/js/validaciones/clave/recuperacion.js"></script>
+
     <script>
+
+
+    
+
+        $(document).ready(function() {
+    
+    $('#loginForm').on('submit', function(e) {
+        const $btn = $('#acceder');
+        
+        $btn.text('Iniciando sesión...').prop('disabled', true);
+        
+       
+    });
+
+   
+    $('#formRegistro').on('submit', function(e) {
+        const $btn = $(this).find('button[type="submit"]');
+        
+        $btn.text('Registrando...').prop('disabled', true);
+    });
+});
+
     $(document).ready(function() {
         const $body = $('body');
         const $themeIcon = $('#theme-icon');
@@ -222,8 +245,9 @@
             }
         });
     });
+    
 </script>
-</body>
+
 <STYle>
      .theme-toggle-btn {
             position: fixed;
