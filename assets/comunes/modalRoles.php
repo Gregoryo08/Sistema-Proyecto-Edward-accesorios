@@ -14,7 +14,7 @@
                             required></textarea>
 
                         <div class="mensaje">
-                            <p id="texto_mensaje_rol"></p>
+                            <p id="texto_mensaje_rol" class="text-danger small mt-1 mb-0" style="display:none; margin: 0;"></p>
                         </div>
                     </div>
                     <div class="form-group" style="display: flex; flex-direction: column; width: 100%;">
@@ -83,3 +83,58 @@
         </div>
     </div>
 </div>
+
+<style>
+    #rol,
+    #rol:focus,
+    #rol:active,
+    #rol.is-invalid,
+    #rol.is-invalid:focus,
+    #rol.is-invalid:active {
+        border: 1px solid #cfd4da !important;
+        border-radius: 8px;
+        box-shadow: none !important;
+        outline: none !important;
+        background: #ffffff !important;
+        background-image: none !important;
+        color: #111827 !important;
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+
+    body.dark-mode #rol,
+    body.dark-mode #rol:focus,
+    body.dark-mode #rol:active,
+    body.dark-mode #rol.is-invalid,
+    body.dark-mode #rol.is-invalid:focus,
+    body.dark-mode #rol.is-invalid:active {
+        background: rgba(15, 23, 42, 0.45) !important;
+        border: 1px solid rgba(148, 163, 184, 0.6) !important;
+        color: #f8fafc !important;
+    }
+
+    #rol::placeholder {
+        color: rgba(55, 65, 81, 0.6);
+    }
+
+    body.dark-mode #rol::placeholder {
+        color: rgba(226, 232, 240, 0.7);
+    }
+
+    #texto_mensaje_rol {
+        display: none;
+        color: #ff4d4d;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 8px;
+        padding: 0;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        clip-path: none !important;
+    }
+</style>
+
+
+
+

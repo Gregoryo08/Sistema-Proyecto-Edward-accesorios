@@ -1,5 +1,4 @@
 <?php
-// /src/app/models/PagoOnlineModel.php
 namespace App\Sistema\models;
 
 use App\Sistema\config\Conexion;
@@ -82,9 +81,6 @@ class PagoOnlineModel {
         return $this->conn;
     }
 
-    /**
-     * MÉTODO PÚBLICO - Único punto de entrada
-     */
     public function ejecutar($accion, $datos = []) {
         $accionesValidas = [
             'obtener_pendientes',
@@ -95,7 +91,17 @@ class PagoOnlineModel {
             'aprobar',
             'rechazar',
             'existe_por_pedido',
-            'procesar_verificacion'
+            'procesar_verificacion',
+            'setIdReporte',
+            'getIdReporte',
+            'setIdPedido',
+            'getIdPedido',
+            'setCedulaPersona',
+            'getCedulaPersona',
+            'setReferencia',
+            'getReferencia',
+            'setMonto',
+            'getMonto'
         ];
         
         if (!in_array($accion, $accionesValidas)) {
@@ -107,86 +113,112 @@ class PagoOnlineModel {
             return $this->$metodo($datos);
         }
         
-        return ['error' => 'Método no implementado: ' . $metodo];
+        if (method_exists($this, $accion)) {
+            return $this->$accion($datos['valor'] ?? null);
+        }
+        
+        return ['error' => 'Método no implementado: ' . $accion];
     }
 
-    /**
-     * =============================================
-     * MÉTODOS PRIVADOS
-     * =============================================
-     */
+    private function _setIdReporte($valor) {
+        return $this->setIdReporte($valor);
+    }
 
-    /**
-     * Obtener pagos pendientes
-     */
+    private function _getIdReporte($datos = []) {
+        return $this->getIdReporte();
+    }
+
+    private function _setIdPedido($valor) {
+        return $this->setIdPedido($valor);
+    }
+
+    private function _getIdPedido($datos = []) {
+        return $this->getIdPedido();
+    }
+
+    private function _setCedulaPersona($valor) {
+        return $this->setCedulaPersona($valor);
+    }
+
+    private function _getCedulaPersona($datos = []) {
+        return $this->getCedulaPersona();
+    }
+
+    private function _setReferencia($valor) {
+        return $this->setReferencia($valor);
+    }
+
+    private function _getReferencia($datos = []) {
+        return $this->getReferencia();
+    }
+
+    private function _setMonto($valor) {
+        return $this->setMonto($valor);
+    }
+
+    private function _getMonto($datos = []) {
+        return $this->getMonto();
+    }
+
     private function _obtener_pendientes($datos = []) {
-        try {
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    po.*,
-                    p.total,
-                    p.fecha,
-                    per.nombre,
-                    per.apellido,
-                    per.telefono,
-                    per.correo
-                FROM pago_online po
-                JOIN pedidos p ON po.id_pedido = p.id_pedido
-                JOIN persona per ON p.cedula_persona = per.cedula_persona
-                WHERE po.estado_verificacion = 'pendiente'
-                GROUP BY po.id_reporte
-                ORDER BY po.fecha_reporte ASC
-            ");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_obtener_pendientes: " . $e->getMessage());
-            return [];
-        }
+    try {
+        $stmt = $this->conn->prepare("
+            SELECT 
+                po.*,
+                p.monto_total AS total,
+                p.fecha,
+                per.nombre,
+                per.apellido,
+                per.telefono,
+                per.correo
+            FROM pago_online po
+            JOIN pedidos p ON po.id_pedido = p.id_pedido
+            JOIN persona per ON p.cedula_persona = per.cedula_persona
+            WHERE po.estado_verificacion = 'pendiente'
+            GROUP BY po.id_reporte
+            ORDER BY po.fecha_reporte ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+        error_log("PagoOnlineModel::_obtener_pendientes: " . $e->getMessage());
+        return [];
     }
+}
 
-    /**
-     * Obtener pagos aprobados sin despacho
-     */
     private function _obtener_aprobados_sin_despacho($datos = []) {
-        try {
-            $sinDespacho = "";
-            try {
-                $check = $this->conn->query("SHOW TABLES LIKE 'despachos'");
-                if ($check && $check->rowCount() > 0) {
-                    $sinDespacho = "AND p.id_pedido NOT IN (SELECT COALESCE(id_pedido, 0) FROM despachos)";
-                }
-            } catch (\PDOException $e) {
-                // la tabla despachos puede no existir en el esquema; se omite el filtro
-            }
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    po.*,
-                    p.total,
-                    p.direccion_entrega,
-                    per.nombre,
-                    per.apellido,
-                    per.telefono,
-                    per.correo
-                FROM pago_online po
-                JOIN pedidos p ON po.id_pedido = p.id_pedido
-                JOIN persona per ON p.cedula_persona = per.cedula_persona
-                WHERE po.estado_verificacion = 'aprobado'
-                $sinDespacho
-                GROUP BY po.id_reporte
-                ORDER BY po.fecha_verificacion ASC
-            ");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_obtener_aprobados_sin_despacho: " . $e->getMessage());
-            return [];
+    try {
+        $sinDespacho = "";
+        $check = $this->conn->query("SHOW TABLES LIKE 'despachos'");
+        if ($check && $check->rowCount() > 0) {
+            $sinDespacho = "AND p.id_pedido NOT IN (SELECT COALESCE(id_pedido, 0) FROM despachos)";
         }
+        
+        $stmt = $this->conn->prepare("
+            SELECT 
+                po.*,
+                p.monto_total AS total,
+                p.direccion_entrega,
+                per.nombre,
+                per.apellido,
+                per.telefono,
+                per.correo
+            FROM pago_online po
+            JOIN pedidos p ON po.id_pedido = p.id_pedido
+            JOIN persona per ON p.cedula_persona = per.cedula_persona
+            WHERE po.estado_verificacion = 'aprobado'
+            $sinDespacho
+            GROUP BY po.id_reporte
+            ORDER BY po.fecha_verificacion ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+        error_log("PagoOnlineModel::_obtener_aprobados_sin_despacho: " . $e->getMessage());
+        return [];
     }
+}
 
-    /**
-     * Obtener todos los pagos
-     */
     private function _obtener_todos($datos = []) {
         try {
             $stmt = $this->conn->prepare("
@@ -203,14 +235,11 @@ class PagoOnlineModel {
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_obtener_todos: " . $e->getMessage());
+            error_log("PagoOnlineModel::_obtener_todos: " . $e->getMessage());
             return [];
         }
     }
 
-    /**
-     * Obtener un pago por su ID
-     */
     private function _obtener_por_id($datos = []) {
         try {
             $stmt = $this->conn->prepare("
@@ -228,14 +257,11 @@ class PagoOnlineModel {
             $stmt->execute([$datos['id']]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_obtener_por_id: " . $e->getMessage());
+            error_log("PagoOnlineModel::_obtener_por_id: " . $e->getMessage());
             return null;
         }
     }
 
-    /**
-     * Crear un nuevo reporte de pago
-     */
     private function _crear($datos = []) {
         try {
             $sql = "INSERT INTO pago_online (
@@ -277,37 +303,69 @@ class PagoOnlineModel {
             }
             return ['error' => 'Error al guardar el pago'];
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_crear: " . $e->getMessage());
+            error_log("PagoOnlineModel::_crear: " . $e->getMessage());
             return ['error' => 'Error al guardar: ' . $e->getMessage()];
         }
     }
 
-    /**
-     * Aprobar un pago
-     */
     private function _aprobar($datos = []) {
-        try {
-            $stmt = $this->conn->prepare("
-                UPDATE pago_online 
-                SET estado_verificacion = 'aprobado', 
-                    fecha_verificacion = NOW(), 
-                    verificado_por = ? 
-                WHERE id_reporte = ?
-            ");
-            $resultado = $stmt->execute([$datos['verificado_por'], $datos['id_reporte']]);
-            
-            return $resultado 
-                ? ['success' => true, 'mensaje' => 'Pago aprobado correctamente']
-                : ['error' => 'Error al aprobar el pago'];
-        } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_aprobar: " . $e->getMessage());
-            return ['error' => 'Error al aprobar: ' . $e->getMessage()];
-        }
-    }
+    try {
+        $this->conn->beginTransaction();
 
-    /**
-     * Rechazar un pago
-     */
+        $user = $_SESSION["username"] ?? 'Sistema';
+        $modulo = 'Administrar E-Commerce';
+
+        $stmtVars = $this->conn->prepare("SET @usuario_actual = ?, @modulo = ?");
+        $stmtVars->execute([$user, $modulo]);
+
+        $stmtRepo = $this->conn->prepare("SELECT id_pedido FROM pago_online WHERE id_reporte = ?");
+        $stmtRepo->execute([$datos['id_reporte']]);
+        $pago = $stmtRepo->fetch(PDO::FETCH_ASSOC);
+
+        if (!$pago) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'El reporte de pago no existe'];
+        }
+
+        $id_pedido = $pago['id_pedido'];
+
+        $stmt = $this->conn->prepare("
+            UPDATE pago_online 
+            SET estado_verificacion = 'aprobado', 
+                fecha_verificacion = NOW(), 
+                verificado_por = ? 
+            WHERE id_reporte = ?
+        ");
+        $resultadoPago = $stmt->execute([$datos['verificado_por'], $datos['id_reporte']]);
+
+        if (!$resultadoPago) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Error al aprobar el pago'];
+        }
+
+        $stmtPedido = $this->conn->prepare("
+            UPDATE pedidos 
+            SET estado = 'aprobado' 
+            WHERE id_pedido = ?
+        ");
+        $resultadoPedido = $stmtPedido->execute([$id_pedido]);
+
+        if (!$resultadoPedido) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Error al actualizar el estado del pedido'];
+        }
+
+        $this->conn->commit();
+        return ['success' => true, 'mensaje' => 'Pago aprobado y pedido actualizado correctamente'];
+    } catch (\PDOException $e) {
+        if ($this->conn->inTransaction()) {
+            $this->conn->rollBack();
+        }
+        error_log("PagoOnlineModel::_aprobar: " . $e->getMessage());
+        return ['success' => false, 'error' => 'Error al aprobar: ' . $e->getMessage()];
+    }
+}
+
     private function _rechazar($datos = []) {
         try {
             $stmt = $this->conn->prepare("
@@ -328,14 +386,11 @@ class PagoOnlineModel {
                 ? ['success' => true, 'mensaje' => 'Pago rechazado correctamente']
                 : ['error' => 'Error al rechazar el pago'];
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_rechazar: " . $e->getMessage());
+            error_log("PagoOnlineModel::_rechazar: " . $e->getMessage());
             return ['error' => 'Error al rechazar: ' . $e->getMessage()];
         }
     }
 
-    /**
-     * Verificar si ya existe un pago para un pedido
-     */
     private function _existe_por_pedido($datos = []) {
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM pago_online WHERE id_pedido = ? AND estado_verificacion != 'rechazado'");
@@ -343,14 +398,11 @@ class PagoOnlineModel {
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return $resultado && $resultado['total'] > 0;
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_existe_por_pedido: " . $e->getMessage());
+            error_log("PagoOnlineModel::_existe_por_pedido: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Procesar verificación (aprobar/rechazar)
-     */
     private function _procesar_verificacion($datos = []) {
         try {
             $accion = $datos['accion'] ?? '';
@@ -372,7 +424,7 @@ class PagoOnlineModel {
             
             return ['error' => 'Acción no válida para verificación'];
         } catch (\PDOException $e) {
-            error_log("❌ PagoOnlineModel::_procesar_verificacion: " . $e->getMessage());
+            error_log("PagoOnlineModel::_procesar_verificacion: " . $e->getMessage());
             return ['error' => 'Error en verificación: ' . $e->getMessage()];
         }
     }

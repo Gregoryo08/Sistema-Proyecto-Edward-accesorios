@@ -1,5 +1,4 @@
 <?php
-// /src/app/models/PedidoModel.php
 namespace App\Sistema\models;
 
 use App\Sistema\config\Conexion;
@@ -80,9 +79,174 @@ class PedidoModel {
         $this->conn = Conexion::getShared('sistema_edward')->getConexion();
     }
 
-    // =============================================
-    // MÉTODOS DE TRANSACCIÓN
-    // =============================================
+    public function ejecutar($accion, $datos = []) {
+        $accionesValidas = [
+            'iniciarTransaccion',
+            'confirmarTransaccion',
+            'revertirTransaccion',
+            'getEstadoData',
+            'obtenerPorId',
+            'obtenerPorCliente',
+            'obtenerDetalle',
+            'obtenerPorIdYCliente',
+            'crear',
+            'crearConArray',
+            'agregarDetalle',
+            'actualizarEstado',
+            'actualizarDireccionEntrega',
+            'actualizarDatosPago',
+            'setIdPedido',
+            'getIdPedido',
+            'setCedulaPersona',
+            'getCedulaPersona',
+            'setTotal',
+            'getTotal',
+            'setEstado',
+            'getEstado',
+            'setMetodoPago',
+            'getMetodoPago'
+        ];
+        
+        if (!in_array($accion, $accionesValidas)) {
+            return ['error' => 'Acción no válida: ' . $accion];
+        }
+        
+        $metodo = '_' . $accion;
+        if (method_exists($this, $metodo)) {
+            return $this->$metodo($datos);
+        }
+        
+        if (method_exists($this, $accion)) {
+            return $this->$accion($datos['valor'] ?? null);
+        }
+        
+        return ['error' => 'Método no implementado: ' . $accion];
+    }
+
+    private function _iniciarTransaccion($datos = []) {
+        $this->iniciarTransaccion();
+        return true;
+    }
+
+    private function _confirmarTransaccion($datos = []) {
+        $this->confirmarTransaccion();
+        return true;
+    }
+
+    private function _revertirTransaccion($datos = []) {
+        $this->revertirTransaccion();
+        return true;
+    }
+
+    private function _getEstadoData($datos = []) {
+        return $this->getEstadoData($datos['estado'] ?? '', $datos['motivo'] ?? null);
+    }
+
+    private function _obtenerPorId($datos = []) {
+        return $this->obtenerPorId($datos['id_pedido'] ?? 0);
+    }
+
+    private function _obtenerPorCliente($datos = []) {
+        return $this->obtenerPorCliente($datos['cedula_persona'] ?? 0);
+    }
+
+    private function _obtenerDetalle($datos = []) {
+        return $this->obtenerDetalle($datos['id_pedido'] ?? 0);
+    }
+
+    private function _obtenerPorIdYCliente($datos = []) {
+        return $this->obtenerPorIdYCliente($datos['id_pedido'] ?? 0, $datos['cedula_persona'] ?? 0);
+    }
+
+    private function _crear($datos = []) {
+        return $this->crear(
+            $datos['cedula'] ?? 0,
+            $datos['nombre'] ?? '',
+            $datos['telefono'] ?? '',
+            $datos['email'] ?? '',
+            $datos['subtotal'] ?? 0,
+            $datos['costo_envio'] ?? 0,
+            $datos['total'] ?? 0,
+            $datos['metodo_pago'] ?? ''
+        );
+    }
+
+    private function _crearConArray($datos = []) {
+        return $this->crearConArray($datos['datos'] ?? $datos);
+    }
+
+    private function _agregarDetalle($datos = []) {
+        return $this->agregarDetalle(
+            $datos['id_pedido'] ?? 0,
+            $datos['id_producto'] ?? 0,
+            $datos['cantidad'] ?? 0,
+            $datos['precio_unitario'] ?? 0,
+            $datos['subtotal'] ?? 0
+        );
+    }
+
+    private function _actualizarEstado($datos = []) {
+        return $this->actualizarEstado(
+            $datos['id_pedido'] ?? 0,
+            $datos['estado'] ?? '',
+            $datos['motivo'] ?? null
+        );
+    }
+
+    private function _actualizarDireccionEntrega($datos = []) {
+        return $this->actualizarDireccionEntrega(
+            $datos['id_pedido'] ?? 0,
+            $datos['direccion'] ?? ''
+        );
+    }
+
+    private function _actualizarDatosPago($datos = []) {
+        return $this->actualizarDatosPago(
+            $datos['id_pedido'] ?? 0,
+            $datos['datos_json'] ?? ''
+        );
+    }
+
+    private function _setIdPedido($valor) {
+        return $this->setIdPedido($valor);
+    }
+
+    private function _getIdPedido($datos = []) {
+        return $this->getIdPedido();
+    }
+
+    private function _setCedulaPersona($valor) {
+        return $this->setCedulaPersona($valor);
+    }
+
+    private function _getCedulaPersona($datos = []) {
+        return $this->getCedulaPersona();
+    }
+
+    private function _setTotal($valor) {
+        return $this->setTotal($valor);
+    }
+
+    private function _getTotal($datos = []) {
+        return $this->getTotal();
+    }
+
+    private function _setEstado($valor) {
+        return $this->setEstado($valor);
+    }
+
+    private function _getEstado($datos = []) {
+        return $this->getEstado();
+    }
+
+    private function _setMetodoPago($valor) {
+        return $this->setMetodoPago($valor);
+    }
+
+    private function _getMetodoPago($datos = []) {
+        return $this->getMetodoPago();
+    }
+
     public function iniciarTransaccion() {
         $this->conn->beginTransaction();
     }
@@ -97,16 +261,7 @@ class PedidoModel {
         }
     }
 
-    // =============================================
-    // ✅ MÉTODO PÚBLICO: OBTENER ESTADO DEL PEDIDO
-    // =============================================
-    
-    /**
-     * Obtener todos los datos del estado de un pedido
-     * ✅ PÚBLICO: único punto de entrada para la vista
-     */
     public function getEstadoData($estado, $motivo = null) {
-        // 🔒 Validar que el estado existe
         $this->_validarEstado($estado);
         
         return [
@@ -122,28 +277,16 @@ class PedidoModel {
         ];
     }
 
-    // =============================================
-    // 🔒 MÉTODOS PRIVADOS (lógica interna)
-    // =============================================
-
-    /**
-     * Validar que el estado existe
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _validarEstado($estado) {
         $estados_validos = [
             'pendiente', 'revision', 'aprobado',
             'enviado', 'entregado', 'rechazado', 'cancelado'
         ];
         if (!in_array($estado, $estados_validos)) {
-            error_log("⚠️ Estado no válido en PedidoModel: '$estado'");
+            error_log("Estado no válido en PedidoModel: '$estado'");
         }
     }
 
-    /**
-     * Obtener color según estado
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getColor($estado) {
         $colores = [
             'pendiente' => 'secondary',
@@ -157,10 +300,6 @@ class PedidoModel {
         return $colores[$estado] ?? 'secondary';
     }
 
-    /**
-     * Obtener ícono según estado
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getIcono($estado) {
         $iconos = [
             'pendiente' => 'fa-clock',
@@ -174,10 +313,6 @@ class PedidoModel {
         return $iconos[$estado] ?? 'fa-info-circle';
     }
 
-    /**
-     * Obtener mensaje según estado
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getMensaje($estado, $motivo = null) {
         $mensajes = [
             'pendiente' => [
@@ -223,35 +358,19 @@ class PedidoModel {
         ];
     }
 
-    /**
-     * Verificar si el botón debe mostrarse
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _mostrarBoton($estado) {
-        return in_array($estado, ['pendiente', 'rechazado']);
+        return in_array($estado, ['monto_pendiente', 'rechazado']);
     }
 
-    /**
-     * Obtener texto del botón
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getTextoBoton($estado) {
         $mensaje = $this->_getMensaje($estado);
         return $mensaje['boton'];
     }
 
-    /**
-     * Obtener clase de alerta
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getClaseAlerta($estado) {
         return $this->_getColor($estado);
     }
 
-    /**
-     * Obtener estilo del botón (color)
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getBotonEstilo($estado) {
         if ($estado === 'pendiente') {
             return 'warning';
@@ -261,10 +380,6 @@ class PedidoModel {
         return 'secondary';
     }
 
-    /**
-     * Obtener ícono del botón
-     * 🔒 PRIVADO: solo usado internamente
-     */
     private function _getBotonIcono($estado) {
         if ($estado === 'pendiente') {
             return 'fa-credit-card';
@@ -274,14 +389,6 @@ class PedidoModel {
         return 'fa-info-circle';
     }
 
-    // =============================================
-    // ✅ MÉTODOS PÚBLICOS DE CONSULTA
-    // =============================================
-
-    /**
-     * Obtener pedido por ID con datos del cliente
-     * ✅ PÚBLICO
-     */
     public function obtenerPorId($id_pedido) {
         try {
             $stmt = $this->conn->prepare("
@@ -291,7 +398,7 @@ class PedidoModel {
                     per.apellido,
                     per.telefono,
                     per.correo,
-                    cl.residencia as direccion
+                    per.direccion as direccion
                 FROM pedidos p
                 JOIN persona per ON p.cedula_persona = per.cedula_persona
                 LEFT JOIN clientes cl ON p.cedula_persona = cl.cedula_persona
@@ -300,15 +407,10 @@ class PedidoModel {
             $stmt->execute([$id_pedido]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("❌ Error en obtenerPorId: " . $e->getMessage());
-            return null;
+            throw new \Exception("Error SQL en obtenerPorId: " . $e->getMessage());
         }
     }
 
-    /**
-     * Obtener pedidos por cédula del cliente
-     * ✅ PÚBLICO
-     */
     public function obtenerPorCliente($cedula_persona) {
         try {
             $stmt = $this->conn->prepare("
@@ -326,15 +428,10 @@ class PedidoModel {
             $stmt->execute([$cedula_persona]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("❌ Error en obtenerPorCliente: " . $e->getMessage());
-            return [];
+            throw new \Exception("Error SQL en obtenerPorCliente: " . $e->getMessage());
         }
     }
 
-    /**
-     * Obtener detalle del pedido
-     * ✅ PÚBLICO
-     */
     public function obtenerDetalle($id_pedido) {
         try {
             $stmt = $this->conn->prepare("
@@ -349,15 +446,10 @@ class PedidoModel {
             $stmt->execute([$id_pedido]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("❌ Error en obtenerDetalle: " . $e->getMessage());
-            return [];
+            throw new \Exception("Error SQL en obtenerDetalle: " . $e->getMessage());
         }
     }
 
-    /**
-     * Obtener pedido por ID y cliente
-     * ✅ PÚBLICO
-     */
     public function obtenerPorIdYCliente($id_pedido, $cedula_persona) {
         try {
             $stmt = $this->conn->prepare("
@@ -367,19 +459,10 @@ class PedidoModel {
             $stmt->execute([$id_pedido, $cedula_persona]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("❌ Error en obtenerPorIdYCliente: " . $e->getMessage());
-            return null;
+            throw new \Exception("Error SQL en obtenerPorIdYCliente: " . $e->getMessage());
         }
     }
 
-    // =============================================
-    // ✅ MÉTODOS PÚBLICOS DE ESCRITURA
-    // =============================================
-
-    /**
-     * Crear nuevo pedido
-     * ✅ PÚBLICO
-     */
     public function crear($cedula, $nombre, $telefono, $email, $subtotal, $costo_envio, $total, $metodo_pago) {
         try {
             $sql = "INSERT INTO pedidos 
@@ -391,17 +474,12 @@ class PedidoModel {
             if ($resultado) {
                 return $this->conn->lastInsertId();
             }
-            return false;
+            throw new \Exception("No se pudo ejecutar la inserción del pedido.");
         } catch (PDOException $e) {
-            error_log("❌ Error en crear: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en crear pedido: " . $e->getMessage());
         }
     }
 
-    /**
-     * Crear nuevo pedido con array
-     * ✅ PÚBLICO
-     */
     public function crearConArray($datos) {
         try {
             $stmt = $this->conn->prepare("
@@ -420,36 +498,29 @@ class PedidoModel {
             if ($resultado) {
                 return $this->conn->lastInsertId();
             }
-            return false;
+            throw new \Exception("No se pudo ejecutar la inserción del pedido con array.");
         } catch (PDOException $e) {
-            error_log("❌ Error en crearConArray: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en crearConArray: " . $e->getMessage());
         }
     }
 
-    /**
-     * Agregar detalle del pedido
-     * ✅ PÚBLICO
-     */
     public function agregarDetalle($id_pedido, $id_producto, $cantidad, $precio_unitario, $subtotal) {
         try {
             $sql = "INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario, subtotal) 
                     VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
-            return $stmt->execute([$id_pedido, $id_producto, $cantidad, $precio_unitario, $subtotal]);
+            $resultado = $stmt->execute([$id_pedido, $id_producto, $cantidad, $precio_unitario, $subtotal]);
+            if ($resultado) {
+                return true;
+            }
+            throw new \Exception("No se pudo insertar el detalle del producto ID: " . $id_producto);
         } catch (PDOException $e) {
-            error_log("❌ Error en agregarDetalle: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en agregarDetalle: " . $e->getMessage());
         }
     }
 
-    /**
-     * Actualizar estado del pedido
-     * ✅ PÚBLICO - usado por procesarVerificacion
-     */
     public function actualizarEstado($id_pedido, $estado, $motivo = null) {
         try {
-            // Validar que el estado sea válido
             $this->_validarEstado($estado);
             
             $sql = "UPDATE pedidos SET estado = ?";
@@ -464,41 +535,29 @@ class PedidoModel {
             $params[] = $id_pedido;
             
             $stmt = $this->conn->prepare($sql);
-            $resultado = $stmt->execute($params);
-            return $resultado;
+            return $stmt->execute($params);
         } catch (PDOException $e) {
-            error_log("❌ Error en actualizarEstado: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en actualizarEstado: " . $e->getMessage());
         }
     }
 
-    /**
-     * Actualizar dirección de entrega
-     * ✅ PÚBLICO
-     */
     public function actualizarDireccionEntrega($id_pedido, $direccion) {
         try {
             $sql = "UPDATE pedidos SET direccion_entrega = ? WHERE id_pedido = ?";
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([$direccion, $id_pedido]);
         } catch (PDOException $e) {
-            error_log("❌ Error en actualizarDireccionEntrega: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en actualizarDireccionEntrega: " . $e->getMessage());
         }
     }
 
-    /**
-     * Actualizar datos de pago (JSON)
-     * ✅ PÚBLICO
-     */
     public function actualizarDatosPago($id_pedido, $datos_json) {
         try {
             $sql = "UPDATE pedidos SET datos_pago = ? WHERE id_pedido = ?";
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([$datos_json, $id_pedido]);
         } catch (PDOException $e) {
-            error_log("❌ Error en actualizarDatosPago: " . $e->getMessage());
-            return false;
+            throw new \Exception("Error SQL en actualizarDatosPago: " . $e->getMessage());
         }
     }
 }

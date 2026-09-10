@@ -7,7 +7,7 @@
     <title>Ventas Online | Edward Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/CSS/temas.css">
+    
     <style>
         body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .main-content { padding: 60px 20px 20px 20px; margin-left: 65px; transition: margin-left 0.3s ease, width 0.3s ease; width: calc(100% - 65px); box-sizing: border-box; }
@@ -26,10 +26,10 @@
 </head>
 <body>
 
-<div class="main-content">
+<div class="main-content" >
     <!-- Título -->
     <div class="d-flex justify-content-between align-items-center main-title">
-        <h2 class="fw-bold"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
+        <h2 class="d-flex justify-content-between align-items-center main-title" style="color: black;padding-top: 20px;"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
         <div class="d-flex align-items-center gap-3">
           
             <span class="badge bg-secondary p-2">
@@ -137,6 +137,50 @@
         </div>
     </div>
 </div>
+    <!-- SECCIÓN 4.1: DESPACHOS EN RUTA -->
+<div class="card shadow">
+    <div class="card-header bg-warning text-white card-header-custom" onclick="toggleSection('despachosSection')">
+        <h5 class="mb-0"><i class="fas fa-motorcycle me-2"></i>🚚 Despachos en Ruta ▼</h5>
+    </div>
+    <div id="despachosSection" class="collapse show">
+        <div class="card-body dashboard-body" style="max-height: 400px; overflow-y: auto;">
+            <?php if (empty($despachos_activos)): ?>
+                <div class="alert alert-info text-center">No hay despachos activos en este momento.</div>
+            <?php else: ?>
+                <?php foreach ($despachos_activos as $d):
+                    $claseEstado = ['pendiente' => 'secondary', 'asignado' => 'info', 'en_ruta' => 'warning'][$d['estado_despacho'] ?? 'pendiente'] ?? 'secondary';
+                ?>
+                    <div class="card mb-2 card-despacho" id="despacho-row-<?= $d['id_pedido'] ?>">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Pedido #<?= $d['id_pedido'] ?>
+                                        <span class="badge bg-<?= $claseEstado ?> text-white ms-1"><?= strtoupper($d['estado_despacho'] ?? 'pendiente') ?></span>
+                                    </h6>
+                                    <p class="mb-1 text-muted small">
+                                        <i class="fas fa-user"></i> <?= htmlspecialchars(($d['nombre'] ?? '') . ' ' . ($d['apellido'] ?? '')) ?><br>
+                                        <i class="fas fa-phone"></i> <?= htmlspecialchars($d['telefono'] ?? 'N/A') ?>
+                                    </p>
+                                    <p class="mb-1 small"><strong>Dirección:</strong> <?= htmlspecialchars($d['direccion_entrega'] ?? 'No especificada') ?></p>
+                                    <p class="mb-1 small"><strong>Total:</strong> $<?= number_format($d['total'] ?? 0, 2) ?></p>
+                                    <p class="mb-1 small"><strong>Motorizado:</strong> <?= htmlspecialchars(($d['despachador_nombre'] ?? 'No asignado')) . ( !empty($d['despachador_telefono']) ? ' - ' . htmlspecialchars($d['despachador_telefono']) : '') ?></p>
+                                    <p class="mb-0 small text-muted"><strong>Entrega estimada:</strong> <?= htmlspecialchars($d['fecha_entrega_estimada'] ?? 'N/A') ?></p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-success btn-sm mb-1" onclick="actualizarEstadoDespacho(<?= $d['id_pedido'] ?>, 'entregado')"><i class="fas fa-check-double"></i> Entregado</button>
+                                    <?php if (($d['estado_despacho'] ?? 'pendiente') !== 'en_ruta'): ?>
+                                        <button class="btn btn-info btn-sm mb-1" onclick="actualizarEstadoDespacho(<?= $d['id_pedido'] ?>, 'en_ruta')"><i class="fas fa-motorcycle"></i> Iniciar Ruta</button>
+                                    <?php endif; ?>
+                                    <button class="btn btn-danger btn-sm" onclick="actualizarEstadoDespacho(<?= $d['id_pedido'] ?>, 'cancelado')"><i class="fas fa-times"></i> Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
     <!-- SECCIÓN 5: ESTADÍSTICAS CON HIGHCHARTS -->
     <div class="card shadow">
         <div class="card-header bg-dark text-white card-header-custom" onclick="toggleSection('estadisticasSection')">
@@ -168,7 +212,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="assets/js/ecommerce/panelCajera.js"></script>
-<script src="assets/js/ecommerce/temas.js"></script>
+
 
 </body>
 </html>

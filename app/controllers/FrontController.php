@@ -35,7 +35,7 @@ class FrontController {
             'checkout', 'guardarPedido', 'confirmacion', 'listarBancos',
             
             // === PAGOS ===
-            'reportarPago', 'pagos_online', 'procesarReporte', 'datosPago',
+            'reportarPago', 'procesarReporte', 'datosPago',
             
             // === PEDIDOS ===
             'misPedidos', 'verPedido',

@@ -32,8 +32,12 @@ function actualizarDashboard() {
 
                 const contPendientes = document.querySelector('#pendientesSection .card-body');
                 const contAprobados = document.querySelector('#aprobadosSection .card-body');
+                const contDespachos = document.querySelector('#despachosSection .card-body');
                 if (contPendientes) contPendientes.innerHTML = data.html_pendientes;
                 if (contAprobados) contAprobados.innerHTML = data.html_aprobados;
+                if (contDespachos) contDespachos.innerHTML = data.html_despachos;
+
+                cargarGraficoDespachosMensuales();
             }
         })
         .catch(err => console.error('Error al actualizar dashboard:', err));
@@ -143,18 +147,34 @@ function cargarGraficos() {
         .catch(err => console.error('Error al cargar top productos:', err));
 
     // Gráfico 7: Despachos del mes
+    cargarGraficoDespachosMensuales();
+}
+
+// =============================================
+// GRÁFICO 7: DESPACHOS DEL MES (actualizable en tiempo real)
+// =============================================
+let despachosChart = null;
+
+function cargarGraficoDespachosMensuales() {
     fetch('?pagina=getDashboardData&tipo=despachos_mensuales')
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                Highcharts.chart('chartDespachosMensuales', {
-                    chart: { type: 'column' },
-                    title: { text: 'Despachos del Mes', style: { fontSize: '12px' } },
-                    xAxis: { categories: data.categorias, title: { text: 'Semana' } },
-                    yAxis: { title: { text: 'Cantidad' }, min: 0 },
-                    series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }],
-                    credits: { enabled: false }
-                });
+                if (despachosChart) {
+                    despachosChart.update({
+                        xAxis: { categories: data.categorias },
+                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }]
+                    });
+                } else {
+                    despachosChart = Highcharts.chart('chartDespachosMensuales', {
+                        chart: { type: 'column' },
+                        title: { text: 'Despachos del Mes', style: { fontSize: '12px' } },
+                        xAxis: { categories: data.categorias, title: { text: 'Semana' } },
+                        yAxis: { title: { text: 'Cantidad' }, min: 0 },
+                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }],
+                        credits: { enabled: false }
+                    });
+                }
             }
         })
         .catch(err => console.error('Error al cargar despachos:', err));

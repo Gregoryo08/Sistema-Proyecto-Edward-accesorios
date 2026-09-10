@@ -163,7 +163,7 @@ try {
             $stmt = $conn->query("SELECT COUNT(*) as total FROM pago_online WHERE estado_verificacion = 'aprobado'");
             $aprobados = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $stmt = $conn->query("SELECT COUNT(*) as total FROM despachos WHERE estado_despacho IN ('asignado', 'en_ruta')");
+            $stmt = $conn->query("SELECT COUNT(*) as total FROM despachos WHERE estado_despacho IN ('pendiente', 'asignado', 'en_ruta')");
             $en_ruta = $stmt->fetch(PDO::FETCH_ASSOC);
 
             $stmt = $conn->query("SELECT COUNT(*) as total FROM pedidos");
@@ -230,6 +230,61 @@ try {
                 }
             }
 
+            $stmt = $conn->prepare("
+                SELECT d.id_despacho, d.id_pedido, d.estado_despacho, d.despachador_nombre,
+                       d.despachador_telefono, d.fecha_entrega_estimada,
+                       p.total, p.direccion_entrega,
+                       per.nombre, per.apellido, per.telefono
+                FROM despachos d
+                JOIN pedidos p ON d.id_pedido = p.id_pedido
+                JOIN persona per ON p.cedula_persona = per.cedula_persona
+                WHERE d.estado_despacho IN ('pendiente', 'asignado', 'en_ruta')
+                ORDER BY d.fecha_despacho ASC
+            ");
+            $stmt->execute();
+            $despachos_activos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $html_despachos = '';
+            if (empty($despachos_activos)) {
+                $html_despachos = '<div class="alert alert-info text-center">No hay despachos activos en este momento.</div>';
+            } else {
+                foreach ($despachos_activos as $d) {
+                    $nombre = htmlspecialchars(($d['nombre'] ?? '') . ' ' . ($d['apellido'] ?? ''), ENT_QUOTES, 'UTF-8');
+                    $telefono = htmlspecialchars($d['telefono'] ?? 'N/A', ENT_QUOTES, 'UTF-8');
+                    $direccion = htmlspecialchars($d['direccion_entrega'] ?? 'No especificada', ENT_QUOTES, 'UTF-8');
+                    $total = number_format($d['total'] ?? 0, 2);
+                    $motorizado = htmlspecialchars(($d['despachador_nombre'] ?? 'No asignado') . (!empty($d['despachador_telefono']) ? ' - ' . $d['despachador_telefono'] : ''), ENT_QUOTES, 'UTF-8');
+                    $entrega_estimada = htmlspecialchars($d['fecha_entrega_estimada'] ?? 'N/A', ENT_QUOTES, 'UTF-8');
+                    $estado = strtoupper($d['estado_despacho'] ?? 'pendiente');
+                    $claseEstado = ['PENDIENTE' => 'secondary', 'ASIGNADO' => 'info', 'EN_RUTA' => 'warning'][$estado] ?? 'secondary';
+                    $html_despachos .= '
+                        <div class="card mb-2 card-despacho" id="despacho-row-' . $d['id_pedido'] . '">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">Pedido #' . $d['id_pedido'] . '
+                                            <span class="badge bg-' . $claseEstado . ' text-white ms-1">' . $estado . '</span>
+                                        </h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-user"></i> ' . $nombre . '<br>
+                                            <i class="fas fa-phone"></i> ' . $telefono . '
+                                        </p>
+                                        <p class="mb-1 small"><strong>Dirección:</strong> ' . $direccion . '</p>
+                                        <p class="mb-1 small"><strong>Total:</strong> $' . $total . '</p>
+                                        <p class="mb-1 small"><strong>Motorizado:</strong> ' . $motorizado . '</p>
+                                        <p class="mb-0 small text-muted"><strong>Entrega estimada:</strong> ' . $entrega_estimada . '</p>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-success btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'entregado\')"><i class="fas fa-check-double"></i> Entregado</button>
+                                        ' . ($estado !== 'EN_RUTA' ? '<button class="btn btn-info btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'en_ruta\')"><i class="fas fa-motorcycle"></i> Iniciar Ruta</button>' : '') . '
+                                        <button class="btn btn-danger btn-sm" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'cancelado\')"><i class="fas fa-times"></i> Cancelar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>';
+                }
+            }
+
             $html_aprobados = '';
             if (empty($pagos_aprobados)) {
                 $html_aprobados = '<div class="alert alert-info text-center">No hay pagos aprobados pendientes de despacho.</div>';
@@ -281,7 +336,8 @@ try {
                 'en_ruta' => $en_ruta['total'],
                 'total_pedidos' => $total_pedidos['total'],
                 'html_pendientes' => $html_pendientes,
-                'html_aprobados' => $html_aprobados
+                'html_aprobados' => $html_aprobados,
+                'html_despachos' => $html_despachos
             ]);
             break;
     }

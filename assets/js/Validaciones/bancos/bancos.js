@@ -83,15 +83,15 @@ $(document).ready(function () {
                 {
                     data: null,
                     render: function (data, type, row) {
-                        var color = row.estatus == "activo" ? "rgb(14, 184, 37)" : "rgb(158, 3, 3)";
-                        return `<span class="interruptor" style="background: ${color};">${capitalizarPalabras(row.estatus)}</span>`;
+                        var color = row.estado == "activo" ? "rgb(14, 184, 37)" : "rgb(158, 3, 3)";
+                        return `<span class="interruptor" style="background: ${color};">${capitalizarPalabras(row.estado)}</span>`;
                     },
                 },
                 {
                     data: null,
                     render: function (data, type, row) {
                         var botonesHTML = "";
-                        var btnEliminar = row.estatus == "activo"
+                        var btnEliminar = row.estado == "activo"
                             ? ` <button type="button" class="btn btn-danger btn-eliminar" data-id="${row.id_banco}"><i class="fa-solid fa-trash-can"></i></button>`
                             : ` <button type="button" class="btn btn-success btn-habilitar" data-id="${row.id_banco}"><i class="bi bi-recycle"></i></button>`;
 

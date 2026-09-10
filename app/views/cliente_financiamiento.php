@@ -1,5 +1,5 @@
 <?php
-require_once('assets/comunes/menu.php');
+require_once('assets/comunes/menu_cliente.php');
 require_once('assets/comunes/modal_pagocuotas.php');
 ?>
 

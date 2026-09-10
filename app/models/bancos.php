@@ -107,7 +107,7 @@ class bancos extends pagos
     {
         $conex = new conexion("sistema");
         
-        $stmt = $conex->query("SELECT * FROM bancos WHERE estatus = 'activo'");
+        $stmt = $conex->query("SELECT * FROM bancos WHERE estado = 'activo'");
         $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         unset($conex);
@@ -266,9 +266,9 @@ class bancos extends pagos
             $conex->exec("SET @modulo = '{$modulo}'");
 
             if ($tipo == "deshabilitar") {
-                $stmt = $conex->prepare("UPDATE bancos SET estatus = 'inactivo' WHERE id_banco = :id");
+                $stmt = $conex->prepare("UPDATE bancos SET estado = 'inactivo' WHERE id_banco = :id");
             } else {
-                $stmt = $conex->prepare("UPDATE bancos SET estatus = 'activo' WHERE id_banco = :id");
+                $stmt = $conex->prepare("UPDATE bancos SET estado = 'activo' WHERE id_banco = :id");
             }
 
             if (!($stmt->execute([":id" => $id_banco]))) {

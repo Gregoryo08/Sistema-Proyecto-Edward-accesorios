@@ -65,6 +65,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         barra.style.width = `${porcentaje}%`;
                         barra.setAttribute('aria-valuenow', porcentaje);
                     }
+                } else {
+                    document.getElementById('prox-nombre-equipo').innerText = "Sin equipo activo";
+                    document.getElementById('prox-cuotas-num').innerText = "Cuota - de -";
+                    document.getElementById('prox-monto').innerText = formatCurrency(0);
+                    document.getElementById('prox-vencimiento').innerHTML = `<i class="bi bi-clock-fill me-1"></i> Sin fecha límite`;
+                    document.getElementById('prox-progreso-texto').innerText = "Sin financiamiento";
+                    
+                    const barra = document.getElementById('prox-barra-progreso');
+                    if (barra) {
+                        barra.style.width = `0%`;
+                        barra.setAttribute('aria-valuenow', 0);
+                    }
                 }
 
                 const selectMes = document.getElementById('select-mes') || document.getElementById('filtro-mes');

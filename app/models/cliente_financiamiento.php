@@ -88,7 +88,7 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-    private function registrarSolicitudPago($d)
+private function registrarSolicitudPago($d)
     {
         $this->setIdCuota($d['id_cuota'] ?? 0);
         $this->setMonto($d['monto'] ?? 0);
@@ -96,16 +96,22 @@ class cliente_financiamiento extends Conexion
         $this->setIdBanco($d['id_banco'] ?? 0);
         $this->setReferencia($d['referencia'] ?? '');
         $this->setFecha($d['fecha'] ?? '');
+        
+        if (empty($this->cedula_cliente)) {
+            $this->cedula_cliente = $_SESSION["cliente_cedula"] ?? $d['cedula_cliente'] ?? '';
+        }
 
-        if ($this->id_cuota <= 0 || $this->monto <= 0 || $this->id_metodo <= 0 || $this->id_banco <= 0 || empty($this->referencia) || empty($this->fecha)) {
+        if ($this->id_cuota <= 0 || $this->monto <= 0 || $this->id_metodo <= 0 || $this->id_banco <= 0 || empty($this->referencia) || empty($this->fecha) || empty($this->cedula_cliente)) {
             return ["error" => "Datos de pago inválidos"];
         }
 
         try {
-            $conex = new conexion("sistema");
+            $this->beginTransaction();
+            
             $user = $_SESSION["username"] ?? $_SESSION["cliente_cedula"] ?? 'Sistema';
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = 'Administrar Financiamiento'");
+            $this->exec("SET @usuario_actual = '{$user}'");
+            $this->exec("SET @modulo = 'Administrar Financiamiento'");
+            
             $sql = "UPDATE cuotas 
                     SET estado_cuota = 'en_revision', 
                         monto_pagado = ?, 
@@ -117,16 +123,51 @@ class cliente_financiamiento extends Conexion
                     AND estado_cuota = 'pendiente'
                     AND id_financiamiento IN (SELECT id_financiamiento FROM financiamientos WHERE cedula_persona = ?)";
             
-            $stmt = $conex->prepare($sql);
+            $stmt = $this->prepare($sql);
             $stmt->execute([$this->monto, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota, $this->cedula_cliente]);
             
             if ($stmt->rowCount() > 0) {
+                $stmtCli = $this->prepare("SELECT p.nombre, p.apellido, p.cedula_persona FROM persona p INNER JOIN financiamientos f ON p.cedula_persona = f.cedula_persona INNER JOIN cuotas c ON f.id_financiamiento = c.id_financiamiento WHERE c.id_cuota = ?");
+                $stmtCli->execute([$this->id_cuota]);
+                $cli = $stmtCli->fetch(PDO::FETCH_ASSOC);
+                $nombreCompleto = $cli ? ($cli['nombre'] . ' ' . $cli['apellido']) : 'Cliente';
+                $cedulaPersona = $cli ? $cli['cedula_persona'] : $this->cedula_cliente;
+                
+                $stmtCuotaNum = $this->prepare("SELECT numero_cuota FROM cuotas WHERE id_cuota = ?");
+                $stmtCuotaNum->execute([$this->id_cuota]);
+                $numCuota = $stmtCuotaNum->fetchColumn() ?: $this->id_cuota;
+
+                $mensaje = "Nueva solicitud de pago registrada para la cuota {$numCuota} por el cliente {$nombreCompleto} (Cédula: {$cedulaPersona}) con referencia {$this->referencia}.";
+                
+                $conexNoti = new conexion("usuario");
+                $sqlNoti = "INSERT INTO notificaciones (mensaje, tipo) VALUES (?, 'pago')";
+                $stmtNoti = $conexNoti->prepare($sqlNoti);
+                $stmtNoti->execute([$mensaje]);
+                
+                $id_notificacion = $conexNoti->lastInsertId();
+
+                $stmtUsrs = $conexNoti->prepare("SELECT cedula_usuario FROM usuarios WHERE id_rol IN (1, 3)");
+                $stmtUsrs->execute();
+                $usuariosAdmin = $stmtUsrs->fetchAll(PDO::FETCH_ASSOC);
+
+                $sqlNotiUsr = "INSERT INTO notificaciones_usuario (cedula_usuario, id_notificacion, leida, enviada) VALUES (?, ?, 0, 0)";
+                $stmtNotiUsr = $conexNoti->prepare($sqlNotiUsr);
+
+                foreach ($usuariosAdmin as $admin) {
+                    $stmtNotiUsr->execute([$admin['cedula_usuario'], $id_notificacion]);
+                }
+
+                $this->commit();
                 return ["success" => true];
             }
             
+            $this->rollBack();
             return ["error" => "No se pudo procesar la solicitud"];
         } catch (PDOException $e) {
-            return ["error" => "Error interno del servidor"];
+            if ($this->inTransaction()) {
+                $this->rollBack();
+            }
+            return ["error" => "Error interno del servidor: " . $e->getMessage()];
         }
     }
 
@@ -145,7 +186,7 @@ class cliente_financiamiento extends Conexion
     {
         try {
             $conex = new conexion("sistema");
-            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estatus = 'activo'";
+            $sql = "SELECT id_banco, nombre_banco FROM bancos WHERE estado = 'activo'";
             return $conex->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];

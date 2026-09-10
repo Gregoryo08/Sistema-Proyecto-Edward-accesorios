@@ -43,7 +43,7 @@ class BancoModel {
     }
 
     private function _obtenerActivos() {
-        $stmt = $this->conn->query("SELECT id_banco, nombre_banco FROM bancos WHERE estatus = 'activo' ORDER BY nombre_banco ASC");
+        $stmt = $this->conn->query("SELECT id_banco, nombre_banco FROM bancos WHERE estado = 'activo' ORDER BY nombre_banco ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

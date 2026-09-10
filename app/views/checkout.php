@@ -9,12 +9,37 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+
+<nav class="navbar navbar-expand-lg custom-dynamic-nav">
     <div class="container">
         <a class="navbar-brand" href="?pagina=web_Catalogo">Edward<span class="text-primary">Accesorios</span></a>
-        <a href="?pagina=carrito" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Volver al carrito</a>
+        <a href="?pagina=carrito" class="btn custom-back-btn"><i class="fas fa-arrow-left"></i> Volver al carrito</a>
     </div>
 </nav>
+
+<style>
+.custom-dynamic-nav {
+    background-color: var(--header-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-dynamic-nav .navbar-brand {
+    color: var(--header-text) !important;
+}
+
+.custom-back-btn {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    transition: all 0.2s ease;
+}
+
+.custom-back-btn:hover {
+    opacity: 0.85;
+    color: var(--text-main) !important;
+}
+</style>
 
 <div class="container my-5">
     <h2>Finalizar compra</h2>

@@ -78,4 +78,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     }
 }
 
-include 'app/views/proveedores.php';
+require_once 'app/views/proveedores.php';

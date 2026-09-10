@@ -4,6 +4,28 @@
 
 $(function() {
 
+    // Campos en blanco al cargar: el navegador solo sugiere cédulas/claves
+    // guardadas al pulsar el campo (autocomplete=username/current-password).
+    // El atributo readonly se habilita al enfocar para impedir el autofill
+    // del navegador sobre el campo vacío.
+    $('#cedula_cliente, #pass_cliente').val('');
+
+    $(document).on('focus', '#cedula_cliente, #pass_cliente', function () {
+        $(this).removeAttr('readonly');
+    });
+
+    function limpiarAutofillResidual() {
+        var $c = $('#cedula_cliente');
+        var $p = $('#pass_cliente');
+        if (document.activeElement !== $c[0]) $c.val('');
+        if (document.activeElement !== $p[0]) $p.val('');
+    }
+
+    $(window).on('load', function () {
+        setTimeout(limpiarAutofillResidual, 500);
+        setTimeout(limpiarAutofillResidual, 1500);
+    });
+
     // =============================================
     // 1. TOGGLE ENTRE LOGIN / REGISTRO / RECUPERAR
     // =============================================
@@ -32,57 +54,57 @@ $(function() {
         $('.wrapper').removeClass('show-recover');
     }
 
-  // =============================================
-// 2. LOGIN - ENVÍO AJAX
-// =============================================
-$('#clienteLoginForm').on('submit', function(e) {
-    e.preventDefault();
+    // =============================================
+    // 2. LOGIN - ENVÍO AJAX
+    // =============================================
+    $('#clienteLoginForm').on('submit', function(e) {
+        e.preventDefault();
 
-    var btn = $(this).find('button[type="submit"]');
-    var cedula = $('input[name="cedula"]').val().trim();
-    var password = $('input[name="clave"]').val();
+        var btn = $(this).find('button[type="submit"]');
+        var cedula = $('input[name="cedula"]').val().trim();
+        var password = $('input[name="clave"]').val();
 
-    if (!cedula || !password) {
-        Swal.fire('Error', 'Todos los campos son obligatorios', 'warning');
-        return;
-    }
+        if (!cedula || !password) {
+            Swal.fire('Error', 'Todos los campos son obligatorios', 'warning');
+            return;
+        }
 
-    btn.prop('disabled', true);
-    btn.html('<span class="spinner-border spinner-border-sm"></span> Ingresando...');
+        btn.prop('disabled', true);
+        btn.html('<span class="spinner-border spinner-border-sm"></span> Ingresando...');
 
-    $.ajax({
-        url: '?pagina=loginEcommerce&action=procesar',
-        type: 'POST',
-        data: {
-            
-            cedula: cedula, 
-            password: password
-        },
-        dataType: 'json',
-        success: function(res) {
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Bienvenido!',
-                    text: res.message || 'Inicio de sesión exitoso',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(function() {
-                    window.location.href = res.redirect || '?pagina=web_Catalogo';
-                });
-            } else {
-                Swal.fire('Error', res.message || 'Credenciales incorrectas', 'error');
+        $.ajax({
+            url: '?pagina=loginEcommerce&action=procesar',
+            type: 'POST',
+            data: {
+                cedula: cedula, 
+                password: password
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Bienvenido!',
+                        text: res.message || 'Inicio de sesión exitoso',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(function() {
+                        window.location.href = res.redirect || '?pagina=web_Catalogo';
+                    });
+                } else {
+                    Swal.fire('Error', res.message || 'Credenciales incorrectas', 'error');
+                    btn.prop('disabled', false);
+                    btn.html('Ingresar');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Error de conexión con el servidor', 'error');
                 btn.prop('disabled', false);
                 btn.html('Ingresar');
             }
-        },
-        error: function() {
-            Swal.fire('Error', 'Error de conexión con el servidor', 'error');
-            btn.prop('disabled', false);
-            btn.html('Ingresar');
-        }
+        });
     });
-});
+
     // =============================================
     // 3. RECUPERAR CONTRASEÑA - SOLICITAR
     // =============================================
@@ -117,9 +139,33 @@ $('#clienteLoginForm').on('submit', function(e) {
     });
 
     // =============================================
-    // 4. RESTABLECER CONTRASEÑA (token vía GET)
+    // 4. MOSTRAR / OCULTAR CONTRASEÑA
+    // (login, registro y recuperación)
     // =============================================
-    var urlParams = new URLSearchParams(window.location.search);
+  $(document).on('click', '.toggle-password', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $icon = $(this);
+        var $input = $icon.closest('.input-box').find('input[type="password"], input[type="text"]');
+        
+        if (!$input.length) return;
+
+        var esPassword = $input.attr('type') === 'password';
+        
+        if (esPassword) {
+            
+            $input.attr('type', 'text');
+            $icon.removeClass('bx-show').addClass('bx-hide');
+        } else {
+            
+            $input.attr('type', 'password');
+            $icon.removeClass('bx-hide').addClass('bx-show');
+        }
+    });
+    // =============================================
+    // 5. RESTABLECER CONTRASEÑA (token vía GET)
+    // =============================================
     var token = urlParams.get('token');
     if (token) {
         $('#tokenHiddenInput').val(token);

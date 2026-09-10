@@ -13,9 +13,11 @@
         if (esOscuro) {
             document.body.classList.add(DARK_CLASS);
             localStorage.setItem(STORAGE_KEY, 'dark');
+            localStorage.setItem('theme', 'dark');
         } else {
             document.body.classList.remove(DARK_CLASS);
             localStorage.setItem(STORAGE_KEY, 'light');
+            localStorage.setItem('theme', 'light');
         }
         actualizarToggle(esOscuro);
     }
@@ -40,7 +42,7 @@
     }
 
     function initTheme() {
-        const guardado = localStorage.getItem(STORAGE_KEY);
+        const guardado = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('theme');
 
         if (guardado === 'dark') {
             aplicarTema(true);
