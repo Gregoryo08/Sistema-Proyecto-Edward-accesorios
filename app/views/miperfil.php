@@ -5,37 +5,37 @@
     <section class="content_data pt-4" id="hero" style="height: auto;">
         <div class="div_data mt-4 card border-0 shadow bg-transparent">
             <div class="card-header bg-primary text-white py-3">
-                <h2 class="title mb-0 fs-4">Tus Datos Personales</h2>
+                <h2 class="title mb-0 fs-4 text-center">MIS DATOS PERSONALES</h2>
             </div>
             <div class="card-body p-4 bg-transparent">
                 <div class="cont_content" id="cont_content">
                     <div class="container-fluid">
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Nombre:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-person" style="padding: 0px 20px; font-size: 1.25rem;"></i>Nombre:</div>
                             <div class="col-7 fw-semibold text-body" id="d_nombre"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Apellido:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-person" style="padding: 0px 20px; font-size: 1.25rem;"></i>Apellido:</div>
                             <div class="col-7 fw-semibold text-body" id="d_apellido"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Cédula:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-credit-card" style="padding: 0px 20px; font-size: 1.25rem;"></i>Cédula:</div>
                             <div class="col-7 fw-semibold text-body" id="d_cedula"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Teléfono:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-telephone" style="padding: 0px 20px; font-size: 1.25rem;"></i>Teléfono:</div>
                             <div class="col-7 fw-semibold text-body" id="d_telefono"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Correo:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-envelope-at" style="padding: 0px 20px; font-size: 1.25rem;"></i>Correo:</div>
                             <div class="col-7 fw-semibold text-body" id="d_correo"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Dirección:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-geo-alt" style="padding: 0px 20px; font-size: 1.25rem;"></i>Dirección:</div>
                             <div class="col-7 fw-semibold text-body" id="d_direccion"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-5 text-secondary small fw-bold">Fecha Nac:</div>
+                            <div class="col-5 text-secondary small fw-bold"><i class="bi bi-calendar" style="padding: 0px 20px; font-size: 1.25rem;"></i>Fecha Nac:</div>
                             <div class="col-7 fw-semibold text-body" id="d_fecha_nacimiento"></div>
                         </div>
                     </div>
