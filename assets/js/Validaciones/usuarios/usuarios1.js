@@ -125,21 +125,34 @@ $(document).ready(function () {
     });
 
     $("#btnGuardarModificacion").click(function () {
-        let datos = $("#formModificarUsuario").serialize();
-        
-        $.ajax({
-            url: "?pagina=usuarios",
-            method: "POST",
-            data: datos,
-            dataType: "json",
-            success: function (r) {
-                if (r.success) {
-                    $("#modalModificar").modal("hide");
-                    Swal.fire("Éxito", "Modificación realizada correctamente", "success");
-                    cargarTablaUsuarios();
-                } else {
-                    Swal.fire("Error", r.error || "Operación fallida", "error");
-                }
+        Swal.fire({
+            title: "¿Estás seguro de guardar los cambios?",
+            text: "Se actualizarán los datos del usuario en el sistema",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#0d6efd",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, guardar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let datos = $("#formModificarUsuario").serialize();
+                
+                $.ajax({
+                    url: "?pagina=usuarios",
+                    method: "POST",
+                    data: datos,
+                    dataType: "json",
+                    success: function (r) {
+                        if (r.success) {
+                            $("#modalModificar").modal("hide");
+                            Swal.fire("Éxito", "Modificación realizada correctamente", "success");
+                            cargarTablaUsuarios();
+                        } else {
+                            Swal.fire("Error", r.error || "Operación fallida", "error");
+                        }
+                    }
+                });
             }
         });
     });
