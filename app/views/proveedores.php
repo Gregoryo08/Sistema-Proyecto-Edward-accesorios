@@ -36,6 +36,7 @@
 
 
 <script src="assets/js/validaciones/proveedores/proveedores.js"></script>
+<script src="assets/js/validaciones/proveedores/proveedores2.js"></script>
 
 </body>
 </html>

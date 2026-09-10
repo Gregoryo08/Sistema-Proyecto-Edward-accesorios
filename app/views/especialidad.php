@@ -39,6 +39,7 @@
 
 
 <script src="assets/js/validaciones/especialidad/especialidad.js"></script>
+<script src="assets/js/validaciones/especialidad/especialidad2.js"></script>
 
 </body>
 </html>
