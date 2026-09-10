@@ -13,13 +13,10 @@ $action = $_GET['action'] ?? 'enviar';
 $contexto = $_POST['contexto'] ?? $_GET['contexto'] ?? 'intranet';
 $contexto = ($contexto === 'ecommerce') ? 'ecommerce' : 'intranet';
 
-// Token unico de la instancia de chat: en intranet usamos el usuario de sesion;
-// en ecommerce generamos un id corto estable por sesion.
 if ($contexto === 'intranet') {
     $usuarioId = $_SESSION['username'] ?? '';
     $token = 'intra_' . ($usuarioId !== '' ? $usuarioId : 'anon_' . session_id());
     if ($usuarioId === '') {
-        // intranet requiere sesion iniciada
         echo json_encode(['ok' => false, 'message' => 'Sesión no iniciada']);
         exit;
     }
@@ -30,7 +27,6 @@ if ($contexto === 'intranet') {
 
 switch ($action) {
     case 'registrar':
-        // Tomar un "slot" de los 50 simultaneos al abrir el chat
         $res = $model->registrarActivo($token, $usuarioId, $contexto);
         echo json_encode([
             'ok' => $res['ok'],
@@ -41,16 +37,15 @@ switch ($action) {
                 ? "El asistente esta lleno ahora mismo ({$res['activos']}/" . EdAiModel::MAX_SIMULTANEOS . "). Intenta en unos minutos."
                 : "Chat disponible ({$res['activos']}/" . EdAiModel::MAX_SIMULTANEOS . ").",
         ]);
-        break;
+        exit;
 
     case 'liberar':
         $model->liberarActivo($token, $contexto);
         echo json_encode(['ok' => true]);
-        break;
+        exit;
 
     case 'enviar':
     default:
-        // Solo procesar mensajes si hay slot (re-verificar, por si se excedio)
         $mensaje = trim($_POST['mensaje'] ?? '');
         if ($mensaje === '') {
             echo json_encode(['ok' => true, 'respuesta' => 'Escribe tu duda para ayudarte.']);
@@ -72,5 +67,5 @@ switch ($action) {
             'respuesta' => $respuesta,
             'activos' => $res['activos'],
         ]);
-        break;
+        exit;
 }

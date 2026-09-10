@@ -1,6 +1,6 @@
-<?php include 'assets/comunes/menu_principal.php'; ?>
+<?php include 'assets/comunes/menu_principal.php'; ?> 
 
-<!-- Chat Ed-AI Asistente Virtual -->
+
 <div class="chat-widget">
     <div id="chat-window" class="chat-window">
         <div class="chat-header">
@@ -31,8 +31,8 @@
     <header id="home" class="hero">
         <div class="hero-content reveal">
             <span class="badge">C.C. COSMOS - Barquisimeto</span> 
-            <h1>Expertos en <br><span class="highlight">Telefonía Móvil</span></h1>
-            <p>Encuentra accesorios premium, cornetas y los mejores equipos financiados para que estrenes hoy mismo.</p>
+            <h1 style="color: white !important;">Expertos en <br><span class="highlight">Telefonía Móvil</span></h1>
+            <p style="color: white !important;">Encuentra accesorios premium, cornetas y los mejores equipos financiados para que estrenes hoy mismo.</p>
             <div class="hero-btns">
                 <a href="#financiados" class="cta">Ver Planes</a>
                 <a href="#servicio" class="cta-outline">Soporte Técnico</a>
@@ -77,7 +77,7 @@
                     <div class="overlay"><span>Audio & Cornetas</span></div>
                 </div>
                 <div class="gallery-item reveal">
-                    <img src="https://images.unsplash.com/photo-1603313011101-31c726a54881?auto=format&fit=crop&w=500" alt="Forros">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8fYMHoFe2S_wmOKuy4kmbZG_UaWAqPVuzzs0tlgJSM0EukSGygk_qAPPY&s=10" alt="Forros">
                     <div class="overlay"><span>Forros & Protectores</span></div>
                 </div>
             </div>
@@ -93,10 +93,10 @@
                 <h2 class="title left">Soporte Técnico</h2>
                 <p>¿Tu teléfono falló? No te preocupes, somos especialistas en:</p>
                 <ul class="service-list">
-                    <li><i class="fas fa-check-circle"></i> Cambio de pantallas (Display)</li>
-                    <li><i class="fas fa-check-circle"></i> Reemplazo de baterías</li>
-                    <li><i class="fas fa-check-circle"></i> Limpieza de puertos y cornetas</li>
-                    <li><i class="fas fa-check-circle"></i> Mantenimiento preventivo</li>
+                    <p><i class="fas fa-check-circle"></i> Cambio de pantallas (Display)</p>
+                    <p><i class="fas fa-check-circle"></i> Reemplazo de baterías</p>
+                    <p><i class="fas fa-check-circle"></i> Limpieza de puertos y cornetas</p>
+                    <p><i class="fas fa-check-circle"></i> Mantenimiento preventivo</p>
                 </ul>
                 <a href="https://wa.me/tu-numero" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Consultar Precio</a>
             </div>
