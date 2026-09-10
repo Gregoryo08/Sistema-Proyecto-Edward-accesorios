@@ -15,6 +15,8 @@
     
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Script de Google reCAPTCHA añadido -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <style>
         .theme-toggle-btn {
@@ -112,6 +114,11 @@
                 <i class='bx bx-show toggle-password' id="togglePassCliente" style="cursor:pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 99;"></i>
             </div>
             
+            <!-- reCAPTCHA en Login -->
+            <div class="input-box animation" style="--i:2.2; display: flex; justify-content: center;">
+                <div class="g-recaptcha" data-sitekey="6LfgnqstAAAAAIUCJUsYquqH2iNKSZoOhjMYKlaa"></div>
+            </div>
+
             <div class="forgot-pass animation" style="--i:2.5;">
                 <a href="#" class="recover-link">¿Olvidaste tu contraseña?</a>
             </div>
@@ -210,6 +217,11 @@
                 </div>
                 <small id="msgConfirmar" style="display:none; font-size:0.7rem; margin-top:2px;"></small>
 
+                <!-- reCAPTCHA en Registro -->
+                <div class="input-box animation" style="--i:2.2; display: flex; justify-content: center;">
+                    <div class="g-recaptcha" data-sitekey="6LfgnqstAAAAAIUCJUsYquqH2iNKSZoOhjMYKlaa"></div>
+                </div>
+
             </div>
 
             <button type="submit" class="btn animation" style="--i:24;" id="btnRegistro">Registrarse</button>
@@ -302,8 +314,6 @@
                 $themeIcon.removeClass('bx-sun').addClass('bx-moon');
             }
         });
-
-        
     });
 </script>
 
