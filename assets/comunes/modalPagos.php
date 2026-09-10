@@ -51,7 +51,7 @@
 
                             <div class="col-md-6" id="inputReferenciaCol">
                                 <label class="form-label mb-1 fw-medium" style="font-size: 12px;">Nro. de Referencia</label>
-                                <input type="text" id="refPago" placeholder="Opcional / Nro de comprobante" class="form-control" style="border-color: #475569; font-size: 14px; padding: 10px 12px;">
+                                <input type="text" id="refPago" name="refPago" inputmode="numeric" pattern="[0-9]*" placeholder="Opcional / Nro de comprobante" class="form-control" style="border-color: #475569; font-size: 14px; padding: 10px 12px;">
                             </div>
                         </div>
 
@@ -69,7 +69,7 @@
                             <p id="conversionAyuda" class="small text-info mt-1 mb-0 d-none fst-italic"></p>
                         </div>
 
-                        <button type="button" onclick="agregarPago()" class="btn w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white" style="background-color: #4f46e5; border: none; transition: background-color 0.2s;">
+                        <button type="button" id="btnAgregarPago" class="btn w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white" style="background-color: #4f46e5; border: none; transition: background-color 0.2s;">
                             <i class="fa-solid fa-plus"></i> Registrar Pago
                         </button>
                     </div>

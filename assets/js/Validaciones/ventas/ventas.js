@@ -7,8 +7,9 @@ $(document).ready(function () {
     const IVA_PORCENTAJE = 0.16;
     let TASA_DOLAR = 0;
     let categoriaSeleccionada = "todas";
-    let totalDolarCalculado = 0;
+
     let subtotalDolarCalculado = 0;
+    let totalDolarCalculado = 0;
 
     function cargarTasaDolar() {
         $.ajax({
@@ -18,17 +19,17 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.tasa && data.tasa > 0) {
                     TASA_DOLAR = parseFloat(data.tasa);
-                    if (todosLosProductos.length > 0) {
-                        aplicarFiltros();
-                    }
+                } else {
+                    console.warn('⚠️ Tasa de cambio inválida recibida del servidor.');
                 }
+                obtenerCatalogo();
             },
             error: function () {
                 console.warn('⚠️ No se pudo cargar la tasa de cambio.');
+                obtenerCatalogo();
             }
         });
     }
-    cargarTasaDolar();
 
     function obtenerCatalogo() {
         renderizarTabla([], true);
@@ -39,7 +40,7 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.success) {
                     todosLosProductos = res.data;
-                    renderizarTabla(todosLosProductos);
+                    aplicarFiltros();
                     cargarCategoriasFiltro();
                 } else {
                     console.error("Error al obtener catálogo:", res.mensaje);
@@ -61,12 +62,15 @@ $(document).ready(function () {
                 if (res.success && res.data.length > 0) {
                     res.data.forEach(cliente => {
                         html += `<tr>
-                            <td class="ps-3 fw-medium text-center">${cliente.cedula_persona}</td>
-                            <td><div class="fw-bold text-dark text-center">${cliente.nombre} ${cliente.apellido}</div></td>
-                            <td class="text-muted text-center"><i class="fa-solid fa-phone fa-xs me-1"></i> ${cliente.telefono}</td>
+                            <td class="ps-3 fw-medium text-center">${escapeHTML(cliente.cedula_persona)}</td>
+                            <td><div class="fw-bold text-dark text-center">${escapeHTML(cliente.nombre)} ${escapeHTML(cliente.apellido)}</div></td>
+                            <td class="text-muted text-center"><i class="fa-solid fa-phone fa-xs me-1"></i> ${escapeHTML(cliente.telefono)}</td>
                             <td class="text-center pe-3">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium" 
-                                    onclick="selectClient('${cliente.nombre} ${cliente.apellido}', '${cliente.cedula_persona}')">Seleccionar</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium btn-select-cliente" 
+                                    data-nombre="${escapeHTML(cliente.nombre)} ${escapeHTML(cliente.apellido)}" 
+                                    data-cedula="${escapeHTML(cliente.cedula_persona)}">
+                                    Seleccionar
+                                </button>
                             </td>
                         </tr>`;
                     });
@@ -81,9 +85,457 @@ $(document).ready(function () {
         });
     }
 
-    if (typeof aplicarRestriccionesCliente === 'function') {
-        aplicarRestriccionesCliente();
+    function obtenerMetodosPago() {
+        $.ajax({
+            url: '?pagina=ventas&accion=listarMetodosPago',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (res.success) {
+                    let html = '<option value="" selected disabled>Seleccione un método de pago</option>';
+                    res.data.forEach(metodo => {
+                        html += `<option value="${metodo.id_metodopago}" data-currency="${metodo.moneda}">${escapeHTML(metodo.nombre_metodopago)} (${metodo.moneda})</option>`;
+                    });
+                    $('select[name="paymentMethod[]"]').html(html);
+                } else {
+                    console.error("Error al obtener métodos de pago:", res.mensaje);
+                }
+            },
+            error: function (err) {
+                console.error("Error de conexión en AJAX métodos de pago.", err);
+            }
+        });
     }
+
+    function cargarCategoriasFiltro() {
+        $.get("?pagina=productos&ajax=true&x=categorias", (r) => {
+            let cats = typeof r === "string" ? JSON.parse(r) : r;
+            let html = '<option value="todas">Todas las categorías</option>';
+            cats.forEach(c => {
+                html += `<option value="${escapeHTML(c.nombre_categoria.toLowerCase())}">${escapeHTML(c.nombre_categoria)}</option>`;
+            });
+            $("#categoriesContainer").html(html);
+        });
+    }
+
+    function renderizarTabla(productos, cargando = false) {
+        let html = '';
+        if (cargando) {
+            for (let i = 0; i < 6; i++) {
+                html += `
+                    <tr class="placeholder-glow">
+                        <td class="align-middle text-start"><span class="placeholder col-8 bg-secondary opacity-25 rounded-2"></span></td>
+                        <td class="align-middle"><span class="placeholder col-6 bg-secondary opacity-25 rounded-2"></span></td>
+                        <td class="align-middle"><span class="placeholder col-4 bg-success opacity-25 rounded-2"></span></td>
+                        <td class="align-middle"><span class="placeholder col-4 bg-primary opacity-25 rounded-2"></span></td>
+                        <td class="align-middle"><span class="placeholder col-3 bg-success opacity-25 rounded-2"></span></td>
+                    </tr>`;
+            }
+            $('#tablaProductos').html(html);
+            return;
+        }
+
+        if (productos.length === 0) {
+            html = `<tr><td colspan="5" class="text-muted py-3 text-center">No se encontraron productos coincidentes</td></tr>`;
+        } else {
+            productos.forEach(p => {
+                const precioDetalle = parseFloat(p.precio_detal) || 0;
+                const precioEnBs = precioDetalle * TASA_DOLAR;
+
+                html += `
+                    <tr class="item-producto" data-id="${p.id_producto}" style="cursor: pointer;">
+                        <td class="text-start align-middle fw-medium">${escapeHTML(p.nombre_producto)}</td>
+                        <td class="align-middle"><span class="badge bg-secondary text-capitalize">${escapeHTML(p.categoria)}</span></td>
+                        <td class="align-middle fw-semibold text-success">$${precioDetalle.toFixed(2)}</td>
+                        <td class="align-middle fw-semibold text-primary">Bs. ${precioEnBs.toFixed(2)}</td>
+                        <td class="align-middle fw-bold"><span class="badge bg-success text-capitalize">${p.stock_actual}</span></td>
+                    </tr>`;
+            });
+        }
+        $('#tablaProductos').html(html);
+    }
+
+    function actualizarCarritoUI() {
+        if (carrito.length === 0) {
+            $('#emptyCartMessage').removeClass('d-none');
+            $('.cart-item-row').remove();
+            $('#cartCountBadge').text(0);
+            $('#btnPagar').prop('disabled', true);
+            calcularTotales(0);
+            return;
+        }
+
+        $('#emptyCartMessage').addClass('d-none');
+        $('.cart-item-row').remove();
+
+        let totalItemsCount = 0;
+        let subtotalUSD = 0;
+
+        carrito.forEach(item => {
+            totalItemsCount += item.cantidad;
+            subtotalUSD += (item.precio * item.cantidad);
+
+            let filaHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3 cart-item-row bg-light p-2 rounded-3 border">
+                    <div style="max-width: 60%;">
+                        <h6 class="mb-0 fw-bold text-truncate small">${escapeHTML(item.nombre)}</h6>
+                        <small class="text-muted">${item.precio.toFixed(2)} $ x unidad</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-danger btn-cambiar-cant" data-id="${item.id}" data-cambio="-1" style="min-width:30px">-</button>
+                            <span class="btn btn-light fw-bold disabled" style="min-width:30px;">${item.cantidad}</span>
+                            <button type="button" class="btn btn-outline-success btn-cambiar-cant" data-id="${item.id}" data-cambio="1" style="min-width:30px">+</button>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-eliminar-item d-flex align-items-center justify-content-center rounded-3" 
+                            style="width: 26px; height: 26px;" data-id="${item.id}">
+                            <i class="fa-solid fa-xmark fa-md"></i>
+                        </button>
+                    </div>
+                </div>`;
+            $('#cartItemsList').append(filaHTML);
+        });
+
+        $('#cartCountBadge').text(totalItemsCount);
+        $('#btnPagar').prop('disabled', false);
+        calcularTotales(subtotalUSD);
+    }
+
+    function renderizarListaPagosParciales() {
+        $('.sublista-pagos-container').remove();
+        if (listaPagosRegistrados.length === 0) return;
+
+        let listHTML = `<div class="sublista-pagos-container mt-3 border-top pt-2">
+                            <label class="text-xs text-muted fw-bold d-block mb-2">Abonos Agregados:</label>
+                            <ul class="list-group">`;
+        listaPagosRegistrados.forEach((p, idx) => {
+            listHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-white p-2 small border rounded-3 mb-1">
+                    <div>
+                        <strong>${escapeHTML(p.metodo)}</strong> ${p.referencia ? `<span class="badge bg-secondary ms-1">Ref: ${escapeHTML(p.referencia)}</span>` : ''}
+                        <br><span class="text-muted">${p.monto_original.toFixed(2)} ${p.moneda}</span>
+                    </div>
+                    <button type="button" class="btn btn-sm text-danger p-1 btn-eliminar-pago" data-index="${idx}">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </li>`;
+        });
+        listHTML += `</ul></div>`;
+
+        $('#contenedorListaPagos').append(listHTML);
+    }
+
+    function calcularTotales(subtotalUSD) {
+        subtotalDolarCalculado = Math.round(subtotalUSD * 100) / 100;
+        let ivaUSD = Math.round((subtotalDolarCalculado * IVA_PORCENTAJE) * 100) / 100;
+        totalDolarCalculado = Math.round((subtotalDolarCalculado + ivaUSD) * 100) / 100;
+        
+        let subtotalBs = subtotalDolarCalculado * TASA_DOLAR;
+        let ivaBs = ivaUSD * TASA_DOLAR;
+        let totalBs = totalDolarCalculado * TASA_DOLAR;
+
+        $('#subtotalVal').text(`${subtotalBs.toFixed(2)} Bs`);
+        $('#subtotalValDolar').text(`${subtotalDolarCalculado.toFixed(2)} $`);
+        $('#ivaVal').text(`${ivaBs.toFixed(2)} Bs`);
+        $('#ivaValDolar').text(`${ivaUSD.toFixed(2)} $`);
+        $('#totalMainVal').text(`${totalBs.toFixed(2)} Bs`);
+        $('#totalMainValDolar').text(`${totalDolarCalculado.toFixed(2)} $`);
+
+        $('#totalAmountDollar').text(`$${totalDolarCalculado.toFixed(2)}`);
+        $('#totalAmount').text(`${totalBs.toFixed(2)} bs`);
+
+        recalcularMontosYVuelto();
+    }
+
+    function recalcularMontosYVuelto() {
+        let totalDolar = totalDolarCalculado;
+
+        let totalAbonadoDolar = 0;
+        listaPagosRegistrados.forEach(p => totalAbonadoDolar += p.monto_dolar);
+        totalAbonadoDolar = Math.round(totalAbonadoDolar * 100) / 100;
+
+        let totalAbonadoBs = totalAbonadoDolar * TASA_DOLAR;
+        let restanteDolar = Math.round((totalDolar - totalAbonadoDolar) * 100) / 100;
+
+        $('#mTotalAbonado').text(`$${totalAbonadoDolar.toFixed(2)}`);
+        $('#mTotalAbonadoBs').text(`${totalAbonadoBs.toFixed(2)} bs`);
+
+        if (restanteDolar > 0) {
+            let restanteBs = restanteDolar * TASA_DOLAR;
+            $('#lblRestante').text("Por Pagar").removeClass('text-success').addClass('text-warning');
+            $('#mTotalRestante').text(`$${restanteDolar.toFixed(2)}`).removeClass('text-success').addClass('text-warning');
+            $('#mTotalRestanteBs').text(`${restanteBs.toFixed(2)} bs`);
+            $('#cardRestante').removeClass('border-success').addClass('border-warning');
+        } else {
+            let vueltoDolar = Math.abs(restanteDolar);
+            let vueltoBs = vueltoDolar * TASA_DOLAR;
+            
+            $('#lblRestante').text("Vuelto").removeClass('text-warning').addClass('text-success');
+            $('#mTotalRestante').text(`$${vueltoDolar.toFixed(2)}`).removeClass('text-warning').addClass('text-success');
+            $('#mTotalRestanteBs').text(`${vueltoBs.toFixed(2)} bs`);
+            $('#cardRestante').removeClass('border-warning').addClass('border-success');
+        }
+    }
+
+    function aplicarFiltros() {
+        let busqueda = $("#searchInput").val().toLowerCase().trim();
+        let productosFiltrados = todosLosProductos.filter(p => {
+            let coincideBusqueda = p.nombre_producto.toLowerCase().includes(busqueda);
+            let coincideCategoria = (categoriaSeleccionada === "todas") || (p.categoria.toLowerCase() === categoriaSeleccionada);
+            return coincideBusqueda && coincideCategoria;
+        });
+        renderizarTabla(productosFiltrados);
+    }
+
+    function obtenerMontoPagoNumerico() {
+        let val = $('#montoPagoInput').val();
+        if (!val) return 0;
+        let limpio = val.replace(/\./g, '').replace(',', '.');
+        return parseFloat(limpio) || 0;
+    }
+
+    function actualizarSugerenciaConversion() {
+        let moneda = $('select[name="paymentMethod[]"]').find(':selected').data('currency') || 'USD';
+        let monto = obtenerMontoPagoNumerico();
+        if (moneda === 'VES' && monto > 0 && TASA_DOLAR > 0) {
+            let equivUSD = monto / TASA_DOLAR;
+            $('#conversionAyuda').text(`Equivale aprox a: $${equivUSD.toFixed(2)} USD`);
+        } else {
+            $('#conversionAyuda').text('');
+        }
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, match => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[match]));
+    }
+
+    window.openPaymentModal = function () {
+        listaPagosRegistrados = [];
+        $('.sublista-pagos-container').remove();
+        $('#montoPagoInput').val('');
+        $('#refPago').val('');
+
+        let modalElement = document.getElementById('paymentModal');
+        let modalPago = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modalPago.show();
+
+        obtenerMetodosPago();
+        recalcularMontosYVuelto();
+    };
+
+    window.agregarPago = function () {
+        let selectElement = $('select[name="paymentMethod[]"]');
+        let idMetodo = selectElement.val();
+        let nombreMetodo = selectElement.find(':selected').text();
+        let moneda = selectElement.find(':selected').data('currency');
+        let monto = obtenerMontoPagoNumerico();
+        let referencia = $('#refPago').val().trim();
+
+        if (!idMetodo || isNaN(monto) || monto <= 0) {
+            Swal.fire({ icon: "error", title: "Monto inválido", text: "Verifique el método y el monto ingresado." });
+            return;
+        }
+
+        let montoDolar = (moneda === 'VES') ? (monto / TASA_DOLAR) : monto;
+        montoDolar = Math.round(montoDolar * 100) / 100;
+
+        let montoBs = (moneda === 'VES') ? monto : (monto * TASA_DOLAR);
+
+        listaPagosRegistrados.push({
+            id_metodopago: idMetodo,
+            metodo: nombreMetodo,
+            moneda: moneda,
+            monto_original: monto,
+            monto_dolar: montoDolar,
+            monto_bs: montoBs,
+            referencia: referencia
+        });
+
+        $('#montoPagoInput').val('');
+        $('#refPago').val('');
+        recalcularMontosYVuelto();
+        renderizarListaPagosParciales();
+    };
+
+    $(document).on('input', '#refPago', function () {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    $(document).on('click', '#tablaProductos tr.item-producto', function () {
+        let idProducto = $(this).data('id');
+        let productoOriginal = todosLosProductos.find(p => p.id_producto == idProducto);
+
+        if (!productoOriginal) return;
+
+        let itemEnCarrito = carrito.find(item => item.id == idProducto);
+
+        if (itemEnCarrito) {
+            if (itemEnCarrito.cantidad >= parseInt(productoOriginal.stock_actual)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "¡Stock Insuficiente!",
+                    text: `No puedes añadir más unidades. Stock disponible: ${productoOriginal.stock_actual}`
+                });
+                return;
+            }
+            itemEnCarrito.cantidad++;
+        } else {
+            if (parseInt(productoOriginal.stock_actual) <= 0) {
+                Swal.fire({ icon: "error", title: "Sin Stock", text: "Producto agotado." });
+                return;
+            }
+            carrito.push({
+                id: productoOriginal.id_producto,
+                nombre: productoOriginal.nombre_producto,
+                precio: parseFloat(productoOriginal.precio_detal),
+                cantidad: 1,
+                stockMax: parseInt(productoOriginal.stock_actual)
+            });
+        }
+        actualizarCarritoUI();
+    });
+
+    $(document).on('click', '.btn-cambiar-cant', function (e) {
+        e.stopPropagation();
+        let id = $(this).data('id');
+        let cambio = parseInt($(this).data('cambio'));
+        
+        let item = carrito.find(i => i.id == id);
+        if (!item) return;
+
+        let prodCatalog = todosLosProductos.find(p => p.id_producto == id);
+        let maxAvailable = prodCatalog ? parseInt(prodCatalog.stock_actual) : item.stockMax;
+
+        if (item.cantidad + cambio > maxAvailable) {
+            Swal.fire({
+                icon: "error",
+                title: "¡Stock Insuficiente!",
+                text: `No puedes añadir más unidades. Stock disponible: ${maxAvailable}`,
+            });
+            item.cantidad = maxAvailable;
+        } else {
+            item.cantidad += cambio;
+        }
+
+        if (item.cantidad <= 0) {
+            carrito = carrito.filter(i => i.id != id);
+        }
+
+        actualizarCarritoUI();
+    });
+
+    $(document).on('click', '.btn-eliminar-item', function (e) {
+        e.stopPropagation();
+        let id = $(this).data('id');
+        carrito = carrito.filter(i => i.id != id);
+        actualizarCarritoUI();
+    });
+
+    $(document).on('click', '#btnClearCart', function () {
+        carrito = [];
+        actualizarCarritoUI();
+    });
+
+    $(document).on('click', '#btnOpenClientModal', function () {
+        $('#searchClientInput').val('');
+        let modalElement = document.getElementById('modalBuscarCliente');
+        let modalCliente = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modalCliente.show();
+        listarClientes();
+    });
+
+    $(document).on('click', '.btn-select-cliente', function () {
+        let nombreCompleto = $(this).data('nombre');
+        let cedula = $(this).data('cedula');
+
+        clienteSeleccionado = { nombre: nombreCompleto, cedula: cedula };
+        $('#selectedClientName').text(nombreCompleto);
+        $('#selectedClientCed').text(cedula);
+        $('#selectedClientContainer').removeClass('d-none');
+
+        let modalCliente = bootstrap.Modal.getInstance(document.getElementById('modalBuscarCliente'));
+        if (modalCliente) modalCliente.hide();
+
+        Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500
+        }).fire({ icon: 'success', title: 'Cliente asignado al ticket' });
+    });
+
+    $(document).on('click', '#btnRemoveClient', function () {
+        clienteSeleccionado = null;
+        $('#selectedClientContainer').addClass('d-none');
+    });
+
+    $(document).on('click', '#btnPagar', function () {
+        window.openPaymentModal();
+    });
+
+    $(document).on('click', '#btnPagoExacto', function () {
+        let totalDolar = totalDolarCalculado;
+        let abonadoDolar = 0;                  
+        listaPagosRegistrados.forEach(p => abonadoDolar += p.monto_dolar);
+        
+        let pendienteDolar = Math.round((totalDolar - abonadoDolar) * 100) / 100;
+        if (pendienteDolar <= 0) return;
+
+        let moneda = $('select[name="paymentMethod[]"]').find(':selected').data('currency') || 'USD';
+        
+        if (moneda === 'VES') {
+            let pendienteBs = Math.round((pendienteDolar * TASA_DOLAR) * 100) / 100;
+            $('#montoPagoInput').val(pendienteBs.toFixed(2).replace('.', ','));
+        } else {
+            $('#montoPagoInput').val(pendienteDolar.toFixed(2).replace('.', ','));
+        }
+        actualizarSugerenciaConversion();
+    });
+
+    $(document).on('click', '#btnAgregarPago', function () {
+        window.agregarPago();
+    });
+
+    $(document).on('click', '.btn-eliminar-pago', function () {
+        let idx = $(this).data('index');
+        listaPagosRegistrados.splice(idx, 1);
+        recalcularMontosYVuelto();
+        renderizarListaPagosParciales();
+    });
+
+    $(document).on('change', 'select[name="paymentMethod[]"]', function () {
+        let moneda = $(this).find(':selected').data('currency') || 'USD';
+        if (moneda === 'VES') {
+            $('#simboloMonedaInput').text('Bs.');
+            $('#siglaMoneda').text('VES');
+            $('#conversionAyuda').removeClass('d-none');
+        } else {
+            $('#simboloMonedaInput').text('$');
+            $('#siglaMoneda').text('USD');
+            $('#conversionAyuda').addClass('d-none');
+        }
+        actualizarSugerenciaConversion();
+    });
+
+    $(document).on('input', '#montoPagoInput', function () {
+        let input = $(this);
+        let digitos = input.val().replace(/\D/g, '');
+
+        if (digitos === '') {
+            input.val('');
+            actualizarSugerenciaConversion();
+            return;
+        }
+
+        let entero = parseInt(digitos, 10);
+        let monto = (entero / 100).toFixed(2);
+
+        input.val(monto.replace('.', ','));
+        actualizarSugerenciaConversion();
+    });
 
     $('#formRegistrarCliente').on('submit', function (e) {
         e.preventDefault();
@@ -157,446 +609,13 @@ $(document).ready(function () {
         });
     });
 
-    function filtrarClientes() {
-        let query = $('#searchClientInput').val().toLowerCase().trim();
-        $('#tablaClientesModal tbody tr').each(function () {
-            let nombre = $(this).find('td').eq(1).text().toLowerCase();
-            let cedula = $(this).find('td').eq(0).text().toLowerCase();
-            let telefono = $(this).find('td').eq(2).text().toLowerCase();
-            if (nombre.includes(query) || cedula.includes(query) || telefono.includes(query)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    }
-
-    function obtenerMetodosPago() {
-        $.ajax({
-            url: '?pagina=ventas&accion=listarMetodosPago',
-            type: 'GET',
-            dataType: 'json',
-            success: function (res) {
-                if (res.success) {
-                    let html = '<option value="" selected disabled>Seleccione un método de pago</option>';
-                    res.data.forEach(metodo => {
-                        html += `<option value="${metodo.id_metodopago}" data-currency="${metodo.moneda}">${metodo.nombre_metodopago} (${metodo.moneda})</option>`;
-                    });
-                    $('select[name="paymentMethod[]"]').html(html);
-                } else {
-                    console.error("Error al obtener métodos de pago:", res.mensaje);
-                }
-            },
-            error: function (err) {
-                console.error("Error de conexión en AJAX métodos de pago.", err);
-            }
-        });
-    }
-
-    function renderizarTabla(productos, cargando = false) {
-        let html = '';
-        if (cargando) {
-            for (let i = 0; i < 6; i++) {
-                html += `
-                    <tr class="placeholder-glow">
-                        <td class="align-middle text-start"><span class="placeholder col-8 bg-secondary opacity-25 rounded-2"></span></td>
-                        <td class="align-middle"><span class="placeholder col-6 bg-secondary opacity-25 rounded-2"></span></td>
-                        <td class="align-middle"><span class="placeholder col-4 bg-success opacity-25 rounded-2"></span></td>
-                        <td class="align-middle"><span class="placeholder col-4 bg-primary opacity-25 rounded-2"></span></td>
-                        <td class="align-middle"><span class="placeholder col-3 bg-success opacity-25 rounded-2"></span></td>
-                    </tr>`;
-            }
-            $('#tablaProductos').html(html);
-            return;
-        }
-
-        if (productos.length === 0) {
-            html = `<tr><td colspan="5" class="text-muted py-3 text-center">No se encontraron productos coincidentes</td></tr>`;
-        } else {
-            productos.forEach(p => {
-                const precioDetalle = parseFloat(p.precio_detal) || 0;
-                const precioEnBs = precioDetalle * TASA_DOLAR;
-
-                html += `
-                    <tr class="item-producto" data-id="${p.id_producto}" style="cursor: pointer;">
-                        <td class="text-start align-middle fw-medium">${p.nombre_producto}</td>
-                        <td class="align-middle"><span class="badge bg-secondary text-capitalize">${p.categoria}</span></td>
-                        <td class="align-middle fw-semibold text-success">$${precioDetalle.toFixed(2)}</td>
-                        <td class="align-middle fw-semibold text-primary">Bs. ${precioEnBs.toFixed(2)}</td>
-                        <td class="align-middle fw-bold"><span class="badge bg-success text-capitalize">${p.stock_actual}</span></td>
-                    </tr>`;
-            });
-        }
-        $('#tablaProductos').html(html);
-    }
-
-    function cargarCategoriasFiltro() {
-        $.get("?pagina=productos&ajax=true&x=categorias", (r) => {
-            let cats = typeof r === "string" ? JSON.parse(r) : r;
-            let html = '<option value="todas">Todas las categorías</option>';
-            cats.forEach(c => {
-                html += `<option value="${c.nombre_categoria.toLowerCase()}">${c.nombre_categoria}</option>`;
-            });
-            $("#categoriesContainer").html(html);
-        });
-    }
-
-    function aplicarFiltros() {
-        let busqueda = $("#searchInput").val().toLowerCase().trim();
-        let productosFiltrados = todosLosProductos.filter(p => {
-            let coincideBusqueda = p.nombre_producto.toLowerCase().includes(busqueda);
-            let coincideCategoria = (categoriaSeleccionada === "todas") || (p.categoria.toLowerCase() === categoriaSeleccionada);
-            return coincideBusqueda && coincideCategoria;
-        });
-        renderizarTabla(productosFiltrados);
-    }
-
-    $(document).on('click', '#tablaProductos tr.item-producto', function () {
-        let idProducto = $(this).data('id');
-        let productoOriginal = todosLosProductos.find(p => p.id_producto == idProducto);
-
-        if (!productoOriginal) return;
-
-        let itemEnCarrito = carrito.find(item => item.id == idProducto);
-
-        if (itemEnCarrito) {
-            if (itemEnCarrito.cantidad >= parseInt(productoOriginal.stock_actual)) {
-                Swal.fire({
-                    icon: "error",
-                    title: "¡Stock Insuficiente!",
-                    text: `No puedes añadir más unidades. Stock disponible: ${productoOriginal.stock_actual}`
-                });
-                return;
-            }
-            itemEnCarrito.cantidad++;
-        } else {
-            if (parseInt(productoOriginal.stock_actual) <= 0) {
-                Swal.fire({ icon: "error", title: "Sin Stock", text: "Producto agotado." });
-                return;
-            }
-            carrito.push({
-                id: productoOriginal.id_producto,
-                nombre: productoOriginal.nombre_producto,
-                precio: parseFloat(productoOriginal.precio_detal),
-                cantidad: 1,
-                stockMax: parseInt(productoOriginal.stock_actual)
-            });
-        }
-        actualizarCarritoUI();
-    });
-
-    window.cambiarCantidad = function (id, cambio) {
-        let item = carrito.find(i => i.id == id);
-        if (!item) return;
-
-        let prodCatalog = todosLosProductos.find(p => p.id_producto == id);
-        let maxAvailable = prodCatalog ? parseInt(prodCatalog.stock_actual) : item.stockMax;
-
-        if (item.cantidad + cambio > maxAvailable) {
-            Swal.fire({
-                icon: "error",
-                title: "¡Stock Insuficiente!",
-                text: `No puedes añadir más unidades. Stock disponible: ${maxAvailable}`,
-            });
-            item.cantidad = maxAvailable;
-        } else {
-            item.cantidad += cambio;
-        }
-
-        if (item.cantidad <= 0) {
-            carrito = carrito.filter(i => i.id != id);
-        }
-
-        actualizarCarritoUI();
-    };
-
-    window.eliminarItem = function (id) {
-        carrito = carrito.filter(i => i.id != id);
-        actualizarCarritoUI();
-    };
-
-    window.clearCart = function () {
-        carrito = [];
-        actualizarCarritoUI();
-    };
-
-    function actualizarCarritoUI() {
-        if (carrito.length === 0) {
-            $('#emptyCartMessage').removeClass('d-none');
-            $('.cart-item-row').remove();
-            $('#cartCountBadge').text(0);
-            $('#btnPagar').prop('disabled', true);
-            calcularTotales(0);
-            return;
-        }
-
-        $('#emptyCartMessage').addClass('d-none');
-        $('.cart-item-row').remove();
-
-        let totalItemsCount = 0;
-        let subtotalUSD = 0;
-
-        carrito.forEach(item => {
-            totalItemsCount += item.cantidad;
-            subtotalUSD += (item.precio * item.cantidad);
-
-            let filaHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-3 cart-item-row bg-light p-2 rounded-3 border">
-                    <div style="max-width: 60%;">
-                        <h6 class="mb-0 fw-bold text-truncate small">${item.nombre}</h6>
-                        <small class="text-muted">${item.precio.toFixed(2)} $ x unidad</small>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-danger" style="min-width:30px" onclick="cambiarCantidad(${item.id}, -1)">-</button>
-                            <span class="btn btn-light fw-bold disabled" style="min-width:30px;">${item.cantidad}</span>
-                            <button type="button" class="btn btn-outline-success" style="min-width:30px" onclick="cambiarCantidad(${item.id}, 1)">+</button>
-                        </div>
-                        <button type="button" class="btn btn-danger d-flex align-items-center justify-content-center rounded-3" 
-                            style="width: 26px; height: 26px;" onclick="eliminarItem(${item.id})">
-                            <i class="fa-solid fa-xmark fa-md"></i>
-                        </button>
-                    </div>
-                </div>`;
-            $('#cartItemsList').append(filaHTML);
-        });
-
-        $('#cartCountBadge').text(totalItemsCount);
-        $('#btnPagar').prop('disabled', false);
-        calcularTotales(subtotalUSD);
-    }
-
-    function calcularTotales(subtotalUSD) {
-        subtotalDolarCalculado = subtotalUSD;
-        let ivaUSD = subtotalUSD * IVA_PORCENTAJE;
-        totalDolarCalculado = subtotalUSD + ivaUSD;
-
-        let subtotalBs = subtotalUSD * TASA_DOLAR;
-        let ivaBs = ivaUSD * TASA_DOLAR;
-        let totalBs = totalDolarCalculado * TASA_DOLAR;
-
-        $('#subtotalVal').text(`${subtotalBs.toFixed(2)} Bs`);
-        $('#ivaVal').text(`${ivaBs.toFixed(2)} Bs`);
-        $('#totalMainVal').text(`${totalBs.toFixed(2)} Bs`);
-        $('#totalAltVal').text(`Equivale a: $${totalDolarCalculado.toFixed(2)}`);
-
-        $('#totalAmountDollar').text(`$${totalDolarCalculado.toFixed(2)}`);
-        $('#totalAmount').text(`${totalBs.toFixed(2)} bs`);
-
-        recalcularMontosYVuelto();
-    }
-
-    window.openClientModal = function () {
-        $('#searchClientInput').val('');
-        let modalElement = document.getElementById('modalBuscarCliente');
-        let modalCliente = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modalCliente.show();
-        listarClientes();
-    };
-
-    window.selectClient = function (nombreCompleto, cedula) {
-        clienteSeleccionado = { nombre: nombreCompleto, cedula: cedula };
-        $('#selectedClientName').text(nombreCompleto);
-        $('#selectedClientCed').text(cedula);
-        $('#selectedClientContainer').removeClass('d-none');
-
-        let modalCliente = bootstrap.Modal.getInstance(document.getElementById('modalBuscarCliente'));
-        if (modalCliente) modalCliente.hide();
-
-        Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500
-        }).fire({ icon: 'success', title: 'Cliente asignado al ticket' });
-    };
-
-    window.removeSelectedClient = function () {
-        clienteSeleccionado = null;
-        $('#selectedClientContainer').addClass('d-none');
-    };
-
-    window.openPaymentModal = function () {
-        listaPagosRegistrados = [];
-        $('.sublista-pagos-container').remove();
-        $('#montoPagoInput').val('');
-        $('#refPago').val('');
-
-        let modalElement = document.getElementById('paymentModal');
-        let modalPago = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modalPago.show();
-
-        obtenerMetodosPago();
-        recalcularMontosYVuelto();
-    };
-
-    $(document).on('change', 'select[name="paymentMethod[]"]', function () {
-        let moneda = $(this).find(':selected').data('currency') || 'USD';
-        if (moneda === 'VES') {
-            $('#simboloMonedaInput').text('Bs.');
-            $('#siglaMoneda').text('VES');
-            $('#conversionAyuda').removeClass('d-none');
-        } else {
-            $('#simboloMonedaInput').text('$');
-            $('#siglaMoneda').text('USD');
-            $('#conversionAyuda').addClass('d-none');
-        }
-        actualizarSugerenciaConversion();
-    });
-
-    // --- FORMATEO AUTOMÁTICO TIPO CAJERO AUTOMÁTICO EN EL INPUT ---
-    $(document).on('input', '#montoPagoInput', function () {
-        let input = $(this);
-        let valor = input.val();
-
-        let digitos = valor.replace(/\D/g, '');
-
-        if (digitos === '') {
-            input.val('');
-            actualizarSugerenciaConversion();
-            return;
-        }
-
-        let entero = parseInt(digitos, 10);
-        let monto = (entero / 100).toFixed(2);
-
-        input.val(monto.replace('.', ','));
-        actualizarSugerenciaConversion();
-    });
-
-    // Función auxiliar para obtener el valor flotante real (convirtiendo coma a punto)
-    function obtenerMontoPagoNumerico() {
-        let val = $('#montoPagoInput').val();
-        if (!val) return 0;
-        return parseFloat(val.replace(',', '.')) || 0;
-    }
-
-    function actualizarSugerenciaConversion() {
-        let moneda = $('select[name="paymentMethod[]"]').find(':selected').data('currency') || 'USD';
-        let monto = obtenerMontoPagoNumerico();
-        if (moneda === 'VES' && monto > 0 && TASA_DOLAR > 0) {
-            let equivUSD = monto / TASA_DOLAR;
-            $('#conversionAyuda').text(`Equivale aprox a: $${equivUSD.toFixed(2)} USD`);
-        } else {
-            $('#conversionAyuda').text('');
-        }
-    }
-
-    window.pagoExacto = function () {
-        let totalDolar = totalDolarCalculado;
-        let abonadoDolar = 0;
-        listaPagosRegistrados.forEach(p => abonadoDolar += p.monto_dolar);
-        let pendienteDolar = totalDolar - abonadoDolar;
-        if (pendienteDolar <= 0) return;
-
-        let moneda = $('select[name="paymentMethod[]"]').find(':selected').data('currency') || 'USD';
-        if (moneda === 'VES') {
-            let pendienteBs = pendienteDolar * TASA_DOLAR;
-            $('#montoPagoInput').val(pendienteBs.toFixed(2).replace('.', ','));
-        } else {
-            $('#montoPagoInput').val(pendienteDolar.toFixed(2).replace('.', ','));
-        }
-        actualizarSugerenciaConversion();
-    };
-
-    window.agregarPago = function () {
-        let selectElement = $('select[name="paymentMethod[]"]');
-        let idMetodo = selectElement.val();
-        let nombreMetodo = selectElement.find(':selected').text();
-        let moneda = selectElement.find(':selected').data('currency');
-        let monto = obtenerMontoPagoNumerico();
-        let referencia = $('#refPago').val().trim();
-
-        if (!idMetodo || isNaN(monto) || monto <= 0) {
-            Swal.fire({ icon: "error", title: "Monto inválido", text: "Verifique el método y el monto ingresado." });
-            return;
-        }
-
-        let montoDolar = (moneda === 'VES') ? (monto / TASA_DOLAR) : monto;
-        let montoBs = (moneda === 'VES') ? monto : (monto * TASA_DOLAR);
-
-        listaPagosRegistrados.push({
-            id_metodopago: idMetodo,
-            metodo: nombreMetodo,
-            moneda: moneda,
-            monto_original: monto,
-            monto_dolar: montoDolar,
-            monto_bs: montoBs,
-            referencia: referencia
-        });
-
-        $('#montoPagoInput').val('');
-        $('#refPago').val('');
-        recalcularMontosYVuelto();
-        renderizarListaPagosParciales();
-    };
-
-    function renderizarListaPagosParciales() {
-        $('.sublista-pagos-container').remove();
-
-        if (listaPagosRegistrados.length === 0) return;
-
-        let listHTML = `<div class="sublista-pagos-container mt-3 border-top pt-2">
-                            <label class="text-xs text-muted fw-bold d-block mb-2">Abonos Agregados:</label>
-                            <ul class="list-group">`;
-        listaPagosRegistrados.forEach((p, idx) => {
-            listHTML += `
-                <li class="list-group-item d-flex justify-content-between align-items-center bg-white p-2 small border rounded-3 mb-1">
-                    <div>
-                        <strong>${p.metodo}</strong> ${p.referencia ? `<span class="badge bg-secondary ms-1">Ref: ${p.referencia}</span>` : ''}
-                        <br><span class="text-muted">${p.monto_original.toFixed(2)} ${p.moneda}</span>
-                    </div>
-                    <button type="button" class="btn btn-sm text-danger p-1" onclick="eliminarPagoRegistrado(${idx})">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </li>`;
-        });
-        listHTML += `</ul></div>`;
-
-        $('#contenedorListaPagos').append(listHTML);
-    }
-
-    window.eliminarPagoRegistrado = function (idx) {
-        listaPagosRegistrados.splice(idx, 1);
-        recalcularMontosYVuelto();
-        renderizarListaPagosParciales();
-    };
-
-    function recalcularMontosYVuelto() {
-        let totalDolar = totalDolarCalculado;
-
-        let totalAbonadoDolar = 0;
-        listaPagosRegistrados.forEach(p => totalAbonadoDolar += p.monto_dolar);
-        let totalAbonadoBs = totalAbonadoDolar * TASA_DOLAR;
-
-        let restanteDolar = totalDolar - totalAbonadoDolar;
-
-        $('#mTotalAbonado').text(`$${totalAbonadoDolar.toFixed(2)}`);
-        $('#mTotalAbonadoBs').text(`${totalAbonadoBs.toFixed(2)} bs`);
-
-        if (restanteDolar > 0.001) {
-            let restanteBs = restanteDolar * TASA_DOLAR;
-            $('#lblRestante').text("Por Pagar").removeClass('text-success').addClass('text-warning');
-            $('#mTotalRestante').text(`$${restanteDolar.toFixed(2)}`).removeClass('text-success').addClass('text-warning');
-            $('#mTotalRestanteBs').text(`${restanteBs.toFixed(2)} bs`);
-            $('#cardRestante').removeClass('border-success').addClass('border-warning');
-        } else {
-            let vueltoDolar = Math.abs(restanteDolar);
-            let vueltoBs = vueltoDolar * TASA_DOLAR;
-            
-            $('#lblRestante').text("Vuelto").removeClass('text-warning').addClass('text-success');
-            $('#mTotalRestante').text(`$${vueltoDolar.toFixed(2)}`).removeClass('text-warning').addClass('text-success');
-            $('#mTotalRestanteBs').text(`${vueltoBs.toFixed(2)} bs`);
-            $('#cardRestante').removeClass('border-warning').addClass('border-success');
-        }
-    }
-
     $('#paymentForm').on('submit', function (e) {
         e.preventDefault();
 
         let totalDolar = totalDolarCalculado;
         let totalAbonadoDolar = 0;
         listaPagosRegistrados.forEach(p => totalAbonadoDolar += p.monto_dolar);
+        totalAbonadoDolar = Math.round(totalAbonadoDolar * 100) / 100;
 
         if (listaPagosRegistrados.length === 0) {
             Swal.fire({
@@ -607,7 +626,7 @@ $(document).ready(function () {
             return;
         }
 
-        if (totalAbonadoDolar < (totalDolar - 0.01)) {
+        if (totalAbonadoDolar < totalDolar) {
             Swal.fire({
                 icon: "error",
                 title: "Monto Insuficiente",
@@ -644,8 +663,10 @@ $(document).ready(function () {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        clearCart();
-                        removeSelectedClient();
+                        carrito = [];
+                        actualizarCarritoUI();
+                        clienteSeleccionado = null;
+                        $('#selectedClientContainer').addClass('d-none');
                         obtenerCatalogo();
                     });
                 } else {
@@ -663,12 +684,29 @@ $(document).ready(function () {
         });
     });
 
-    $("#searchClientInput").on("keyup", function () { filtrarClientes(); });
+    $("#searchClientInput").on("keyup", function () {
+        let query = $(this).val().toLowerCase().trim();
+        $('#tablaClientesModal tbody tr').each(function () {
+            let nombre = $(this).find('td').eq(1).text().toLowerCase();
+            let cedula = $(this).find('td').eq(0).text().toLowerCase();
+            let telefono = $(this).find('td').eq(2).text().toLowerCase();
+            if (nombre.includes(query) || cedula.includes(query) || telefono.includes(query)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
     $("#searchInput").on("keyup", function () { aplicarFiltros(); });
     $("#categoriesContainer").on("change", function () {
         categoriaSeleccionada = $(this).val();
         aplicarFiltros();
     });
 
-    obtenerCatalogo();
+    if (typeof aplicarRestriccionesCliente === 'function') {
+        aplicarRestriccionesCliente();
+    }
+
+    cargarTasaDolar();
 });

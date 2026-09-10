@@ -79,20 +79,28 @@
 
                 <div class="border-top pt-3 mt-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted small">Subtotal:</span>
+                        <span class="text-muted small">Subtotal Bs:</span>
                         <span class="fw-medium small" id="subtotalVal">0.00 Bs</span>
+                        <span class="text-muted small">Subtotal $:</span>
+                        <span class="fw-medium small" id="subtotalValDolar">0.00 $</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted small">IVA (16%):</span>
+                        <span class="text-muted small">IVA Bs (16%):</span>
                         <span class="fw-medium small" id="ivaVal">0.00 Bs</span>
+                        <span class="text-muted small">IVA $ (16%):</span>
+                        <span class="fw-medium small" id="ivaValDolar">0.00 $</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="mb-0 fw-bold text-dark h4">Total:</span>
+                    <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+                        <span class="mb-0 fw-bold text-dark h4" style="font-size: 1.10rem;">Total:</span>
                         <div class="text-end">
-                            <h3 class="mb-0 fw-extrabold text-dark" id="totalMainVal" style="font-size: 1.75rem;">0.00 Bs</h3>
+                            <h3 class="mb-0 fw-extrabold text-dark" id="totalMainVal" style="font-size: 1.10rem;" >0.00 Bs</h3>
+                        </div>
+                        <span class="mb-0 fw-bold text-dark h4" style="font-size: 1.10rem;">Total:</span>
+                        <div class="text-end">
+                            <h3 class="mb-0 fw-extrabold text-dark" id="totalMainValDolar" style="font-size: 1.10rem;">0.00 $</h3>
                         </div>
                     </div>
-                    <button class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnPagar" onclick="openPaymentModal()" disabled>
+                    <button class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnPagar" disabled>
                         <i class="fa-solid fa-cash-register"></i> REALIZAR VENTA
                     </button>
                 </div>
