@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import skfuzzy as fuzzy
 from skfuzzy import control as ctrl
@@ -37,16 +38,19 @@ simulador = ctrl.ControlSystemSimulation(sistema_ia)
 
 @app.route('/evaluar', methods=['POST'])
 def evaluar_cliente():
-    datos = request.json
+    datos = request.get_json(silent=True)
+    if not datos or 'cedula' not in datos:
+        return jsonify({"error": "Se requiere el campo 'cedula'"}), 400
+    
     cedula = datos.get('cedula')
     
     try:
         conn = mysql.connector.connect(
-            host="127.0.0.1",
-            port=3306,
-            user="root",
-            password="",
-            database="sistema_edward"
+            host=os.getenv('DB_HOST', '127.0.0.1'),
+            port=int(os.getenv('DB_PORT', 3307)),
+            user=os.getenv('DB_USER', 'root'),
+            password=os.getenv('DB_PASS', '12345'),
+            database=os.getenv('DB_NAME', 'sistema_edward')
         )
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT ingresos_mensuales, score_credito FROM perfiles_financiamiento WHERE cedula_persona = %s", (cedula,))
@@ -57,8 +61,11 @@ def evaluar_cliente():
         if not perfil:
             return jsonify({"error": "No se encontró perfil financiero"}), 404
 
-        simulador.input['ingreso'] = float(perfil['ingresos_mensuales'])
-        simulador.input['historial'] = float(perfil['score_credito']) * 10
+        ingresos = float(perfil['ingresos_mensuales'] or 0)
+        score_db = float(perfil['score_credito'] or 0)
+
+        simulador.input['ingreso'] = ingresos
+        simulador.input['historial'] = score_db * 10
         
         simulador.compute()
         
@@ -79,4 +86,4 @@ def evaluar_cliente():
         return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(host='0.0.0.0', port=5000)
