@@ -1,14 +1,11 @@
-
 vendor/
 
-
 composer.phar
-
 
 databases/
 app/databases
 
-
 app/config/data.php
 app/config/data-host.php
 app/config/Conexion.php
+app/config/db_host.cache
