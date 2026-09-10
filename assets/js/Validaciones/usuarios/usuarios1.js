@@ -31,9 +31,9 @@ $(document).ready(function () {
                 { data: "estatus", render: (data) => `<span class="badge" style="background:${(data === "Activo" ? "green" : "red")}">${data}</span>` },
                 { data: null, render: function(d, t, row) {
                     let btn = `<div class="btn-group">`;
-                    if (permisos.modificar) btn += `<button type="button" class="btn btn-sm btn-warning btn-editar" data-id="${row.cedula_usuario}"><i class="fa-solid fa-pen"></i></button>`;
-                    if (permisos.eliminar && row.estatus === "Activo") btn += `<button type="button" class="btn btn-sm btn-danger btn-suspender" data-id="${row.cedula_usuario}"><i class="fa-solid fa-trash"></i></button>`;
-                    else if (permisos.modificar && row.estatus === "Inactivo") btn += `<button type="button" class="btn btn-sm btn-success btn-habilitar" data-id="${row.cedula_usuario}"><i class="bi bi-person-check"></i></button>`;
+                    if (permisos.modificar) btn += `<button type="button" class="btn btn-sm btn-warning btn-editar m-2" title="Editar Usuario" data-id="${row.cedula_usuario}"><i class="fa-solid fa-pen"></i></button>`;
+                    if (permisos.eliminar && row.estatus === "Activo") btn += `<button type="button" class="btn btn-sm btn-danger btn-suspender m-2" title="Suspender Usuario" data-id="${row.cedula_usuario}"><i class="fa-solid fa-trash-can"></i></button>`;
+                    else if (permisos.modificar && row.estatus === "Inactivo") btn += `<button type="button" class="btn btn-sm btn-success btn-habilitar m-2" title="Habilitar Usuario" data-id="${row.cedula_usuario}"><i class="bi bi-person-check"></i></button>`;
                     return btn + `</div>`;
                 }}
             ]
