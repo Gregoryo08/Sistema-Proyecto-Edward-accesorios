@@ -249,6 +249,10 @@ class productos extends Conexion
     {
         try {
             $conex = new Conexion("sistema");
+              $user = $_SESSION["username"];
+            $modulo = "Administrar Productos";
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("UPDATE productos SET imagen_principal = :img WHERE id_producto = :id");
             $stmt->execute([":img" => $imagen, ":id" => $id]);
             return true;
@@ -261,6 +265,10 @@ class productos extends Conexion
     {
         try {
             $conex = new Conexion("sistema");
+              $user = $_SESSION["username"];
+            $modulo = "Administrar Productos";
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT id_producto, nombre_producto, imagen_principal FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -273,6 +281,10 @@ class productos extends Conexion
     {
         try {
             $conex = new Conexion("sistema");
+              $user = $_SESSION["username"];
+            $modulo = "Administrar Productos";
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT imagen_principal, nombre_producto FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             $prod = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -320,6 +332,10 @@ class productos extends Conexion
     {
         try {
             $conex = new Conexion("sistema");
+              $user = $_SESSION["username"];
+            $modulo = "Administrar Productos";
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT imagen_principal FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             $prod = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -346,6 +362,10 @@ class productos extends Conexion
         $resultados = ['asociadas' => 0, 'renombradas' => 0, 'sin_match' => [], 'ya_tenian' => 0];
 
         $conex = new Conexion("sistema");
+          $user = $_SESSION["username"];
+            $modulo = "Administrar Productos";
+            $conex->exec("SET @usuario_actual = '{$user}'");
+            $conex->exec("SET @modulo = '{$modulo}'");
         $stmt = $conex->query("SELECT id_producto, nombre_producto, imagen_principal FROM productos ORDER BY id_producto");
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
