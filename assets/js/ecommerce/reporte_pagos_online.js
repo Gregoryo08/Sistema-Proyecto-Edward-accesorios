@@ -64,8 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var montoInput = document.querySelector('[name="monto"]');
     if (montoInput) {
         montoInput.addEventListener('input', function() {
-            let montoRaw = this.value.replace(/,/g, '.');
-            let montoBs = parseFloat(montoRaw);
+            let montoBs = parsearMontoBs(this.value);
             var msgMonto = document.getElementById('msg-monto');
 
             var equivEl = document.getElementById('monto-usd-equiv');
@@ -85,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var totalUSDInput = document.getElementById('total-usd');
                     var totalUSD = parseFloat(totalUSDInput ? totalUSDInput.value : '0') || 0;
 
-                    if (equivUSD < totalUSD) {
+                    if (equivUSD < (totalUSD - 0.01)) {
                         msgUsdEl.style.display = 'block';
                     } else {
                         msgUsdEl.style.display = 'none';

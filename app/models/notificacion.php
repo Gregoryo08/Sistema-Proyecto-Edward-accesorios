@@ -5,6 +5,8 @@ namespace App\Sistema\models;
 use App\Sistema\config\Conexion;
 use \PDO;
 use \PDOException;
+use \DateTime;
+use \DateTimeZone;
 
 class notificacion extends Conexion
 {
@@ -54,16 +56,11 @@ class notificacion extends Conexion
         return $this->aplicarReparacion($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    /**
-     * Repara mensajes que perdieron los acentos por doble codificación (CP437 → UTF-8)
-     * para que "Reposición", "Garantía", etc. se muestren ortográficamente bien.
-     */
     private function repararAcentos($texto)
     {
         if (!is_string($texto) || $texto === '') {
             return $texto;
         }
-        // Marca de corrupción: "├" (U+251C) aparece cuando el carácter acentuado no es válido
         if (strpos($texto, "\u{251C}") === false) {
             return $texto;
         }
@@ -85,6 +82,16 @@ class notificacion extends Conexion
         foreach ($filas as &$fila) {
             if (isset($fila['mensaje'])) {
                 $fila['mensaje'] = $this->repararAcentos($fila['mensaje']);
+            }
+            if (isset($fila['fecha_creacion'])) {
+                try {
+                    $dt = new DateTime($fila['fecha_creacion'], new DateTimeZone('UTC'));
+                    $dt->setTimezone(new DateTimeZone('America/Caracas'));
+                    $hora = $dt->format('g:i');
+                    $ampm = strtolower($dt->format('A')) === 'am' ? 'a. m.' : 'p. m.';
+                    $fila['fecha_creacion'] = $dt->format('Y-m-d') . ' ' . $hora . ' ' . $ampm;
+                } catch (\Exception $e) {
+                }
             }
         }
         return $filas;

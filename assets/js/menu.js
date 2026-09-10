@@ -43,29 +43,54 @@ $(document).ready(function () {
             const notificaciones = todasNotificaciones.filter(n => parseInt(n.leida) === 0 || n.leida === "0" || n.leida === false || !n.leida);
             const $dropdown = $("#dropdown_noti");
             const $contador = $("#contador");
+            const $btnLimpiar = $("#btn_limpiar_todas");
 
             if (notificaciones.length > 0) {
                 $contador.text(notificaciones.length).show();
                 $dropdown.empty();
+                $btnLimpiar.show();
 
                 notificaciones.forEach(n => {
                     $dropdown.append(`
-                        <div class="item-notificacion" style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 13px;" data-id="${n.id_notificacion}">
-                            <i class="bi bi-exclamation-triangle-fill" style="color: #f0ad4e;"></i> 
-                            ${n.mensaje}
+                        <div class="item-notificacion" style="padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 13px; transition: background 0.2s;" data-id="${n.id_notificacion}">
+                            <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                <i class="bi bi-exclamation-triangle-fill" style="color: #f0ad4e; margin-top: 1px;"></i> 
+                                <div style="flex: 1; color: #333;">${n.mensaje}</div>
+                            </div>
                         </div>
                     `);
                 });
             } else {
                 $contador.hide();
-                $dropdown.html('<p style="text-align:center; color:#999; padding:10px;">No hay notificaciones nuevas</p>');
+                $btnLimpiar.hide();
+                $dropdown.html('<p style="text-align:center; color:#999; padding:15px; margin:0;">No hay notificaciones nuevas</p>');
             }
         }, 'json');
     }
 
     $(document).on("click", ".item-notificacion", function () {
-        let id = $(this).data("id");
-        marcarLeidaDesdeDropdown(id);
+        let $item = $(this);
+        $item.css({ "background-color": "#d4edda", "color": "#155724" });
+        let id = $item.data("id");
+        setTimeout(function() {
+            marcarLeidaDesdeDropdown(id);
+        }, 250);
+    });
+
+    $(document).on("click", "#btn_limpiar_todas", function () {
+        $.post("?pagina=notificacion&ajax=true&x=marcar_todas_leidas", function (res) {
+            $("#dropdown_noti").html('<p style="text-align:center; color:#999; padding:15px; margin:0;">No hay notificaciones nuevas</p>');
+            $("#contador").hide();
+            $("#btn_limpiar_todas").hide();
+
+            if ($.fn.DataTable.isDataTable("#tablaNotificaciones")) {
+                $("#tablaNotificaciones").DataTable().ajax.reload(null, false);
+            }
+        }, 'json').fail(function() {
+            $("#dropdown_noti").html('<p style="text-align:center; color:#999; padding:15px; margin:0;">No hay notificaciones nuevas</p>');
+            $("#contador").hide();
+            $("#btn_limpiar_todas").hide();
+        });
     });
 
     function marcarLeidaDesdeDropdown(id) {
@@ -87,6 +112,32 @@ $(document).ready(function () {
 
     actualizarNotificaciones();
     setInterval(actualizarNotificaciones, 60000);
+
+    if ($.fn.DataTable && $.fn.DataTable.ext) {
+        $.extend(true, $.fn.dataTable.defaults, {
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron resultados",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    }
 
     const $btnTasa = $('.btn-tasa');
     const $tooltipTasa = $('#tasa-tooltip');

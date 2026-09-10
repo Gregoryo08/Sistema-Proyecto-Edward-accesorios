@@ -41,13 +41,25 @@
             <div class="notificacion-wrapper">
     <i class="bi bi-bell-fill" id="btn_noti"></i>
     <span id="contador">0</span>
-    <div class="container_notificacion" id="container_notificacion" style="display: none;">
-        <div class="header_cuadro" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd;">
-            <p class="title" style="margin: 0; font-weight: bold;">Notificaciones</p>
-            <i class="bi bi-x-lg" id="cerrar_noti" style="cursor: pointer; font-size: 16px;"></i>
-        </div>
-        <div id="dropdown_noti"></div>
+    <div class="container_notificacion" id="container_notificacion" style="display: none; width: 320px; background: #fff; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); border-radius: 10px; position: absolute; right: 0; z-index: 1000; overflow: hidden;">
+    
+    
+    <div class="header_cuadro" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background-color: #0b2545; color: #fff;">
+        <p class="title" style="margin: 0; font-weight: bold; font-size: 14px;">NOTIFICACIONES</p>
+        <i class="bi bi-x-lg" id="cerrar_noti" style="cursor: pointer; font-size: 16px;"></i>
     </div>
+
+    
+    <div id="dropdown_noti" style="max-height: 280px; overflow-y: auto;"></div>
+
+    
+    <div style="padding: 10px; background: #f8f9fa; border-top: 1px solid #eee; text-align: center;">
+        <button id="btn_limpiar_todas" style="width: 100%; background: #007bff; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;">
+            <i class="bi bi-check2-all" style="font-size: 16px;"></i> Marcar todas como leídas
+        </button>
+    </div>
+
+</div>
 </div>
 
             <button id="theme-toggle" class="btn btn-sm">

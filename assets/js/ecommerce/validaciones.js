@@ -98,9 +98,28 @@ function validarLongitudMinima(valor, min) {
  * Soporta inglés "198.99" y español "198,99"
  */
 function validarMonto(monto) {
-    var normalizado = monto.replace(',', '.');
-    var numero = parseFloat(normalizado);
+    var numero = parsearMontoBs(monto);
     return !isNaN(numero) && numero > 0;
+}
+
+/**
+ * Parsear un monto en Bs soportando formato inglés y español.
+ * Regla: el ÚLTIMO separador es el decimal.
+ *   "1,340.23" → 1340.23 ; "1.340,23" → 1340.23
+ *   "1340.23" / "1340,23" / "1340" → OK
+ */
+function parsearMontoBs(raw) {
+    var texto = String(raw == null ? '' : raw).trim();
+    if (texto === '') return NaN;
+    var ultimaComa = texto.lastIndexOf(',');
+    var ultimoPunto = texto.lastIndexOf('.');
+    if (ultimaComa > ultimoPunto) {
+        texto = texto.replace(/\./g, '').replace(/,/g, '.');
+    } else {
+        texto = texto.replace(/,/g, '');
+    }
+    var n = parseFloat(texto);
+    return isNaN(n) ? NaN : n;
 }
 
 /**
@@ -163,12 +182,8 @@ function validarYEnviar() {
     }
 
     // Validar monto
-    if (!validarTextoNoVacio(montoRaw)) {
-        mostrarError('El monto es obligatorio');
-        return;
-    }
-    var montoNormalizado = montoRaw.replace(',', '.');
-    if (isNaN(parseFloat(montoNormalizado)) || parseFloat(montoNormalizado) <= 0) {
+    var montoBs = parsearMontoBs(montoRaw);
+    if (isNaN(montoBs) || montoBs <= 0) {
         mostrarError('El monto debe ser un número válido mayor a 0');
         return;
     }
@@ -179,9 +194,9 @@ function validarYEnviar() {
     var tasaEl = document.querySelector('.tasa-valor');
     var tasaActual = parseFloat(tasaEl ? tasaEl.textContent : '0') || 0;
     if (tasaActual > 0) {
-        var equivUsd = parseFloat(montoNormalizado) / tasaActual;
-        if (equivUsd < totalUsdValor) {
-            mostrarError('El monto en dólares (Bs. ' + parseFloat(montoNormalizado).toFixed(2) + ' → $' + equivUsd.toFixed(2) + ') no cubre el total del pedido ($' + totalUsdValor.toFixed(2) + '). Le falta dinero.');
+        var equivUsd = montoBs / tasaActual;
+        if (equivUsd < (totalUsdValor - 0.01)) {
+            mostrarError('El monto en dólares (Bs. ' + montoBs.toFixed(2) + ' → $' + equivUsd.toFixed(2) + ') no cubre el total del pedido ($' + totalUsdValor.toFixed(2) + '). Le falta dinero.');
             return;
         }
     }
@@ -197,7 +212,7 @@ function validarYEnviar() {
     }
 
     var montoInput = document.querySelector('[name="monto"]');
-    if (montoInput) montoInput.value = parseFloat(montoNormalizado).toFixed(2);
+    if (montoInput) montoInput.value = montoBs.toFixed(2);
 
     enviarReporte();
 }

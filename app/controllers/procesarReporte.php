@@ -74,15 +74,22 @@ try {
     // =============================================
     // 3. LIMPIAR MONTO (SOPORTA INGLÉS Y ESPAÑOL)
     // =============================================
-    // Inglés "198.99" → 198.99, Español "198,99" → 198.99, "1.340,00" → 1340.00
-    if (strpos($monto_raw, ',') !== false) {
-        // Formato español: puntos son miles, coma es decimal
-        $monto_sin_miles = str_replace('.', '', $monto_raw);       // "1.340,00" → "1340,00"
-        $monto_con_punto = str_replace(',', '.', $monto_sin_miles); // "1340,00" → "1340.00"
-        $monto = floatval($monto_con_punto);
+    // Regla: el ÚLTIMO separador es el decimal.
+    //   "1,340.23" (inglés, como muestra number_format) → 1340.23
+    //   "1.340,23" (español)                            → 1340.23
+    //   "1340.23" / "1340,23" / "1340"                  → OK
+    $posPuntoUltimo = strrpos($monto_raw, '.');
+    $posComaUltima  = strrpos($monto_raw, ',');
+    $posPuntoUltimo = ($posPuntoUltimo === false) ? -1 : $posPuntoUltimo;
+    $posComaUltima  = ($posComaUltima === false) ? -1 : $posComaUltima;
+
+    if ($posComaUltima > $posPuntoUltimo) {
+        // La coma es el decimal ("1.340,23"): quitar puntos (miles), coma → punto
+        $monto_str = str_replace('.', '', $monto_raw);
+        $monto = floatval(str_replace(',', '.', $monto_str));
     } else {
-        // Formato inglés: punto es decimal
-        $monto = floatval($monto_raw);
+        // El punto es el decimal ("1,340.23") o no hay separador: las comas son miles
+        $monto = floatval(str_replace(',', '', $monto_raw));
     }
 
     // =============================================

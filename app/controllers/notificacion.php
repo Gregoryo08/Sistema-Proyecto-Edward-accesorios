@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\notificacion;
 
@@ -58,6 +57,23 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
             if ($id && $obj_usuario->tienePermiso($modulo_actual, "marcar_leida")) {
                 $objeto->setId_notificacion((int)$id);
                 echo json_encode(["success" => $objeto->marcarLeida()]);
+            } else {
+                echo json_encode(["success" => false]);
+            }
+        } elseif (isset($_GET['x']) && $_GET['x'] === "marcar_todas_leidas") {
+            if ($obj_usuario->tienePermiso($modulo_actual, "marcar_leida")) {
+                $pendientes = $objeto->listar(true);
+                $exito = true;
+                
+                if (!empty($pendientes)) {
+                    foreach ($pendientes as $notif) {
+                        $objeto->setId_notificacion((int)$notif['id_notificacion']);
+                        if (!$objeto->marcarLeida()) {
+                            $exito = false;
+                        }
+                    }
+                }
+                echo json_encode(["success" => $exito]);
             } else {
                 echo json_encode(["success" => false]);
             }
