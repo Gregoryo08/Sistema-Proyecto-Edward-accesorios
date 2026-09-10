@@ -51,7 +51,7 @@ function cargarBitacora(usuario = "", accionU = "") {
                 }).join('');
             }
 
-            $("#tablaBitacora").html(`<thead><tr><th>Rol</th><th>Usuario</th><th>Acción</th><th>Módulo</th><th>Fecha</th><th>Detalles</th></tr></thead><tbody>${tbody}</tbody>`);
+            $("#tablaBitacora").html(`<thead><tr><th style="text-align: center; font-weight: bold;">Rol</th><th style="text-align: center; font-weight: bold;">Usuario</th><th style="text-align: center; font-weight: bold;">Acción</th><th style="text-align: center; font-weight: bold;">Módulo</th><th style="text-align: center; font-weight: bold;">Fecha</th><th style="text-align: center; font-weight: bold;">Detalles</th></tr></thead><tbody>${tbody}</tbody>`);
 
             $("#tablaBitacora").DataTable({
                 pageLength: 16,
