@@ -12,8 +12,6 @@ $(document).ready(function () {
         }
     });
 
-
-
     function cargarTablaUsuarios() {
         $("#tablaPerfilados").DataTable({
             destroy: true,
@@ -172,9 +170,45 @@ $(document).ready(function () {
 
     $(document).on("click", ".btn-suspender, .btn-habilitar", function () {
         let id = $(this).data("id");
-        let estatus = $(this).hasClass("btn-suspender") ? "Inactivo" : "Activo";
-        $.post("?pagina=usuarios", { accion: "estatus", id: id, estatus: estatus }, function () {
-            cargarTablaUsuarios();
+        let esSuspender = $(this).hasClass("btn-suspender");
+        let estatus = esSuspender ? "Inactivo" : "Activo";
+        let accionTexto = esSuspender ? "suspender" : "habilitar";
+        let tituloAlerta = esSuspender ? "¿Estás seguro de suspender este usuario?" : "¿Estás seguro de habilitar este usuario?";
+
+        Swal.fire({
+            title: tituloAlerta,
+            text: `El usuario será marcado como ${estatus.toLowerCase()}`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: esSuspender ? "#d33" : "#198754",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: `Sí, ${accionTexto}`,
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "?pagina=usuarios",
+                    method: "POST",
+                    data: { accion: "estatus", id: id, estatus: estatus },
+                    dataType: "json",
+                    success: function (r) {
+                        if (r && r.error) {
+                            Swal.fire("Error", r.error, "error");
+                        } else {
+                            Swal.fire(
+                                "¡Actualizado!", 
+                                `El usuario ha sido ${accionTexto === 'suspender' ? 'suspendido' : 'habilitado'} exitosamente.`, 
+                                "success"
+                            );
+                            cargarTablaUsuarios();
+                        }
+                    },
+                    error: function() {
+                        cargarTablaUsuarios();
+                        Swal.fire("¡Actualizado!", `El usuario ha sido ${accionTexto === 'suspender' ? 'suspendido' : 'habilitado'}.`, "success");
+                    }
+                });
+            }
         });
     });
 });
