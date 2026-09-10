@@ -3,6 +3,10 @@
 use App\Sistema\models\login;
 use App\Sistema\models\recuperacion;
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (!defined('RECAPTCHA_SECRET_KEY')) {
     define('RECAPTCHA_SECRET_KEY', '6LfgnqstAAAAAGojQcisRuxXeftouDQ7FP_brXKn');
 }
@@ -27,7 +31,7 @@ if (!function_exists('validarRecaptcha')) {
     }
 }
 
-if (isset($_SESSION["username"])) {
+if (isset($_SESSION["username"]) && !empty($_SESSION["username"])) {
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         echo json_encode(["data" => "?pagina=principal"]);
         exit();
@@ -120,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-$ip = $_SERVER['REMOTE_ADDR'];
 $modeloLogin = new login();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'logearse') {
@@ -148,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     if (isset($respuesta["success"])) {
         $_SESSION["username"] = $respuesta["success"]["cedula_usuario"];
-        $_SESSION["rol"] = $respuesta["success"]["idRol"];
+        $_SESSION["rol"] = $respuesta["success"]["idRol"] ?? $respuesta["success"]["id_rol"];
         $modeloLogin->limpiarIntentos($ip);
         echo json_encode(["data" => "?pagina=principal"]);
     } else {

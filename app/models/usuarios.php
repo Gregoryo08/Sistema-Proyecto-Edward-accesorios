@@ -36,10 +36,16 @@ class Usuarios extends Empleados {
     public function tienePermiso($modulo, $accion)
     {
         try {
-            $id_rol = $_SESSION["rol"];
+            $id_rol = $_SESSION["rol"] ?? $_SESSION["id_rol"] ?? null;
+
+            if (!$id_rol) {
+                return false;
+            }
+
             if ($id_rol == 1) {
                 return true;
             }
+
             $conexUser = Conexion::getShared("usuario")->getConexion();
             $sql = "SELECT COUNT(*) as acceso 
                     FROM rol_permisos rp
@@ -48,36 +54,37 @@ class Usuarios extends Empleados {
                     WHERE rp.id_rol = :id_rol 
                     AND m.nombre_modulo = :modulo 
                     AND (a.nombre_accion = :accion OR a.nombre_accion = 'control_total')";
+
             $stmt = $conexUser->prepare($sql);
-            $stmt->bindParam(":id_rol", $id_rol);
-            $stmt->bindParam(":modulo", $modulo);
-            $stmt->bindParam(":accion", $accion);
+            $stmt->bindParam(":id_rol", $id_rol, PDO::PARAM_INT);
+            $stmt->bindParam(":modulo", $modulo, PDO::PARAM_STR);
+            $stmt->bindParam(":accion", $accion, PDO::PARAM_STR);
             $stmt->execute();
+
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             unset($conexUser);
-            return ($resultado['acceso'] > 0);
+
+            return isset($resultado['acceso']) && ($resultado['acceso'] > 0);
         } catch (Throwable $th) {
             return false;
         }
     }
 
-public function obtenerDatosPersonales()
-{
-    $cedula_base = trim($this->getCedula());
-    
-    
-    $cedula_busqueda = (strpos($cedula_base, 'V-') === 0) ? $cedula_base : 'V-' . $cedula_base;
-    
-    try {
-        $conex = new Conexion("sistema"); 
-        $stmt = $conex->prepare("SELECT nombre, apellido FROM persona WHERE cedula_persona = :c");
-        $stmt->bindParam(":c", $cedula_busqueda);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (Throwable $th) {
-        return false;
+    public function obtenerDatosPersonales()
+    {
+        $cedula_base = trim($this->getCedula());
+        $cedula_busqueda = (strpos($cedula_base, 'V-') === 0) ? $cedula_base : 'V-' . $cedula_base;
+        
+        try {
+            $conex = new Conexion("sistema"); 
+            $stmt = $conex->prepare("SELECT nombre, apellido FROM persona WHERE cedula_persona = :c");
+            $stmt->bindParam(":c", $cedula_busqueda);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $th) {
+            return false;
+        }
     }
-}
 
     public function validarPermisos($rol)
     {
@@ -96,7 +103,7 @@ public function obtenerDatosPersonales()
         return $resultado;
     }
 
-   public function crearPerfil()
+    public function crearPerfil()
     {
         $usuario = $this->getCedula();
         $clave = $this->getClave();
@@ -232,8 +239,6 @@ public function obtenerDatosPersonales()
         }
     }
 
-    
-
     public function consultarSuspendido()
     {
         try {
@@ -248,8 +253,6 @@ public function obtenerDatosPersonales()
         }
     }
 
-    
-    
     public function getClave() { return $this->clave; }
     public function setClave($clave) { $this->clave = $clave; }
     public function getEstatus() { return $this->estatus; }

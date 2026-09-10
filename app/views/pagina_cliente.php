@@ -1,4 +1,12 @@
-<?php require_once("assets/comunes/menu_cliente.php"); ?>
+<?php 
+$paginaActual = strtolower($_GET['pagina'] ?? '');
+
+if ($paginaActual === 'principal_cliente') {
+    require_once("assets/comunes/menu_cliente.php");
+} else {
+    require_once("assets/comunes/menu.php");
+}
+?>
 
 <title>Dashboard | Edward Accesorios</title>
 
