@@ -3,6 +3,19 @@
 use App\Sistema\models\marcas;
 use App\Sistema\models\Usuarios;
 
+if (!function_exists('procesarRespuesta')) {
+    function procesarRespuesta($respuesta, $mensajeExito) {
+        if ($respuesta === true) {
+            echo json_encode(["success" => $mensajeExito]);
+        } else if (is_array($respuesta)) {
+            echo json_encode($respuesta);
+        } else {
+            echo json_encode(["error" => "Error desconocido en el servidor."]);
+        }
+        exit();
+    }
+}
+
 $cedula = $_SESSION['username'];
 $rol = $_SESSION["rol"];
 
@@ -75,16 +88,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     procesarRespuesta($respuesta, "Marca eliminada exitosamente.");
 }
 
-function procesarRespuesta($respuesta, $mensajeExito) {
-    if ($respuesta === true) {
-        echo json_encode(["success" => $mensajeExito]);
-    } else if (is_array($respuesta)) {
-        echo json_encode($respuesta);
-    } else {
-        echo json_encode(["error" => "Error desconocido en el servidor."]);
-    }
-    exit();
-}
-
-include 'app/views/marcas.php';
+require_once 'app/views/marcas.php';
 ?>
