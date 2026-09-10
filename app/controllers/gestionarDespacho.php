@@ -112,7 +112,7 @@ try {
             $cedula,
             $id_pedido
         );
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         error_log("Error al registrar en bitácora: " . $e->getMessage());
     }
 
@@ -123,7 +123,7 @@ try {
         'estado_despacho' => $nuevo_estado_despacho
     ]);
 
-} catch (Exception $e) {
+} catch (\Exception $e) {
     error_log("Error en gestionarDespacho: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Error interno: ' . $e->getMessage()]);
 }
