@@ -110,4 +110,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-include 'app/views/especialidad.php';
+require_once 'app/views/especialidad.php';
