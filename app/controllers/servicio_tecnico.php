@@ -134,4 +134,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     exit();
 }
 
-include 'app/views/servicio_tecnico.php';
+require_once 'app/views/servicio_tecnico.php';

@@ -107,5 +107,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-include 'app/views/categoria.php';
+require_once 'app/views/categoria.php';
 ?>

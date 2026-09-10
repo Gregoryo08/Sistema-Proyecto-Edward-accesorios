@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
             if (method_exists($obj_proveedor, 'listar')) {
                 echo json_encode($obj_proveedor->listar());
             } else {
-                echo json_encode($obj_proveedor->listarProveedor());
+                
             }
             break;
     }
@@ -209,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
 $vista = 'App/views/entradas_productos.php';
 if (file_exists($vista)) {
-    include $vista;
+    require_once $vista;
 } else {
-    include 'App/views/error_404.php';
+    require_once 'App/views/error_404.php';
 }
 

@@ -225,9 +225,7 @@
                         <?php if ($obj_usuario->tienePermiso("Administrar Financiamiento", "listar")): ?>
                             <li><a href="?pagina=financiamiento"><i class="bi bi-arrow-return-right"></i> Financiamiento</a></li>
                         <?php endif; ?>
-                         <?php if ($obj_usuario->tienePermiso("Administrar Pago De Cuotas", "listar")): ?>
-                            <li><a href="?pagina=cliente_financiamiento"><i class="bi bi-arrow-return-right"></i> Pago De Cuotas</a></li>
-                        <?php endif; ?>
+                        
                     </ul>
                 </li>
             <?php endif; ?>
