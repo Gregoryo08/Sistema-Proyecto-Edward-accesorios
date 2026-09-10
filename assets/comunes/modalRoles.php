@@ -4,14 +4,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalRegistroClienteLabel">Registro de Roles de Usuario</h5>
-
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formRegistroRol">
                     <div class="form-group " style="width: 100%;">
                         <label for="rol">Nombre del Rol</label>
-                        <textarea name="tipo" id="rol" class="form-control" placeholder="Ingresa el nombre del Rol"
-                            required></textarea>
+                        <input type="text" name="tipo" id="rol" class="form-control" placeholder="Ingresa el nombre del Rol"
+                            required></input>
 
                         <div class="mensaje">
                             <p id="texto_mensaje_rol" class="text-danger small mt-1 mb-0" style="display:none; margin: 0;"></p>

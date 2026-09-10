@@ -4,13 +4,12 @@ require_once("assets/comunes/menu.php")
 <?php require_once('assets/comunes/modalRoles.php'); ?>
 
 <main class="main m-4" id="main">
-    <section id="hero" class="hero section m-2" style="height: auto;">
-        <div>
-            <h2 class="text-center">Administrar Roles de Usuario</h2>
-
-            <div class="text-right">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistroRol" id="btn_registro_rol">
-                    Registrar Rol
+<section id="hero" class="hero section p-4" style="height: auto;">
+    <div class="w-75 mx-auto">
+            <h2 class="text-center" style="font-weight: bold; font-size: 40px;">Administrar Roles de Usuario</h2>
+            <div class="text-end mb-3">
+                <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalRegistroRol" id="btn_registro_rol">
+                    <i class="bi bi-plus-circle"></i> Registrar Rol
                 </button>
             </div>
 
@@ -20,8 +19,8 @@ require_once("assets/comunes/menu.php")
                         <thead class="thead-dark">
                             <tr>
                                 <th style="display: none;">ID </th>
-                                <th>Nombre del Rol</th>
-                                <th>Acciones</th>
+                                <th style="text-align: center; font-weight: bold; font-size: 14px;">Nombre del Rol</th>
+                                <th style="text-align: center; font-weight: bold; font-size: 14px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,9 +35,7 @@ require_once("assets/comunes/menu.php")
                 </div>
             </div>
         </div>
-
     </section>
-
 </main>
 
 <?php require_once('assets/comunes/footer.php'); ?>
