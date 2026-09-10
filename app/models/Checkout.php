@@ -58,7 +58,7 @@ class Checkout {
 
     private function _obtenerBancos() {
         try {
-            $stmt = $this->db->prepare("SELECT id_banco, nombre_banco FROM bancos WHERE estatus = 'activo'");
+            $stmt = $this->db->prepare("SELECT id_banco, nombre_banco FROM bancos WHERE estado = 'activo'");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

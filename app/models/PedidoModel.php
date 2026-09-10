@@ -291,7 +291,7 @@ class PedidoModel {
                     per.apellido,
                     per.telefono,
                     per.correo,
-                    cl.residencia as direccion
+                    per.direccion as direccion
                 FROM pedidos p
                 JOIN persona per ON p.cedula_persona = per.cedula_persona
                 LEFT JOIN clientes cl ON p.cedula_persona = cl.cedula_persona

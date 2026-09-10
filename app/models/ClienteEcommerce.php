@@ -175,8 +175,8 @@ class ClienteEcommerce {
             $connUser->beginTransaction();
             $stmt = $this->conn->prepare("INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$cedula, $datos['nombre'], $datos['apellido'] ?? '', $datos['correo'], $datos['telefono'], $datos['direccion'] ?? '', $datos['fecha_nacimiento'] ?? null, $datos['sexo'] ?? null]);
-            $stmt = $this->conn->prepare("INSERT INTO clientes (cedula_persona, residencia, estado) VALUES (?, ?, 'activo')");
-            $stmt->execute([$cedula, $datos['direccion'] ?? 'No especificado']);
+            $stmt = $this->conn->prepare("INSERT INTO clientes (cedula_persona, estado) VALUES (?, 'activo')");
+            $stmt->execute([$cedula]);
             $password_hash = password_hash($datos['password'], PASSWORD_DEFAULT);
             $stmt = $connUser->prepare("INSERT INTO usuarios (cedula_usuario, clave, estatus, id_rol) VALUES (?, ?, 'Activo', 6)");
             $stmt->execute([$cedula, $password_hash]);

@@ -26,16 +26,16 @@
     <div class="form-box login">
         <h2 class="animation" style="--i:0;">Acceso Clientes</h2>
         
-        <form id="clienteLoginForm" autocomplete="off">
+        <form id="clienteLoginForm" autocomplete="on">
             <div class="input-box animation" style="--i:1;">
-                <input type="text" id="cedula_cliente" name="cedula" required autocomplete="off">
+                <input type="text" id="cedula_cliente" name="cedula" required autocomplete="username" readonly>
                 <label for="cedula_cliente">Cédula</label>
                 <i class='bx bx-id-card'></i>
             </div>
             <div class="input-box animation" style="--i:2;">
-                <input type="password" id="pass_cliente" name="clave" required autocomplete="off">
+                <input type="password" id="pass_cliente" name="clave" required autocomplete="current-password" readonly>
                 <label for="pass_cliente">Contraseña</label>
-                <i class='bx bx-lock-alt'></i>
+                <i class='bx bx-lock-alt' id="togglePassCliente" style="cursor:pointer;"></i>
             </div>
             
             <div class="forgot-pass animation" style="--i:2.5;">

@@ -4,6 +4,28 @@
 
 $(function() {
 
+    // Campos en blanco al cargar: el navegador solo sugiere cédulas/claves
+    // guardadas al pulsar el campo (autocomplete=username/current-password).
+    // El atributo readonly se habilita al enfocar para impedir el autofill
+    // del navegador sobre el campo vacío.
+    $('#cedula_cliente, #pass_cliente').val('');
+
+    $(document).on('focus', '#cedula_cliente, #pass_cliente', function () {
+        $(this).removeAttr('readonly');
+    });
+
+    function limpiarAutofillResidual() {
+        var $c = $('#cedula_cliente');
+        var $p = $('#pass_cliente');
+        if (document.activeElement !== $c[0]) $c.val('');
+        if (document.activeElement !== $p[0]) $p.val('');
+    }
+
+    $(window).on('load', function () {
+        setTimeout(limpiarAutofillResidual, 500);
+        setTimeout(limpiarAutofillResidual, 1500);
+    });
+
     // =============================================
     // 1. TOGGLE ENTRE LOGIN / REGISTRO / RECUPERAR
     // =============================================
@@ -117,7 +139,28 @@ $('#clienteLoginForm').on('submit', function(e) {
     });
 
     // =============================================
-    // 4. RESTABLECER CONTRASEÑA (token vía GET)
+    // 4. MOSTRAR / OCULTAR CONTRASEÑA
+    // (login, registro y recuperación)
+    // =============================================
+    $('.input-box i[style*="cursor"]').each(function () {
+        var $icon = $(this);
+        var $input = $icon.siblings('input');
+        if (!$input.length) return;
+
+        $icon.on('click', function () {
+            var esClave = $input.attr('type') === 'password';
+            $input.attr('type', esClave ? 'text' : 'password');
+
+            if (esClave) {
+                $icon.removeClass('bx-lock-alt').addClass('bx-lock-open-alt');
+            } else {
+                $icon.removeClass('bx-lock-open-alt').addClass('bx-lock-alt');
+            }
+        });
+    });
+
+    // =============================================
+    // 5. RESTABLECER CONTRASEÑA (token vía GET)
     // =============================================
     var urlParams = new URLSearchParams(window.location.search);
     var token = urlParams.get('token');

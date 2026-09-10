@@ -19,18 +19,20 @@
         if (icon) {
             icon.className = oscuro ? claseOscuro : claseClaro;
         }
-        localStorage.setItem(KEY, oscuro ? 'dark' : 'light');
+        var valor = oscuro ? 'dark' : 'light';
+        localStorage.setItem(KEY, valor);
+        localStorage.setItem('theme', valor);
+    }
+
+    function temaGuardado() {
+        var v = localStorage.getItem(KEY) || localStorage.getItem('theme');
+        if (v === 'light') return false;
+        if (v === 'dark') return true;
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
 
     function init() {
-        var guardado = localStorage.getItem(KEY);
-        if (guardado === 'light') {
-            aplicar(false);
-        } else if (guardado === 'dark') {
-            aplicar(true);
-        } else {
-            aplicar(true);
-        }
+        aplicar(temaGuardado());
     }
 
     document.addEventListener('DOMContentLoaded', function() {
