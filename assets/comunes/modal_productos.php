@@ -15,13 +15,13 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Marca</label>
-                            <select class="form-control" id="id_marca" required>
+                            <select class="form-select" id="id_marca" required>
                                 <option value="">Seleccione...</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Categoría</label>
-                            <select class="form-control" id="id_categoria" required>
+                            <select class="form-select" id="id_categoria" required>
                                 <option value="">Seleccione...</option>
                             </select>
                         </div>
@@ -76,11 +76,33 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">RAM</label>
-                                <input type="text" class="form-control" id="ram" placeholder="Ej: 8GB">
+                                <select class="form-select" id="ram">
+                                    <option value="">Seleccione RAM</option>
+                                    <option value="2 GB">2 GB</option>
+                                    <option value="3 GB">3 GB</option>
+                                    <option value="4 GB">4 GB</option>
+                                    <option value="6 GB">6 GB</option>
+                                    <option value="8 GB">8 GB</option>
+                                    <option value="12 GB">12 GB</option>
+                                    <option value="16 GB">16 GB</option>
+                                    <option value="24 GB">24 GB</option>
+                                    <option value="32 GB">32 GB</option>
+                                    <option value="64 GB">64 GB</option>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Almacenamiento</label>
-                                <input type="text" class="form-control" id="almacenamiento" placeholder="Ej: 128GB">
+                                <select class="form-select" id="almacenamiento">
+                                    <option value="">Seleccione Almacenamiento</option>
+                                    <option value="16 GB">16 GB</option>
+                                    <option value="32 GB">32 GB</option>
+                                    <option value="64 GB">64 GB</option>
+                                    <option value="128 GB">128 GB</option>
+                                    <option value="256 GB">256 GB</option>
+                                    <option value="512 GB">512 GB</option>
+                                    <option value="1 TB">1 TB</option>
+                                    <option value="2 TB">2 TB</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -93,6 +115,15 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
 <div class="modal fade" id="modalModificarProducto" tabindex="-1" role="dialog" aria-labelledby="modalModificarProductoLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -127,11 +158,11 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Marca</label>
-                            <select class="form-control" id="marcaModificar" name="id_marca" required></select>
+                            <select class="form-select" id="marcaModificar" name="id_marca" required></select>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Categoría</label>
-                            <select class="form-control" id="categoriaModificar" name="id_categoria" required></select>
+                            <select class="form-select" id="categoriaModificar" name="id_categoria" required></select>
                         </div>
                     </div>
 
@@ -170,11 +201,33 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">RAM</label>
-                                <input type="text" class="form-control" id="ramModificar">
+                                <select class="form-select" id="ramModificar" name="ram">
+                                    <option value="">Seleccione RAM</option>
+                                    <option value="2 GB">2 GB</option>
+                                    <option value="3 GB">3 GB</option>
+                                    <option value="4 GB">4 GB</option>
+                                    <option value="6 GB">6 GB</option>
+                                    <option value="8 GB">8 GB</option>
+                                    <option value="12 GB">12 GB</option>
+                                    <option value="16 GB">16 GB</option>
+                                    <option value="24 GB">24 GB</option>
+                                    <option value="32 GB">32 GB</option>
+                                    <option value="64 GB">64 GB</option>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Almacenamiento</label>
-                                <input type="text" class="form-control" id="almacenamientoModificar">
+                                <select class="form-select" id="almacenamientoModificar" name="almacenamiento">
+                                    <option value="">Seleccione Almacenamiento</option>
+                                    <option value="16 GB">16 GB</option>
+                                    <option value="32 GB">32 GB</option>
+                                    <option value="64 GB">64 GB</option>
+                                    <option value="128 GB">128 GB</option>
+                                    <option value="256 GB">256 GB</option>
+                                    <option value="512 GB">512 GB</option>
+                                    <option value="1 TB">1 TB</option>
+                                    <option value="2 TB">2 TB</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -187,6 +240,8 @@
         </div>
     </div>
 </div>
+
+
 
 <div class="modal fade" id="modalDetallesProducto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">

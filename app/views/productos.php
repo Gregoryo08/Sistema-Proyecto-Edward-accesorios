@@ -10,7 +10,7 @@
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistroProducto">
                     <i class="bi bi-plus-circle"></i> Registrar Producto
                 </button>
-                <small class="text-muted ms-3"><i class="bi bi-info-circle"></i> Para agregar o cambiar imagen, haga clic en el ícono 🖼️ o en la foto del producto</small>
+                
             </div>
 
             <div class="table-responsive">
@@ -19,7 +19,7 @@
                     <thead class="thead-dark">
                         <tr>
                             <th style="display: none;">ID</th>
-                            <th>Imagen</th>
+                            <th style="display: none;">Imagen</th>
                             <th>Producto</th>
                             <th>Marca</th>
                             <th>Categoría</th>

@@ -32,24 +32,43 @@ $(document).ready(function () {
     }
 
     function ajustarCamposPorCategoria(select) {
-        let isMod = ($(select).attr("id") === "categoriaModificar");
-        let seccionTel = isMod ? "#seccion_telefono_modificar" : "#seccion_telefono";
-        let stockAct = isMod ? "#stock_actualModificar" : "#stock_actual";
-        let stockMin = isMod ? "#stock_minimoModificar" : "#stock_minimo";
-        let stockMax = isMod ? "#stock_maximoModificar" : "#stock_maximo";
+    let isMod = ($(select).attr("id") === "categoriaModificar");
+    let seccionTel = isMod ? "#seccion_telefono_modificar" : "#seccion_telefono";
+    let stockAct = isMod ? "#stock_actualModificar" : "#stock_actual";
+    let stockMin = isMod ? "#stock_minimoModificar" : "#stock_minimo";
+    let stockMax = isMod ? "#stock_maximoModificar" : "#stock_maximo";
 
-        if ($(select).val() == "26") {
-            $(seccionTel).slideDown();
-            $(stockAct).val(1).attr("readonly", true);
-            $(stockMin).closest(".col-md-4, .col-md-3, div").hide();
-            $(stockMax).closest(".col-md-4, .col-md-3, div").hide();
-        } else {
-            $(seccionTel).slideUp();
-            $(stockAct).attr("readonly", false);
-            $(stockMin).closest(".col-md-4, .col-md-3, div").show();
-            $(stockMax).closest(".col-md-4, .col-md-3, div").show();
+    if ($(select).val() == "26") {
+        $(seccionTel).slideDown();
+        
+        
+        $(stockAct).val(1).attr("readonly", true).trigger("input");
+
+        
+        $(stockMin).closest(".col-md-4, .col-md-3, div").hide();
+        $(stockMax).closest(".col-md-4, .col-md-3, div").hide();
+
+        
+        $(stockMin).val(0).addClass("is-valid").removeClass("is-invalid");
+        $(stockMax).val(0).addClass("is-valid").removeClass("is-invalid");
+
+        
+        if (typeof verificarFormularios === "function") {
+            verificarFormularios();
         }
+    } else {
+        $(seccionTel).slideUp();
+        $(stockAct).attr("readonly", false);
+        
+        $(stockMin).closest(".col-md-4, .col-md-3, div").show();
+        $(stockMax).closest(".col-md-4, .col-md-3, div").show();
+
+        // Disparar validación si cambia de categoría
+        $(stockAct).trigger("input");
+        $(stockMin).trigger("input");
+        $(stockMax).trigger("input");
     }
+}
 
     $(document).on("change", "#id_categoria, #categoriaModificar", function() {
         ajustarCamposPorCategoria(this);
@@ -61,24 +80,7 @@ $(document).ready(function () {
             ajax: { url: "?pagina=productos&ajax=true&x=productos", dataSrc: "" },
             columns: [
                 { data: "id_producto", visible: false },
-                {
-                    data: "imagen_principal",
-                    orderable: false,
-                    searchable: false,
-                    render: function (d, type, row) {
-                        let img = (d && d !== "null" && d !== "")
-                            ? "assets/img/productos/" + d
-                            : "assets/img/productos/default.jpg";
-                        return `<img src="${img}" 
-                            onerror="this.src='assets/img/productos/default.jpg'" 
-                            class="img-thumbnail-producto" 
-                            data-id="${row.id_producto}" 
-                            data-nombre="${row.nombre_producto}" 
-                            data-imagen="${d || 'default.jpg'}" 
-                            title="Click para gestionar imagen" 
-                            style="width:50px;height:50px;object-fit:cover;border-radius:8px;border:2px solid #0ef;cursor:pointer;">`;
-                    }
-                },
+                { data: "imagen_principal", visible: false },
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
