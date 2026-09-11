@@ -89,8 +89,9 @@ $(document).ready(function () {
                     `;
 
                     data.forEach(function (venta) {
-                        let nombre = venta.nombre ? venta.nombre : 'Cliente';
-                        let apellido = venta.apellido ? venta.apellido : 'General';
+                        let nombre = venta.nombre ? venta.nombre : '';
+                        let apellido = venta.apellido ? venta.apellido : '';
+                        let cliente = (nombre || apellido) ? `${nombre} ${apellido}`.trim() : 'Cliente General';
                         
                         let fechaObj = new Date(venta.fecha_venta);
                         let fechaFormateada = fechaObj.toLocaleDateString('es-VE', { 
@@ -102,7 +103,7 @@ $(document).ready(function () {
                         tablaHTML += `
                             <tr>
                                 <td><span class="badge bg-light text-dark border">V-${venta.id_venta}</span></td>
-                                <td><span class="fw-medium">${nombre} ${apellido}</span></td>
+                                <td><span class="fw-medium">${cliente}</span></td>
                                 <td>${fechaFormateada}</td>
                                 <td class="fw-bold text-success">${formatCurrency(venta.total_venta)}</td>
                             </tr>
