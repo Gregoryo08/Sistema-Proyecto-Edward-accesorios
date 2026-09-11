@@ -45,11 +45,7 @@ $('#modalAgregarProducto').on('shown.bs.modal', function () {
 
 function formatearMoneda(valor) {
     const numero = Number(valor || 0);
-    return new Intl.NumberFormat('es-VE', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2
-    }).format(numero);
+    return '$' + numero.toFixed(2);
 }
 
 function formatearFecha(valor) {
@@ -97,8 +93,12 @@ function inicializarTablaServicio() {
         columns: [
             { data: "id_servicio", visible: false },
             { data: "cedula_persona" },
-            { data: "nombre", defaultContent: "" },
-            { data: "apellido", defaultContent: "" },
+            { 
+                data: null, 
+                render: function (data, type, row) {
+                    return `${row.nombre || ''} ${row.apellido || ''}`.trim();
+                }
+            },
             { data: "equipo_descripcion" },
             { data: "falla_inicial" },
             { data: "estado" },
@@ -336,11 +336,9 @@ $('#servicioTabla').on('click', '.btn-consultar-productos', function() {
     }, 'json');
 });
 
-// EVENTO DE GUARDADO REGISTRO
 $("#btnGuardarRegistro").off("click").on("click", function () {
     let form = $("#formularioRegistrarServicio");
 
-    // 1. Forzar validación visual en tiempo real para mostrar textos en rojo (.msg-error)
     form.find('select, input, textarea').trigger('change').trigger('input').trigger('blur');
 
     let cedulaLimpia = $("#reg_cedula").val();
@@ -348,7 +346,6 @@ $("#btnGuardarRegistro").off("click").on("click", function () {
     let falla = $("#reg_falla").length ? $("#reg_falla").val().trim() : $('textarea[name="falla"]').val().trim();
     let telefono = $('input[name="telefono"]').val().trim();
 
-    // 2. Evaluaciones para disparar alertas de SweetAlert
     if (!cedulaLimpia) {
         Swal.fire({ icon: 'warning', title: 'Cliente requerido', text: 'Selecciona un cliente válido antes de registrar el servicio.', background: "#000910", color: "white" });
         $("#reg_cedula").focus();

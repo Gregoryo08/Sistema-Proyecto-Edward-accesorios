@@ -1,107 +1,92 @@
 <div class="modal fade" id="modalRegistroEmpleados" tabindex="-1" role="dialog" aria-labelledby="modalRegistroClienteLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalRegistroClienteLabel">Registro de Empleados</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light py-3">
+                <h5 class="modal-title" id="modalRegistroClienteLabel"><i class="bi bi-person-lines-fill" style="font-size: 1.2rem;"></i> Registro de Empleados</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="formRegistroEmpleado" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-
-                    <div class="form-group" style="width: 48%; display: flex; flex-direction: column;">
-                        <label for="cargo">Cargo</label>
-                        <select name="cargo" class="form-control" id="cargo"></select>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_cargo"></p>
+            <form id="formRegistroEmpleado">
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-4">Completa los campos obligatorios para registrar al empleado en el sistema.</p>
+                    <div class="row g-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cargo</label>
+                            <div class="input-group">
+                                <select name="cargo" class="form-select bg-light border-light-subtle" id="cargo" style="width: 100%;"></select>
+                            </div>
+                            <p class="mensaje" id="texto_mensaje_cargo"></p>
                         </div>
-                    </div>
 
-                    <div class="form-group" style="width: 48%;">
-                        <label for="cedula">Cédula</label>
-                        <div class="input-group">
-                            <select name="prefijo" class="form-control" id="prefijo" style="max-width: 80px;">
-                                <option value=""></option>
-                                <option value="V-">V-</option>
-                                <option value="E-">E-</option>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cédula</label>
+                            <div class="input-group">
+                                <select name="prefijo" class="form-select bg-light border-light-subtle" id="prefijo" style="max-width: 80px;">
+                                    <option value="V-">V-</option>
+                                    <option value="E-">E-</option>
+                                </select>
+                                <input type="text" class="form-control bg-light border-light-subtle" id="cedula" placeholder="Ej: 12345678">
+                            </div>
+                            <p class="mensaje" id="texto_mensaje_cedula"></p>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
+                            <input type="text" class="form-control bg-light border-light-subtle" id="nombre" placeholder="Nombre completo">
+                            <p class="mensaje" id="texto_mensaje_nombre"></p>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Apellido</label>
+                            <input type="text" class="form-control bg-light border-light-subtle" id="apellido" placeholder="Apellido completo">
+                            <p class="mensaje" id="texto_mensaje_apellido"></p>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control bg-light border-light-subtle" id="fecha_nacimiento">
+                            <p class="mensaje" id="texto_mensaje_fecha_nacimiento"></p>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Sexo</label>
+                            <select name="sexo" class="form-select bg-light border-light-subtle" id="sexo">
+                                <option value="">Seleccione...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
                             </select>
-                            <input type="text" class="form-control" id="cedula" placeholder="Número" required>
+                            <p class="mensaje" id="texto_mensaje_sexo"></p>
                         </div>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_cedula"></p>
-                        </div>
-                    </div>
 
-                    <div class="form-group" style="width: 48%;">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_nombre"></p>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Correo Electrónico</label>
+                            <input type="email" class="form-control bg-light border-light-subtle" id="correo" placeholder="ejemplo@correo.com">
+                            <p class="mensaje" id="texto_mensaje_correo"></p>
                         </div>
-                    </div>
 
-                    <div class="form-group" style="width: 48%;">
-                        <label for="apellido">Apellido</label>
-                        <input type="text" class="form-control" id="apellido" placeholder="Apellido" required>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_apellido"></p>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Teléfono</label>
+                            <div class="input-group">
+                                <select name="operadora" class="form-select bg-light border-light-subtle" id="operadora" style="max-width: 100px;">
+                                    <option value="0412">0412</option>
+                                    <option value="0414">0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0422">0422</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="Número">
+                            </div>
+                            <p class="mensaje" id="texto_mensaje_telefono"></p>
                         </div>
-                    </div>
 
-                    <div class="form-group" style="width: 48%;">
-                        <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" id="fecha_nacimiento" required>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_fecha_nacimiento"></p>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Dirección</label>
+                            <textarea name="direccion" id="direccion" class="form-control bg-light border-light-subtle" rows="2" placeholder="Ingresa la dirección"></textarea>
+                            <p class="mensaje" id="texto_mensaje_direccion"></p>
                         </div>
                     </div>
-
-                    <div class="form-group" style="width: 48%;">
-                        <label for="sexo">Sexo</label>
-                        <select name="sexo" class="form-control" id="sexo" required>
-                            <option value="">Seleccione...</option>
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                        </select>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_sexo"></p>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="width: 100%;">
-                        <label for="correo">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com" required>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_correo"></p>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="width: 100%;">
-                        <label for="telefono">Teléfono</label>
-                        <div class="input-group">
-                            <select name="operadora" class="form-control" id="operadora" style="max-width: 100px;">
-                                <option value=""></option>
-                                <option value="0412">0412</option>
-                                <option value="0416">0416</option>
-                                <option value="0426">0426</option>
-                                <option value="0414">0414</option>
-                                <option value="0424">0424</option>
-                            </select>
-                            <input type="tel" class="form-control" id="telefono" placeholder="Número" required>
-                        </div>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_telefono"></p>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="width: 100%;">
-                        <label for="direccion">Dirección</label>
-                        <textarea name="direccion" id="direccion" class="form-control" placeholder="Ingresa la dirección" required></textarea>
-                        <div class="mensaje">
-                            <p id="texto_mensaje_direccion"></p>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                </div>
+            </form>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn_cancel_register">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btn_registrar">Registrar</button>
@@ -110,94 +95,96 @@
     </div>
 </div>
 
-
-
+<!-- Modal para modificar datos de empleados -->
 
 <div class="modal fade" id="modalModificar" tabindex="-1" role="dialog" aria-labelledby="modalModificarLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalModificarLabel">Modificar datos de Empleados</h5>
+                <h5 class="modal-title" id="modalModificarLabel"><i class="bi bi-person-gear" style="font-size: 1.5 rem;"></i> Modificar datos de Empleados</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="formModificar">
+            <form id="formModificar">
+                <div class="modal-body">
                     <input type="hidden" id="id_empleado">
-
-                    <div class="form-group">
-                        <label for="cedulaModificar">Cédula</label>
-                        <div class="d-flex">
-                            <select id="prefijoModificar" class="form-control" style="width: 30%;" disabled>
-                                <option value="V-">V-</option>
-                                <option value="E-">E-</option>
+                    <div class="row g-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cargo</label>
+                            <select name="cargo" class="form-select bg-light border-light-subtle" id="cargoModificar">
+                                <option value="">Seleccione un cargo</option>
                             </select>
-                            <input type="text" class="form-control" id="cedulaModificar" readonly>
+                            <p id="texto_mensaje_cargo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                         </div>
-                        <p id="texto_mensaje_cedula_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="cargoModificar">Cargo</label>
-                        <select name="cargo" class="form-control" id="cargoModificar">
-                            <option value="">Seleccione un cargo</option>
-                        </select>
-                        <p id="texto_mensaje_cargo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cédula</label>
+                            <div class="input-group">
+                                <select id="prefijoModificar" class="form-select bg-light border-light-subtle" style="max-width: 100px;" disabled>
+                                    <option value="V-">V-</option>
+                                    <option value="E-">E-</option>
+                                </select>
+                                <input type="text" class="form-control" id="cedulaModificar" readonly>
+                            </div>
+                            <p id="texto_mensaje_cedula_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="nombreModificar">Nombre</label>
-                        <input type="text" class="form-control" id="nombreModificar" name="nombre" required>
-                        <p id="texto_mensaje_nombre_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
+                            <input type="text" class="form-control" id="nombreModificar" name="nombre">
+                            <p id="texto_mensaje_nombre_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="apellidoModificar">Apellido</label>
-                        <input type="text" class="form-control" id="apellidoModificar" name="apellido" required>
-                        <p id="texto_mensaje_apellido_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Apellido</label>
+                            <input type="text" class="form-control" id="apellidoModificar" name="apellido">
+                            <p id="texto_mensaje_apellido_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="sexoModificar">Sexo</label>
-                        <select name="sexo" class="form-control" id="sexoModificar">
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                        </select>
-                    </div>
+                        <input type="hidden" id="fecha_nacimiento_real" name="fecha_nacimiento_real">
 
-                    <div class="form-group">
-                        <label for="correoModificar">Correo</label>
-                        <input type="email" class="form-control" id="correoModificar" name="correo" required>
-                        <p id="texto_mensaje_correo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Nacimiento</label>
+                            <input type="text" class="form-control" id="fechaNacimientoModificar" readonly>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="telefonoModificar">Teléfono</label>
-                        <div class="d-flex">
-                            <select id="operadoraModificar" class="form-control" style="width: 40%;">
-                                <option value="0412">0412</option>
-                                <option value="0414">0414</option>
-                                <option value="0424">0424</option>
-                                <option value="0416">0416</option>
-                                <option value="0426">0426</option>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Sexo</label>
+                            <select name="sexo" class="form-select bg-light border-light-subtle" id="sexoModificar">
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
                             </select>
-                            <input type="text" class="form-control" id="telefonoModificar" name="telefono" required>
                         </div>
-                        <p id="texto_mensaje_telefono_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="direccionModificar">Dirección</label>
-                        <textarea name="direccion" id="direccionModificar" class="form-control" required></textarea>
-                        <p id="texto_mensaje_direccion_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
-                    </div>
+                        <div class="col-12 mb-2">
+                            <label for="correoModificar" class="form-label small fw-bold text-muted text-uppercase">Correo</label>
+                            <input type="email" class="form-control" id="correoModificar" name="correo">
+                            <p id="texto_mensaje_correo_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
 
-                    <input type="hidden" id="fecha_nacimiento_real" name="fecha_nacimiento_real">
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Teléfono</label>
+                            <div class="input-group">
+                                <select id="operadoraModificar" class="form-select" style="max-width: 110px;">
+                                    <option value="0412">0412</option>
+                                    <option value="0414">0414</option>
+                                    <option value="0416">0416</option>
+                                    <option value="0422">0422</option>
+                                    <option value="0424">0424</option>
+                                    <option value="0426">0426</option>
+                                </select>
+                                <input type="text" class="form-control" id="telefonoModificar" name="telefono">
+                            </div>
+                            <p id="texto_mensaje_telefono_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="fechaNacimientoModificar">Fecha de Nacimiento</label>
-                        <input type="text" class="form-control" id="fechaNacimientoModificar" readonly>
-                    </div>
-                </form>
-            </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Dirección</label>
+                            <textarea name="direccion" id="direccionModificar" class="form-control" rows="2"></textarea>
+                            <p id="texto_mensaje_direccion_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
+                        </div>
+                    </div>  
+                </div>
+            </form>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" id="modificarDatos" class="btn btn-primary">Guardar Cambios</button>
@@ -206,17 +193,15 @@
     </div>
 </div>
 
-
-
-
 <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" role="dialog" aria-labelledby="modalConfirmarEliminacionLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalConfirmarEliminacionLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body confirmRegister">
-                <p class="titleConfirm">¿Estás seguro?</p>
+            <div class="modal-body confirmRegister text-center">
+                <p class="titleConfirm fs-5 mb-0">¿Estás seguro?</p>
                 <input type="hidden" id="id_empleado_delete">
             </div>
             <div class="modal-footer">
@@ -228,31 +213,26 @@
 </div>
 
 <div class="modal fade" id="modalVerDatos" tabindex="-1" aria-labelledby="modalConfirmarRegistroLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalConfirmarRegistroLabel">Ver Datos Personales</h5>
-
+                <h5 class="modal-title" id="modalConfirmarRegistroLabel"><i class="bi bi-person-vcard" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>Ver Datos Personales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body confirmRegister" style="width: 100%;">
-                <div class="contData" style="width: 100%;">
-                    <div class="data" style="width: 33%;"><b>Nombre y Apellido: </b><br><span id="VerNombre"></span>
-                        <span id="VerApellido"></span>
-                    </div>
-                    <div class="data" style="width: 33%;"><b>Cedula: </b><br><span id="VerCedula"></span></div>
-
-                    <div class="data" style="width: 33%;"><b>Telefono: </b><br><span id="VerTelefono"></span></div>
-                    <div class="data" style="width: 33%;"><b>Sexo: </b><br><span id="VerSexo"></span></div>
-                    <div class="data" style="width: 33%;"><b>Fecha Nac.: </b><br><span id="VerFechaNac"></span></div>
-
-                    <div class="data" style="width: 50%;"><b>Correo: </b><br><span id="VerCorreo"></span></div>
-                    <div class="data" style="width: 50%;"><b>Cargo: </b><br><span id="VerCargo"></span></div>
-
-                    <div class="data" style="width: 100%;"><b>Dirección: </b><br><span id="VerDireccion"></span></div>
+            <div class="modal-body">
+                <div class="row g-3 ms-3">
+                    <div class="col-md-6"><b>Nombre y Apellido:</b><br><span id="VerNombre"></span> <span id="VerApellido"></span></div>
+                    <div class="col-md-6"><b>Cédula:</b><br><span id="VerCedula"></span></div>
+                    <div class="col-md-6"><b>Teléfono:</b><br><span id="VerTelefono"></span></div>
+                    <div class="col-md-6"><b>Sexo:</b><br><span id="VerSexo"></span></div>
+                    <div class="col-md-6"><b>Fecha Nac.:</b><br><span id="VerFechaNac"></span></div>
+                    <div class="col-md-6"><b>Cargo:</b><br><span id="VerCargo"></span></div>
+                    <div class="col-12"><b>Correo:</b><br><span id="VerCorreo"></span></div>
+                    <div class="col-12"><b>Dirección:</b><br><span id="VerDireccion"></span></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Salir</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
             </div>
         </div>
     </div>
@@ -268,7 +248,6 @@
         border: 1px solid #cfd4da !important;
         box-shadow: none !important;
         outline: none !important;
-        background-image: none !important;
     }
 
     #modalRegistroEmpleados .mensaje p,

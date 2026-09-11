@@ -50,11 +50,11 @@
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center p-2 border-0 shadow-sm btn-icon-client"
-                            onclick="openClientModal()" title="Seleccionar Cliente">
+                            id="btnOpenClientModal" title="Seleccionar Cliente">
                             <i class="fa-solid fa-user-plus"></i>
                         </button>
                         <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center p-2 border-0 shadow-sm btn-icon-trash"
-                            onclick="clearCart()" title="Vaciar Carrito">
+                            id="btnClearCart" title="Vaciar Carrito">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -66,7 +66,7 @@
                             <span class="text-muted">Cliente: <strong id="selectedClientName" class="text-dark"></strong></span>
                             <span class="text-muted ms-2">C.I: <strong id="selectedClientCed" class="text-dark"></strong></span>
                         </div>
-                        <button type="button" class="btn-close small" style="font-size: 0.75rem;" onclick="removeSelectedClient()" title="Quitar cliente"></button>
+                        <button type="button" class="btn-close small" style="font-size: 0.75rem;" id="btnRemoveClient" title="Quitar cliente"></button>
                     </div>
                 </div>
 

@@ -55,16 +55,12 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-light py-3">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="modalRegistrarClienteLabel">
-                    <i class="fa-solid fa-user-plus text-primary me-2"></i>Registro de Cliente
-                </h5>
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="modalRegistrarClienteLabel"><i class="fa-solid fa-user-plus text-primary me-2"></i>Registro de Cliente</h5>
                 <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalBuscarCliente" aria-label="Volver"></button>
             </div>
-
             <form id="formRegistrarCliente">
                 <div class="modal-body p-4">
                     <p class="text-muted small mb-4">Completa los campos obligatorios para registrar al cliente en el sistema.</p>
-
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Cédula</label>

@@ -25,7 +25,6 @@ class ReporteServicioTecnico extends Conexion
 
         $valorLimpio = preg_replace('/\s+/', '', $valor);
 
-        // Si contiene formato de cédula (con/sin letra o guion)
         if (preg_match('/^[A-Za-z]?-?\d+$/', $valorLimpio)) {
             $numeros = preg_replace('/\D/', '', $valorLimpio);
             
@@ -36,8 +35,8 @@ class ReporteServicioTecnico extends Conexion
 
             return [
                 'tipo' => 'cedula',
-                'valor' => $prefijo . '-' . $numeros, // "V-30745678"
-                'valor_numerico' => $numeros           // "30745678"
+                'valor' => $prefijo . '-' . $numeros, 
+                'valor_numerico' => $numeros           
             ];
         }
 
@@ -74,7 +73,7 @@ class ReporteServicioTecnico extends Conexion
                 $busqueda = $this->normalizarBusquedaServicio($filtros['buscar']);
 
                 if ($busqueda['tipo'] === 'cedula') {
-                    // Busca por cédula con formato "V-30745678", solo número "30745678" o por ID de servicio
+                   
                     $sql .= " AND (
                         LOWER(st.cedula_persona) = LOWER(:cedula_formato)
                         OR LOWER(per.cedula_persona) = LOWER(:cedula_formato)
@@ -86,7 +85,7 @@ class ReporteServicioTecnico extends Conexion
                     $params[':cedula_num'] = $busqueda['valor_numerico'];
                     $params[':id_servicio'] = $busqueda['valor_numerico'];
                 } else {
-                    // Busca por texto general (Nombre, Apellido, Equipo o Falla)
+                    
                     $sql .= " AND (
                         LOWER(TRIM(CONCAT(COALESCE(per.nombre, ''), ' ', COALESCE(per.apellido, '')))) LIKE :texto
                         OR LOWER(st.equipo_descripcion) LIKE :texto

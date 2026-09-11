@@ -1,6 +1,5 @@
 $(document).ready(function() {
 
-    // Helper general para gestionar los mensajes de error/éxito
     function aplicarValidacion(input, esValido, titulo, mensaje) {
         const $el = $(input);
         
@@ -28,7 +27,6 @@ $(document).ready(function() {
         }
     }
 
-    // 1. Teléfono: Bloquea letras en tiempo real y evalúa rango/obligatoriedad
     $('#reg_telefono, #orden_telefono_tecnico, input[name="telefono"]').on('keydown input blur', function(evento) {
         if (evento.type === 'keydown' && evento.key.length === 1 && !/[0-9]/.test(evento.key)) {
             evento.preventDefault();
@@ -65,7 +63,6 @@ $(document).ready(function() {
         this.value = telefono;
     });
 
-    // 2. Modelo / Equipo
     $('#reg_equipo, #orden_equipo_tecnico, input[name="equipo"]').on('input change blur', function() {
         let valor = $(this).val().trim();
 
@@ -76,7 +73,6 @@ $(document).ready(function() {
         }
     });
 
-    // 3. Diagnóstico Inicial / Falla
     $('#reg_falla, #orden_falla_tecnico, textarea[name="falla"]').on('input change blur', function() {
         let valor = $(this).val().trim();
 
@@ -87,7 +83,6 @@ $(document).ready(function() {
         }
     });
 
-    // 4. Cliente
     $('#reg_cedula, #orden_cliente_tecnico').on('change input blur', function() {
         let val = $(this).val();
         if (!val) {
@@ -97,7 +92,6 @@ $(document).ready(function() {
         }
     });
 
-    // 5. Marca
     $('#reg_marca, #orden_marca_tecnico').on('change blur', function() {
         let val = $(this).val();
         if (!val) {
@@ -107,7 +101,6 @@ $(document).ready(function() {
         }
     });
 
-    // 6. Especialidad
     $('#reg_especialidad, #orden_especialidad_tecnico').on('change blur', function() {
         let val = $(this).val();
         if (!val) {
