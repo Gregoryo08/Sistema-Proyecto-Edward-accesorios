@@ -122,58 +122,66 @@
         return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    if (btnTasa) {
-        btnTasa.addEventListener('click', function () {
-            var pulsar = document.getElementById('tasaPulsa');
-            if (pulsar) pulsar.remove();
+    function actualizarTasa() {
+        if (!btnTasa) return;
 
-            btnTasa.disabled = true;
-            btnTasa.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando BCV...';
+        var pulsar = document.getElementById('tasaPulsa');
+        if (pulsar) pulsar.remove();
 
-            fetch('?pagina=tasaEcommerce', { method: 'POST' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (!data.success) {
-                        btnTasa.disabled = false;
-                        btnTasa.innerHTML = 'TASA $/BCV HOY <span class="d-inline-block align-middle"><i class="fas fa-sync-alt"></i></span>';
-                        var err = document.createElement('div');
-                        err.className = 'small text-danger fw-bold';
-                        err.textContent = data.message || 'Error al actualizar la tasa';
-                        tasaAccion.appendChild(err);
-                        return;
-                    }
+        btnTasa.disabled = true;
+        btnTasa.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando BCV...';
 
-                    // Actualizar tasa visible
-                    if (tasaValor) tasaValor.textContent = fmt(data.tasa);
-                    if (tasaAlert) {
-                        tasaAlert.textContent = 'Tasa actualizada (0 min)';
-                        tasaAlert.className = 'tasa-alert text-success fw-bold';
-                    }
-
-                    // Recalcular montos en Bs con la nueva tasa
-                    if (totalBsEfectivo) totalBsEfectivo.textContent = fmt(totalUSD * data.tasa);
-                    if (totalBsReportar) totalBsReportar.textContent = fmt(totalUSD * data.tasa);
-
-                    // Desaparecer todo el bloque de acción (botón) — el mensaje
-                    // de "Tasa actualizada" ya se muestra a la izquierda (tasaAlert)
-                    tasaAccion.innerHTML = '';
-
-                    // Habilitar YA PAGUÉ
-                    if (btnYaPague) {
-                        btnYaPague.removeAttribute('disabled');
-                        btnYaPague.style.pointerEvents = '';
-                        btnYaPague.style.opacity = '';
-                    }
-                })
-                .catch(function () {
+        fetch('?pagina=tasaEcommerce', { method: 'POST' })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data.success) {
                     btnTasa.disabled = false;
-                    btnTasa.innerHTML = 'TASA $/BCV HOY';
+                    btnTasa.innerHTML = 'TASA $/BCV HOY <span class="d-inline-block align-middle"><i class="fas fa-sync-alt"></i></span>';
                     var err = document.createElement('div');
                     err.className = 'small text-danger fw-bold';
-                    err.textContent = 'Error de conexión. Intenta nuevamente.';
+                    err.textContent = data.message || 'Error al actualizar la tasa';
                     tasaAccion.appendChild(err);
-                });
-        });
+                    return;
+                }
+
+                // Actualizar tasa visible
+                if (tasaValor) tasaValor.textContent = fmt(data.tasa);
+                if (tasaAlert) {
+                    tasaAlert.textContent = 'Tasa actualizada (0 min)';
+                    tasaAlert.className = 'tasa-alert text-success fw-bold';
+                }
+
+                // Recalcular montos en Bs con la nueva tasa
+                if (totalBsEfectivo) totalBsEfectivo.textContent = fmt(totalUSD * data.tasa);
+                if (totalBsReportar) totalBsReportar.textContent = fmt(totalUSD * data.tasa);
+
+                // Desaparecer todo el bloque de acción (botón) — el mensaje
+                // de "Tasa actualizada" ya se muestra a la izquierda (tasaAlert)
+                tasaAccion.innerHTML = '';
+
+                // Habilitar YA PAGUÉ
+                if (btnYaPague) {
+                    btnYaPague.removeAttribute('disabled');
+                    btnYaPague.style.pointerEvents = '';
+                    btnYaPague.style.opacity = '';
+                }
+            })
+            .catch(function () {
+                btnTasa.disabled = false;
+                btnTasa.innerHTML = 'TASA $/BCV HOY';
+                var err = document.createElement('div');
+                err.className = 'small text-danger fw-bold';
+                err.textContent = 'Error de conexión. Intenta nuevamente.';
+                tasaAccion.appendChild(err);
+            });
+    }
+
+    if (btnTasa) {
+        btnTasa.addEventListener('click', actualizarTasa);
+
+        // Auto-actualizar la tasa al cargar la página si está expirada, para que
+        // el cliente vea el monto final en Bs ANTES de transferir.
+        actualizarTasa();
     }
 })();
 </script>

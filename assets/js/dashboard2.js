@@ -97,12 +97,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 tbody.innerHTML = '';
 
                 let cantidadCuotasActuales = 0;
+                let totalAcumuladoPendiente = 0;
+
                 if (data.financiamientosActivos && data.financiamientosActivos.length > 0) {
                     cantidadCuotasActuales = data.financiamientosActivos.length;
                     data.financiamientosActivos.forEach(item => {
                         let esPagada = item.estado.toLowerCase() === 'pagada' || item.estado.toLowerCase() === 'pagado';
                         let badgeClase = esPagada ? 'bg-secondary' : 'bg-success';
                         let estadoTexto = esPagada ? 'Pagada' : 'Activo';
+
+                        if (!esPagada) {
+                            totalAcumuladoPendiente += parseFloat(item.monto || 0);
+                        }
 
                         let tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -121,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let nombreMesFiltro = data.mesSeleccionado ? obtenerNombreMes(data.mesSeleccionado.mes) : "";
                 const textoAlerta = document.getElementById('texto-alerta-mes');
                 if (textoAlerta) {
-                    textoAlerta.innerHTML = `Mostrando cuotas programadas para ${nombreMesFiltro} (${cantidadCuotasActuales} cuotas). Total acumulado: <span class="fw-bold text-dark">${formatCurrency(data.compromisoMes || 0)}</span>`;
+                    textoAlerta.innerHTML = `Mostrando cuotas programadas para ${nombreMesFiltro} (${cantidadCuotasActuales} cuotas). Total acumulado: <span class="fw-bold text-dark">${formatCurrency(totalAcumuladoPendiente)}</span>`;
                 }
 
             } else {

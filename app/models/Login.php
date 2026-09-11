@@ -47,68 +47,147 @@ class login
         }
     }
 
-
-public function esMayorDeEdad($fechaNacimiento) {
-    $fechaObj = new \DateTime($fechaNacimiento);
-    $hoy = new \DateTime();
-    $edad = $hoy->diff($fechaObj)->y;
-    return $edad >= 18;
-}
-
-public function registrarCliente($datos)
-{
-    $fechaNacimiento = new \DateTime($datos['fecha_nacimiento']);
-    $hoy = new \DateTime();
-    $edad = $hoy->diff($fechaNacimiento)->y;
-
-    if ($edad < 18) {
-        return ["error" => "Debe ser mayor de 18 años para registrarse."];
+    public function esMayorDeEdad($fechaNacimiento) {
+        $fechaObj = new \DateTime($fechaNacimiento);
+        $hoy = new \DateTime();
+        $edad = $hoy->diff($fechaObj)->y;
+        return $edad >= 18;
     }
 
-    try {
-        $conexGeneral = new Conexion('sistema');
-        $conexUser = new Conexion('usuario');
+    public function activarClave($datos)
+    {
+        try {
+            $conexUser = Conexion::getShared('usuario')->getConexion();
+            
+            $hash = password_hash($datos['clave'], PASSWORD_DEFAULT);
+            $stmtUser = $conexUser->prepare("INSERT INTO usuarios (cedula_usuario, clave, estatus, id_rol) VALUES (?, ?, 'Activo', 6)");
+            $stmtUser->execute([$datos['cedula'], $hash]);
 
-        $stmtCheck = $conexGeneral->prepare("SELECT cedula_persona FROM persona WHERE cedula_persona = ?");
-        $stmtCheck->execute([$datos['cedula']]);
-        if ($stmtCheck->fetch()) {
-            return ["error" => "La cédula ya se encuentra registrada."];
+            return ["success" => "Cuenta activada exitosamente"];
+        } catch (\Exception $e) {
+            return ["error" => "Error al activar la cuenta: " . $e->getMessage()];
+        }
+    }
+
+    public function consultarCedula($cedula)
+    {
+        try {
+            $conexUser = new Conexion('usuario');
+            $stmtUser = $conexUser->prepare("SELECT cedula_usuario FROM usuarios WHERE cedula_usuario = ?");
+            $stmtUser->execute([$cedula]);
+            if ($stmtUser->fetch()) {
+                return ['status' => 'YA_REGISTRADO', 'msj' => 'Ya posees una cuenta activa, inicia sesión.'];
+            }
+
+            $conexGeneral = new Conexion('sistema');
+            $stmtPersona = $conexGeneral->prepare("
+                SELECT p.telefono 
+                FROM persona p
+                INNER JOIN clientes c ON p.cedula_persona = c.cedula_persona
+                WHERE p.cedula_persona = ?
+            ");
+            $stmtPersona->execute([$cedula]);
+            $persona = $stmtPersona->fetch(PDO::FETCH_ASSOC);
+
+            if ($persona) {
+                $telefono = $persona['telefono'] ?? '';
+                $mascara = strlen($telefono) > 4 ? substr($telefono, 0, 4) . '****' . substr($telefono, -2) : '****';
+                
+                return [
+                    'status' => 'SOLICITAR_TELEFONO',
+                    'telefono_mascara' => $mascara
+                ];
+            }
+
+            return ['status' => 'NO_ENCONTRADO'];
+
+        } catch (\Exception $e) {
+            return ['status' => 'ERROR', 'msj' => $e->getMessage()];
+        }
+    }
+
+    public function verificarTelefonoCliente($cedula, $telefonoIngresado)
+    {
+        try {
+            $conexGeneral = new Conexion('sistema');
+
+            $stmt = $conexGeneral->prepare("SELECT telefono FROM persona WHERE cedula_persona = ?");
+            $stmt->execute([$cedula]);
+            $persona = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$persona) {
+                return ['status' => 'ERROR', 'msj' => 'Cédula no encontrada'];
+            }
+
+            $telefonoReal = trim($persona['telefono'] ?? '');
+            $telefonoLimpio = preg_replace('/[^0-9]/', '', $telefonoIngresado);
+            $telefonoRealLimpio = preg_replace('/[^0-9]/', '', $telefonoReal);
+
+            if ($telefonoLimpio === $telefonoRealLimpio && $telefonoLimpio !== '') {
+                return ['status' => 'TELEFONO_CORRECTO'];
+            }
+
+            return ['status' => 'ERROR', 'msj' => 'El teléfono ingresado no coincide con el registrado.'];
+
+        } catch (\Exception $e) {
+            return ['status' => 'ERROR', 'msj' => $e->getMessage()];
+        }
+    }
+
+    public function registrarCliente($datos)
+    {
+        $fechaNacimiento = new \DateTime($datos['fecha_nacimiento']);
+        $hoy = new \DateTime();
+        $edad = $hoy->diff($fechaNacimiento)->y;
+
+        if ($edad < 18) {
+            return ["error" => "Debe ser mayor de 18 años para registrarse."];
         }
 
-        $conexGeneral->beginTransaction();
-        $conexUser->beginTransaction();
+        try {
+            $conexGeneral = new Conexion('sistema');
+            $conexUser = new Conexion('usuario');
 
-        $stmtPersona = $conexGeneral->prepare("INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmtPersona->execute([
-            $datos['cedula'],
-            $datos['nombre'],
-            $datos['apellido'],
-            $datos['correo'],
-            $datos['telefono'],
-            $datos['residencia'],
-            $datos['fecha_nacimiento'],
-            $datos['sexo']
-        ]);
+            $stmtCheck = $conexGeneral->prepare("SELECT cedula_persona FROM persona WHERE cedula_persona = ?");
+            $stmtCheck->execute([$datos['cedula']]);
+            if ($stmtCheck->fetch()) {
+                return ["error" => "La cédula ya se encuentra registrada."];
+            }
 
-        $stmtCliente = $conexGeneral->prepare("INSERT INTO clientes (cedula_persona, residencia, estado) VALUES (?, ?, 'activo')");
-        $stmtCliente->execute([
-            $datos['cedula'],
-            $datos['residencia']
-        ]);
+            $conexGeneral->beginTransaction();
+            $conexUser->beginTransaction();
 
-        $hash = password_hash($datos['clave'], PASSWORD_DEFAULT);
-        $stmtUser = $conexUser->prepare("INSERT INTO usuarios (cedula_usuario, clave, estatus, id_rol) VALUES (?, ?, 'Activo', 6)");
-        $stmtUser->execute([$datos['cedula'], $hash]);
+            $stmtPersona = $conexGeneral->prepare("INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmtPersona->execute([
+                $datos['cedula'],
+                $datos['nombre'],
+                $datos['apellido'],
+                $datos['correo'],
+                $datos['telefono'],
+                $datos['residencia'],
+                $datos['fecha_nacimiento'],
+                $datos['sexo']
+            ]);
 
-        $conexGeneral->commit();
-        $conexUser->commit();
-        return ["success" => "Registro exitoso"];
-    } catch (\Exception $e) {
-        if (isset($conexGeneral)) $conexGeneral->rollBack();
-        if (isset($conexUser)) $conexUser->rollBack();
-        return ["error" => "Error interno: " . $e->getMessage()];
+            $stmtCliente = $conexGeneral->prepare("INSERT INTO clientes (cedula_persona, residencia, estado) VALUES (?, ?, 'activo')");
+            $stmtCliente->execute([
+                $datos['cedula'],
+                $datos['residencia']
+            ]);
+
+            $hash = password_hash($datos['clave'], PASSWORD_DEFAULT);
+            $stmtUser = $conexUser->prepare("INSERT INTO usuarios (cedula_usuario, clave, estatus, id_rol) VALUES (?, ?, 'Activo', 6)");
+            $stmtUser->execute([$datos['cedula'], $hash]);
+
+            $conexGeneral->commit();
+            $conexUser->commit();
+            return ["success" => "Registro exitoso"];
+        } catch (\Exception $e) {
+            if (isset($conexGeneral)) $conexGeneral->rollBack();
+            if (isset($conexUser)) $conexUser->rollBack();
+            return ["error" => "Error interno: " . $e->getMessage()];
+        }
     }
-}
 
     private function procesarLogin($usuario, $clave)
     {
@@ -180,44 +259,34 @@ public function registrarCliente($datos)
         }
     }
 
+    public function registrarIntentoFail($ip) {
+        try {
+            $conex = Conexion::getShared('usuario')->getConexion();
+            $stmt = $conex->prepare("INSERT INTO intentos_fallidos (ip) VALUES (?)");
+            $stmt->execute([$ip]);
+        } catch (\Exception $e) {
+            
+        }
+    }
 
+    public function verificarBloqueoIP($ip) {
+        try {
+            $conex = Conexion::getShared('usuario')->getConexion();
+            $stmt = $conex->prepare("SELECT COUNT(*) FROM intentos_fallidos WHERE ip = ? AND fecha > (NOW() - INTERVAL 15 MINUTE)");
+            $stmt->execute([$ip]);
+            return (int)$stmt->fetchColumn();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
 
-
-
-public function registrarIntentoFail($ip) {
-    try {
-        $conex = Conexion::getShared('usuario')->getConexion();
-        $stmt = $conex->prepare("INSERT INTO intentos_fallidos (ip) VALUES (?)");
-        $stmt->execute([$ip]);
-    } catch (\Exception $e) {
-        
+    public function limpiarIntentos($ip) {
+        try {
+            $conex = Conexion::getShared('usuario')->getConexion();
+            $stmt = $conex->prepare("DELETE FROM intentos_fallidos WHERE ip = ?");
+            $stmt->execute([$ip]);
+        } catch (\Exception $e) {
+            
+        }
     }
 }
-
-public function verificarBloqueoIP($ip) {
-    try {
-        $conex = Conexion::getShared('usuario')->getConexion();
-        $stmt = $conex->prepare("SELECT COUNT(*) FROM intentos_fallidos WHERE ip = ? AND fecha > (NOW() - INTERVAL 15 MINUTE)");
-        $stmt->execute([$ip]);
-        return (int)$stmt->fetchColumn();
-    } catch (\Exception $e) {
-        return 0;
-    }
-}
-
-public function limpiarIntentos($ip) {
-    try {
-        $conex = Conexion::getShared('usuario')->getConexion();
-        $stmt = $conex->prepare("DELETE FROM intentos_fallidos WHERE ip = ?");
-        $stmt->execute([$ip]);
-    } catch (\Exception $e) {
-        
-    }
-}
-
-
-
-
-}
-
-
