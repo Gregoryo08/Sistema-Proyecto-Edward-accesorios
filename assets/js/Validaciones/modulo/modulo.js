@@ -243,7 +243,7 @@ $(document).ready(function () {
     $(document).on("click", ".btn-eliminar", function () {
       $("#id_modulo").val($(this).data("id"));
   
-      mensaje("eliminar", "Estas Seguro de Eliminar el Rol?", eliminar,"Al eliminar el rol, se eliminaran las operaciones y roles ligados a ese Modulo, a parte de los registros en la bitacora del Modulo '" + $(this).data("nombre") + "'");
+      mensaje("eliminar", "Estas Seguro de Eliminar el modulo?", eliminar,"Al eliminar el modulo, se eliminaran las operaciones y roles ligados a ese Modulo, a parte de los registros en la bitacora del Modulo '" + $(this).data("nombre") + "'");
     });
   
     function eliminar() {

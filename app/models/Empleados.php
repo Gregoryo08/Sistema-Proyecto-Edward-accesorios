@@ -182,6 +182,9 @@ public function registroEmpleado()
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
+             $user = $_SESSION["username"];
+        $conex->exec("SET @usuario_actual = '{$user}'");
+        $conex->exec("SET @modulo = 'Administrar empleados'");
 
         
         $sexoInput = $this->getSexo();
@@ -232,7 +235,9 @@ public function ModificarEmpleado($cedula)
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
-
+            $user = $_SESSION["username"];
+        $conex->exec("SET @usuario_actual = '{$user}'");
+        $conex->exec("SET @modulo = 'Administrar Empleado'");
        
         $sexoFinal = ($this->getSexo() === 'Masculino' || $this->getSexo() === 'M') ? 'M' : 'F';
 
@@ -280,6 +285,9 @@ public function ModificarEmpleado($cedula)
     {
         try {
             $conex = new Conexion("sistema");
+              $user = $_SESSION["username"];
+        $conex->exec("SET @usuario_actual = '{$user}'");
+        $conex->exec("SET @modulo = 'Administrar Empleado'");
             $sql = "UPDATE empleados SET estado = :e WHERE cedula_persona = :cedula";
             $stmt = $conex->prepare($sql);
             $stmt->execute([

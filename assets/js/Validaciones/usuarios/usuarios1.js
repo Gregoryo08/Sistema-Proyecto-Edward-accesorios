@@ -71,14 +71,16 @@ $(document).ready(function () {
         $("#modalTitle").text("Registrar Usuario");
         $("#accion").val("registrar");
         $("#cedula").val("").prop('disabled', false);
-        $("#formSeguridad")[0].reset();
-        $("#formDatosPersonales")[0].reset();
-        $("#formClasificacion")[0].reset();
+        if ($("#formSeguridad").length) $("#formSeguridad")[0].reset();
+        if ($("#formDatosPersonales").length) $("#formDatosPersonales")[0].reset();
+        if ($("#formClasificacion").length) $("#formClasificacion")[0].reset();
         cargarDatosAuxiliares();
         $("#modalSeguridad").modal("show");
     });
 
-    function cargarDatosAuxiliaresMod() {
+    $(document).on("click", ".btn-editar", function () {
+        let id = $(this).data("id");
+        
         $.ajax({
             url: "?pagina=usuarios",
             method: "POST",
@@ -90,36 +92,31 @@ $(document).ready(function () {
                 roles.forEach(rol => {
                     select.append(`<option value="${rol.idRol}">${rol.descripcion_rol}</option>`);
                 });
-            }
-        });
-    }
 
-    $(document).on("click", ".btn-editar", function () {
-        let id = $(this).data("id");
-        cargarDatosAuxiliaresMod();
-        
-        $.ajax({
-            url: "?pagina=usuarios",
-            method: "POST",
-            data: { accion: "consultarUno", cedula: id },
-            dataType: "json",
-            success: function (response) {
-                if (response) {
-                    $("#cedula_mod").val(response.cedula_usuario);
-                    $("input[name='clave']").val("");
-                    $("#id_rol_mod").val(response.id_rol);
-                    $("input[name='nombre']").val(response.nombre);
-                    $("input[name='apellido']").val(response.apellido);
-                    $("input[name='correo']").val(response.correo);
-                    $("input[name='telefono']").val(response.telefono);
-                    $("input[name='direccion']").val(response.direccion);
-                    $("input[name='fecha_nacimiento']").val(response.fecha_nacimiento);
-                    $("select[name='sexo']").val(response.sexo);
-                }
-                
-                let modalEl = document.getElementById('modalModificar');
-                let myModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                myModal.show();
+                $.ajax({
+                    url: "?pagina=usuarios",
+                    method: "POST",
+                    data: { accion: "consultarUno", cedula: id },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response) {
+                            $("#cedula_mod").val(response.cedula_usuario);
+                            $("#formModificarUsuario input[name='clave']").val("");
+                            $("#id_rol_mod").val(response.id_rol);
+                            $("#formModificarUsuario input[name='nombre']").val(response.nombre);
+                            $("#formModificarUsuario input[name='apellido']").val(response.apellido);
+                            $("#formModificarUsuario input[name='correo']").val(response.correo);
+                            $("#formModificarUsuario input[name='telefono']").val(response.telefono);
+                            $("#formModificarUsuario input[name='direccion']").val(response.direccion);
+                            $("#formModificarUsuario input[name='fecha_nacimiento']").val(response.fecha_nacimiento);
+                            $("#formModificarUsuario select[name='sexo']").val(response.sexo);
+                        }
+                        
+                        let modalEl = document.getElementById('modalModificar');
+                        let myModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        myModal.show();
+                    }
+                });
             }
         });
     });
@@ -136,7 +133,7 @@ $(document).ready(function () {
             cancelButtonText: "Cancelar"
         }).then((result) => {
             if (result.isConfirmed) {
-                let datos = $("#formModificarUsuario").serialize();
+                let datos = $("#formModificarUsuario").serialize() + "&accion=modificar&cedula=" + $("#cedula_mod").val();
                 
                 $.ajax({
                     url: "?pagina=usuarios",
@@ -205,20 +202,19 @@ $(document).ready(function () {
                     data: { accion: "estatus", id: id, estatus: estatus },
                     dataType: "json",
                     success: function (r) {
-                        if (r && r.error) {
-                            Swal.fire("Error", r.error, "error");
-                        } else {
+                        if (r.success) {
                             Swal.fire(
                                 "¡Actualizado!", 
                                 `El usuario ha sido ${accionTexto === 'suspender' ? 'suspendido' : 'habilitado'} exitosamente.`, 
                                 "success"
                             );
                             cargarTablaUsuarios();
+                        } else {
+                            Swal.fire("Error", r.error || "No se pudo actualizar el estatus", "error");
                         }
                     },
                     error: function() {
-                        cargarTablaUsuarios();
-                        Swal.fire("¡Actualizado!", `El usuario ha sido ${accionTexto === 'suspender' ? 'suspendido' : 'habilitado'}.`, "success");
+                        Swal.fire("Error", "Ocurrió un error al procesar la solicitud en el servidor", "error");
                     }
                 });
             }
@@ -229,14 +225,16 @@ $(document).ready(function () {
 function toggleOpciones(valor) {
     const contRol = document.getElementById('container_rol');
     const contCargo = document.getElementById('container_cargo');
-    if (valor === 'empleado') {
-        contRol.classList.remove('d-none');
-        contCargo.classList.remove('d-none');
-    } else if (valor === 'cliente') {
-        contRol.classList.remove('d-none');
-        contCargo.classList.add('d-none');
-    } else {
-        contRol.classList.add('d-none');
-        contCargo.classList.add('d-none');
+    if (contRol && contCargo) {
+        if (valor === 'empleado') {
+            contRol.classList.remove('d-none');
+            contCargo.classList.remove('d-none');
+        } else if (valor === 'cliente') {
+            contRol.classList.remove('d-none');
+            contCargo.classList.add('d-none');
+        } else {
+            contRol.classList.add('d-none');
+            contCargo.classList.add('d-none');
+        }
     }
 }

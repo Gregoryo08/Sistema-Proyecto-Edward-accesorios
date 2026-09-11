@@ -105,4 +105,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-include 'App/views/roles.php';
+require_once 'App/views/roles.php';

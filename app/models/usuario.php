@@ -21,25 +21,25 @@ class Usuario extends Conexion
     }
 
     public function consultarUno()
-{
-    $conexUser = new Conexion("usuario");
-    $sqlU = "SELECT u.cedula_usuario, u.id_rol FROM usuarios u WHERE u.cedula_usuario = :c";
-    $stmtU = $conexUser->prepare($sqlU);
-    $stmtU->execute([":c" => $this->cedula_usuario]);
-    $usuario = $stmtU->fetch(PDO::FETCH_ASSOC);
-    unset($conexUser);
+    {
+        $conexUser = new Conexion("usuario");
+        $sqlU = "SELECT u.cedula_usuario, u.id_rol FROM usuarios u WHERE u.cedula_usuario = :c";
+        $stmtU = $conexUser->prepare($sqlU);
+        $stmtU->execute([":c" => $this->cedula_usuario]);
+        $usuario = $stmtU->fetch(PDO::FETCH_ASSOC);
+        unset($conexUser);
 
-    if (!$usuario) return null;
+        if (!$usuario) return null;
 
-    $conexSistema = new Conexion("sistema");
-    $sqlP = "SELECT nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo FROM persona WHERE cedula_persona = :c";
-    $stmtP = $conexSistema->prepare($sqlP);
-    $stmtP->execute([":c" => $this->cedula_usuario]);
-    $persona = $stmtP->fetch(PDO::FETCH_ASSOC);
-    unset($conexSistema);
+        $conexSistema = new Conexion("sistema");
+        $sqlP = "SELECT nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo FROM persona WHERE cedula_persona = :c";
+        $stmtP = $conexSistema->prepare($sqlP);
+        $stmtP->execute([":c" => $this->cedula_usuario]);
+        $persona = $stmtP->fetch(PDO::FETCH_ASSOC);
+        unset($conexSistema);
 
-    return $persona ? array_merge($usuario, $persona) : $usuario;
-}
+        return $persona ? array_merge($usuario, $persona) : $usuario;
+    }
 
     public function listarRoles()
     {
@@ -63,67 +63,105 @@ class Usuario extends Conexion
         return $resultado;
     }
 
-   public function registrarCompleto($datosPersona)
-{
-    try {
-        $cedulaLimpia = trim($this->cedula_usuario);
-        if (!preg_match('/^[VE]-/', $cedulaLimpia)) {
-            $this->cedula_usuario = 'V-' . preg_replace('/^[VEve]-?/', '', $cedulaLimpia);
-        }
-
-        $conexSistema = new Conexion("sistema");
-        $conexSistema->beginTransaction();
-
-        $sqlPersona = "INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (:c, :n, :a, :cor, :tel, :dir, :fn, :sex)";
-        $stmtP = $conexSistema->prepare($sqlPersona);
-        $stmtP->execute([
-            ":c" => $this->cedula_usuario,
-            ":n" => $datosPersona['nombre'],
-            ":a" => $datosPersona['apellido'],
-            ":cor" => $datosPersona['correo'] ?? 'no@correo.com',
-            ":tel" => $datosPersona['telefono'] ?? '0000',
-            ":dir" => $datosPersona['direccion'] ?? 'N/A',
-            ":fn"  => $datosPersona['fecha_nacimiento'] ?? null,
-            ":sex" => $datosPersona['sexo'] ?? 'No especificado'
-        ]);
-
-        if ($this->tipo_registro === 'cliente') {
-            $sqlTipo = "INSERT INTO clientes (cedula_persona) VALUES (:c)";
-            $stmtT = $conexSistema->prepare($sqlTipo);
-            $stmtT->execute([":c" => $this->cedula_usuario]);
-        } else {
-            $sqlTipo = "INSERT INTO empleados (cedula_persona, id_cargo) VALUES (:c, :id_cargo)";
-            $stmtT = $conexSistema->prepare($sqlTipo);
-            $stmtT->execute([
-                ":c" => $this->cedula_usuario,
-                ":id_cargo" => $datosPersona['id_cargo'] ?? null
-            ]);
-        }
-        
-        $conexSistema->commit();
-
-        $conexUser = new Conexion("usuario");
-        $sqlUser = "INSERT INTO usuarios (cedula_usuario, clave, id_rol, estatus) VALUES (:c, :cl, :r, 'Activo')";
-        $stmtU = $conexUser->prepare($sqlUser);
-        $stmtU->execute([
-            ":c" => $this->cedula_usuario,
-            ":cl" => password_hash($this->clave, PASSWORD_BCRYPT),
-            ":r" => $this->id_rol
-        ]);
-        
-        return ["success" => true];
-    } catch (PDOException $e) {
-        if (isset($conexSistema) && $conexSistema->inTransaction()) {
-            $conexSistema->rollBack();
-        }
-        return ["success" => false, "error" => $e->getMessage()];
-    }
-}
-
-   public function modificarPerfil($datosPersona = null)
+    public function registrarCompleto($datosPersona)
     {
         try {
+            $rolAsignado = $this->id_rol ?? $datosPersona['id_rol'] ?? $datosPersona['id_rol_usuario'] ?? $datosPersona['rol'] ?? null;
+
+            if (empty($rolAsignado)) {
+                return ["success" => false, "error" => "Debe seleccionar un rol válido."];
+            }
+
+            if (empty($this->cedula_usuario)) {
+                return ["success" => false, "error" => "La cédula es obligatoria."];
+            }
+
+            if (empty($this->clave)) {
+                return ["success" => false, "error" => "La contraseña es obligatoria."];
+            }
+
+            if (empty($datosPersona['nombre']) || empty($datosPersona['apellido'])) {
+                return ["success" => false, "error" => "Nombre y apellido son obligatorios."];
+            }
+
+            $cedulaLimpia = trim($this->cedula_usuario);
+            if (!preg_match('/^[VE]-/', $cedulaLimpia)) {
+                $this->cedula_usuario = 'V-' . preg_replace('/^[VEve]-?/', '', $cedulaLimpia);
+            }
+
+            $usuarioSesion = $_SESSION["username"] ?? 'sistema';
+
+            $conexSistema = new Conexion("sistema");
+            $conexSistema->beginTransaction();
+            $conexSistema->exec("SET @usuario_actual = '{$usuarioSesion}'");
+            $conexSistema->exec("SET @modulo = 'Administrar Usuarios'");
+
+            $sqlPersona = "INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (:c, :n, :a, :cor, :tel, :dir, :fn, :sex)";
+            $stmtP = $conexSistema->prepare($sqlPersona);
+            $stmtP->execute([
+                ":c"   => $this->cedula_usuario,
+                ":n"   => trim($datosPersona['nombre']),
+                ":a"   => trim($datosPersona['apellido']),
+                ":cor" => !empty($datosPersona['correo']) ? trim($datosPersona['correo']) : 'no@correo.com',
+                ":tel" => !empty($datosPersona['telefono']) ? trim($datosPersona['telefono']) : '0000',
+                ":dir" => !empty($datosPersona['direccion']) ? trim($datosPersona['direccion']) : 'N/A',
+                ":fn"  => $datosPersona['fecha_nacimiento'] ?? null,
+                ":sex" => $datosPersona['sexo'] ?? 'No especificado'
+            ]);
+
+            if ($this->tipo_registro === 'cliente') {
+                $sqlTipo = "INSERT INTO clientes (cedula_persona) VALUES (:c)";
+                $stmtT = $conexSistema->prepare($sqlTipo);
+                $stmtT->execute([":c" => $this->cedula_usuario]);
+            } else {
+                $sqlTipo = "INSERT INTO empleados (cedula_persona, id_cargo) VALUES (:c, :id_cargo)";
+                $stmtT = $conexSistema->prepare($sqlTipo);
+                $stmtT->execute([
+                    ":c"        => $this->cedula_usuario,
+                    ":id_cargo" => $datosPersona['id_cargo'] ?? null
+                ]);
+            }
+            
+            $conexSistema->commit();
+
             $conexUser = new Conexion("usuario");
+            $conexUser->exec("SET @usuario_actual = '{$usuarioSesion}'");
+            $conexUser->exec("SET @modulo = 'Administrar Usuarios'");
+
+            $sqlUser = "INSERT INTO usuarios (cedula_usuario, clave, id_rol, estatus) VALUES (:c, :cl, :r, 'Activo')";
+            $stmtU = $conexUser->prepare($sqlUser);
+            $stmtU->execute([
+                ":c"  => $this->cedula_usuario,
+                ":cl" => password_hash($this->clave, PASSWORD_BCRYPT),
+                ":r"  => $rolAsignado
+            ]);
+            
+            return ["success" => true];
+        } catch (PDOException $e) {
+            if (isset($conexSistema) && $conexSistema->inTransaction()) {
+                $conexSistema->rollBack();
+            }
+            return ["success" => false, "error" => $e->getMessage()];
+        }
+    }
+
+    public function modificarPerfil($datosPersona = null)
+    {
+        try {
+            if (empty($this->cedula_usuario)) {
+                return ["success" => false, "error" => "Cédula no especificada."];
+            }
+
+            if (empty($this->id_rol)) {
+                return ["success" => false, "error" => "Debe especificar un rol válido."];
+            }
+
+            $usuarioSesion = $_SESSION['username'] ?? 'sistema';
+
+            $conexUser = new Conexion("usuario");
+            $conexUser->exec("SET @usuario_actual = '{$usuarioSesion}'");
+            $conexUser->exec("SET @modulo = 'Administrar Usuarios'");
+
             $params = [":r" => $this->id_rol, ":c" => $this->cedula_usuario];
             $sql = "UPDATE usuarios SET id_rol = :r WHERE cedula_usuario = :c";
             
@@ -136,15 +174,22 @@ class Usuario extends Conexion
             $stmt->execute($params);
 
             if ($datosPersona) {
+                if (empty($datosPersona['nombre']) || empty($datosPersona['apellido'])) {
+                    return ["success" => false, "error" => "Nombre y apellido son obligatorios."];
+                }
+
                 $conexSistema = new Conexion("sistema");
+                $conexSistema->exec("SET @usuario_actual = '{$usuarioSesion}'");
+                $conexSistema->exec("SET @modulo = 'Administrar Usuarios'");
+
                 $sqlP = "UPDATE persona SET nombre = :n, apellido = :a, correo = :cor, telefono = :tel, direccion = :dir, fecha_nacimiento = :fn, sexo = :sex WHERE cedula_persona = :c";
                 $stmtP = $conexSistema->prepare($sqlP);
                 $stmtP->execute([
-                    ":n"   => $datosPersona['nombre'],
-                    ":a"   => $datosPersona['apellido'],
-                    ":cor" => $datosPersona['correo'] ?? 'no@correo.com',
-                    ":tel" => $datosPersona['telefono'] ?? '0000',
-                    ":dir" => $datosPersona['direccion'] ?? 'N/A',
+                    ":n"   => trim($datosPersona['nombre']),
+                    ":a"   => trim($datosPersona['apellido']),
+                    ":cor" => !empty($datosPersona['correo']) ? trim($datosPersona['correo']) : 'no@correo.com',
+                    ":tel" => !empty($datosPersona['telefono']) ? trim($datosPersona['telefono']) : '0000',
+                    ":dir" => !empty($datosPersona['direccion']) ? trim($datosPersona['direccion']) : 'N/A',
                     ":fn"  => $datosPersona['fecha_nacimiento'] ?? null,
                     ":sex" => $datosPersona['sexo'] ?? 'No especificado',
                     ":c"   => $this->cedula_usuario
@@ -197,7 +242,13 @@ class Usuario extends Conexion
 
     public function cambiarEstatus()
     {
+        if (empty($this->cedula_usuario) || empty($this->estatus)) {
+            return false;
+        }
+        $usuarioSesion = $_SESSION['username'] ?? 'sistema';
         $conex = new Conexion("usuario");
+        $conex->exec("SET @usuario_actual = '{$usuarioSesion}'");
+        $conex->exec("SET @modulo = 'Administrar Usuarios'");
         $sql = "UPDATE usuarios SET estatus = :e WHERE cedula_usuario = :c";
         $stmt = $conex->prepare($sql);
         $resultado = $stmt->execute([":e" => $this->estatus, ":c" => $this->cedula_usuario]);
@@ -207,7 +258,13 @@ class Usuario extends Conexion
 
     public function eliminar()
     {
+        if (empty($this->cedula_usuario)) {
+            return false;
+        }
+        $usuarioSesion = $_SESSION['username'] ?? 'sistema';
         $conex = new Conexion("usuario");
+        $conex->exec("SET @usuario_actual = '{$usuarioSesion}'");
+        $conex->exec("SET @modulo = 'Administrar Usuarios'");
         $sql = "UPDATE usuarios SET estatus = 'Inactivo' WHERE cedula_usuario = :c";
         $stmt = $conex->prepare($sql);
         $resultado = $stmt->execute([":c" => $this->cedula_usuario]);
@@ -216,6 +273,7 @@ class Usuario extends Conexion
     }
 
     public function setTipoRegistro($tipo) { $this->tipo_registro = $tipo; }
+    public function getTipoRegistro() { return $this->tipo_registro; }
     public function getId() { return $this->id; }
     public function setId($id) { $this->id = $id; }
     public function getCedula_usuario() { return $this->cedula_usuario; }
@@ -224,5 +282,6 @@ class Usuario extends Conexion
     public function setClave($clave) { $this->clave = $clave; }
     public function getId_rol() { return $this->id_rol; }
     public function setId_rol($rol) { $this->id_rol = $rol; }
+    public function getEstatus() { return $this->estatus; }
     public function setEstatus($estatus) { $this->estatus = $estatus; }
 }
