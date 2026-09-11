@@ -130,7 +130,7 @@ public function listarProductos($filtro = '')
     {
         $conex = new conexion("sistema");
         try {
-            $stmt = $conex->prepare("SELECT id_servicio, cedula_persona, equipo_descripcion, falla_inicial, estado, monto_total, fecha_registro FROM servicio_tecnico");
+            $stmt = $conex->prepare("SELECT st.id_servicio, st.cedula_persona, p.nombre, p.apellido, st.equipo_descripcion, st.falla_inicial, st.estado, st.monto_total, st.fecha_registro FROM servicio_tecnico st LEFT JOIN persona p ON p.cedula_persona = st.cedula_persona");
             $stmt->execute();
             $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
             unset($conex);

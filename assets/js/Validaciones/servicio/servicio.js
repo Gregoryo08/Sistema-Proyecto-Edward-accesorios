@@ -97,6 +97,8 @@ function inicializarTablaServicio() {
         columns: [
             { data: "id_servicio", visible: false },
             { data: "cedula_persona" },
+            { data: "nombre", defaultContent: "" },
+            { data: "apellido", defaultContent: "" },
             { data: "equipo_descripcion" },
             { data: "falla_inicial" },
             { data: "estado" },

@@ -25,7 +25,9 @@ require_once('assets/comunes/menu.php');
                         <thead class="thead-dark">
                             <tr>
                                 <th style="display: none;">ID</th>
-                                <th>Cliente</th>
+                                <th>Cédula</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
                                 <th>Equipo</th>
                                 <th>Falla</th>
                                 <th>Estado</th>

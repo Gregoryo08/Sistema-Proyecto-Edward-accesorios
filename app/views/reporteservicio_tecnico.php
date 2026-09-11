@@ -8,7 +8,7 @@
             <button type="button" class="btn btn-danger" id="btnDescargarReporteServicio"><i class="fa-solid fa-file-pdf me-1"></i> PDF</button>
         </div>
         <div class="row g-3">
-            <div class="col-12 col-md-4"><label for="reporteBuscar" class="form-label">Buscar</label><input id="reporteBuscar" class="form-control" placeholder="ID, cédula, cliente, equipo o falla"></div>
+            <div class="col-12 col-md-4"><label for="reporteBuscar" class="form-label">Buscar</label><input id="reporteBuscar" class="form-control" placeholder="cédula, cliente, equipo o falla"></div>
             <div class="col-12 col-sm-6 col-md-2"><label for="reporteEstado" class="form-label">Estado</label><select id="reporteEstado" class="form-select"><option value="">Todos</option><option>Pendiente</option><option>Reparado</option><option>Entregado</option><option>Cobrado</option></select></div>
             <div class="col-12 col-sm-6 col-md-2"><label for="reporteEspecialidad" class="form-label">Especialidad</label><select id="reporteEspecialidad" class="form-select"><option value="">Todas</option></select></div>
             <div class="col-6 col-md-2"><label for="reporteDesde" class="form-label">Desde</label><input type="date" id="reporteDesde" class="form-control"></div>
@@ -28,7 +28,7 @@
         <div class="col-12 col-lg-7"><div class="card shadow-sm border-0 p-3 h-100"><div class="d-flex justify-content-between align-items-start mb-2"><div><h5 class="mb-1">Servicios e ingresos por mes</h5><small class="text-muted">Monto acumulado y cantidad de servicios</small></div><span class="badge rounded-pill text-bg-success" id="totalMesesServicio">$0.00 · 0 servicios</span></div><div style="height:280px"><canvas id="graficoFechasServicio"></canvas></div></div></div>
     </div>
 
-    <div class="card shadow-sm border-0"><div class="table-responsive"><table class="table table-striped table-hover align-middle text-center mb-0"><thead class="table-dark"><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Equipo</th><th>Falla</th><th>Especialidad</th><th>Estado</th><th>Monto</th></tr></thead><tbody id="tablaReporteServicio"></tbody></table></div></div>
+    <div class="card shadow-sm border-0"><div class="table-responsive"><table class="table table-striped table-hover align-middle text-center mb-0"><thead class="table-dark"><tr><th>Fecha</th><th>Cliente</th><th>Equipo</th><th>Falla</th><th>Especialidad</th><th>Estado</th><th>Monto</th></tr></thead><tbody id="tablaReporteServicio"></tbody></table></div></div>
 </div>
 </main>
 
