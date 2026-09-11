@@ -1,13 +1,16 @@
-<?php require_once('assets/comunes/menu.php'); ?>
-<?php require_once('assets/comunes/modal_servicio_tecnico.php'); ?>
+<?php
+require_once('assets/comunes/menu.php');
+require_once('assets/comunes/modal_servicio_tecnico.php');
+?>
 
 <main class="main m-4" id="main">
 
     <section id="hero" class="hero section m-2" style="height: auto;">
         <div>
-            <h2 class="text-center fw-bold text-primary mb-4">Administrar Servicios Técnicos</h2>
+            <h2 class="text-center"> Administrar Servicios Técnicos</h2>
 
             <div class="text-end mb-4">
+
                 <button type="button" id="btnRegistrarServicio" class="btn btn-success rounded-pill px-4" style="display:none;" data-bs-toggle="modal" data-bs-target="#modalRegistrarServicio">
                     <i class="fas fa-pen"></i>&nbsp;&nbsp; Registrar Servicio
                 </button>
@@ -41,12 +44,13 @@
 
 <?php require_once('assets/comunes/footer.php'); ?>
 
-<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
-    <i class="bi bi-arrow-up-short"></i>
-</a>
+<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
+
 
 <script src="assets/js/validaciones/servicio/servicio.js"></script>
 <script src="assets/js/validaciones/servicio/servicio2.js"></script>
 
 </body>
+
 </html>
