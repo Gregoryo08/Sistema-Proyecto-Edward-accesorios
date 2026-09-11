@@ -51,11 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
     
     header('Content-Type: application/json; charset=utf-8');
     
-    if (isset($_GET['x'])) {
-        echo json_encode($empleado->consultaInactivos(), JSON_UNESCAPED_UNICODE);
-    } else {
-        echo json_encode($empleado->listarEmpleados(), JSON_UNESCAPED_UNICODE);
-    }
+    echo json_encode($empleado->listarEmpleados(), JSON_UNESCAPED_UNICODE);
     
     exit();
 }

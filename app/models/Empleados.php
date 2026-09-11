@@ -76,8 +76,7 @@ public function listarEmpleados()
                        p.fecha_nacimiento, p.sexo, p.direccion, c.nombre_cargo, e.perfil 
                 FROM empleados e 
                 INNER JOIN persona p ON e.cedula_persona = p.cedula_persona 
-                INNER JOIN cargos c ON e.id_cargo = c.id_cargo 
-                WHERE e.estado = 'activo'";
+                INNER JOIN cargos c ON e.id_cargo = c.id_cargo";
         
         $stmt = $conex->prepare($sql);
         $stmt->execute();
@@ -116,32 +115,6 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
         return $resultado ?: [];
     } catch (PDOException $e) {
         error_log("Error en obtenerDatosUsuario: " . $e->getMessage());
-        return [];
-    }
-}
-
-
-public function consultaInactivos() {
-    try {
-        $conex = new Conexion("sistema");
-        
-        $sql = "SELECT e.cedula_persona, 
-                       COALESCE(p.nombre, 'Sin') as nombre, 
-                       COALESCE(p.apellido, 'Nombre') as apellido, 
-                       COALESCE(c.nombre_cargo, 'Sin Cargo') as nombre_cargo 
-                FROM empleados e 
-                LEFT JOIN persona p ON e.cedula_persona = p.cedula_persona 
-                LEFT JOIN cargos c ON e.id_cargo = c.id_cargo 
-                WHERE e.estado = 'inactivo'";
-        
-        $stmt = $conex->prepare($sql);
-        $stmt->execute();
-        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        unset($conex);
-        return $resultado;
-    } catch (PDOException $e) {
-        error_log("Error: " . $e->getMessage());
         return [];
     }
 }
