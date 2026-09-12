@@ -37,12 +37,6 @@
                         <textarea name="tipo" id="cargo_modificar" class="form-control" placeholder="Ingresa el nombre del Cargo" required></textarea>
                         <div id="error_cargo_modificar" class="invalid-feedback"></div>
                     </div>
-
-                    <div class="form-group" style="width: 100%;">
-                        <label for="precio_modificar">Precio por alquiler de personal (opcional)</label>
-                        <input type="text" class="form-control" id="precio_modificar" placeholder="Ingresa el precio de alquiler por cargo (Opcional)">
-                        <div id="error_precio_modificar" class="invalid-feedback"></div>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">

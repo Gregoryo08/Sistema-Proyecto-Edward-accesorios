@@ -45,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($accion)) {
             'telefono' => trim($_POST['telefono'] ?? ''),
             'fecha_nacimiento' => trim($_POST['fecha_nacimiento'] ?? ''),
             'sexo' => trim($_POST['sexo'] ?? ''),
-            'residencia' => trim($_POST['residencia'] ?? ''),
             'clave' => trim($_POST['clave'] ?? '')
         ];
 
