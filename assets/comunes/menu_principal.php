@@ -34,9 +34,7 @@
                 </ul>
 
                 <div class="user-actions">
-                    <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar modo claro/oscuro">
-                        <i class="bx bx-moon" id="theme-icon"></i>
-                    </button>
+                   
 
                     <a href="?pagina=carrito" id="verCarrito" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -109,125 +107,7 @@
     </div>
 
     <style>
-:root {
-    --bg-main: #000000;
-    --bg-card: #0a0a0a;
-    --bg-secondary: #121212;
-    --text-main: #ffffff;
-    --text-muted: #a1a1aa;
-    --border-color: #27272a;
-    --header-bg: #121212;
-    --header-text: #ffffff;
-    --header-hover: #3b82f6;
-}
 
-body.light-mode {
-    --bg-main: #ffffff;
-    --bg-card: #f8fafc;
-    --bg-secondary: #f1f5f9;
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --border-color: #e2e8f0;
-    --header-bg: #ffffff;
-    --header-text: #0f172a;
-    --header-hover: #2563eb;
-}
-
-body {
-    background-color: var(--bg-main) !important;
-    background: var(--bg-main) !important;
-    color: var(--text-main) !important;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-p, li, span, h1, h2, h3, h4, h5, h6 {
-    color: var(--text-main);
-}
-
-header,
-nav,
-.main-header,
-.navbar {
-    background-color: var(--header-bg) !important;
-}
-
-.main-header {
-    border-bottom: 1px solid var(--border-color) !important;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.logo {
-    color: var(--header-text) !important;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.logo span {
-    color: #3b82f6 !important;
-}
-
-body.light-mode .logo span {
-    color: #2563eb !important;
-}
-
-.nav-links li a,
-.nav-links a {
-    color: var(--header-text) !important;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.nav-links li a:hover,
-.nav-links a:hover {
-    color: var(--header-hover) !important;
-}
-
-.btn-sistema {
-    background-color: #2563eb !important;
-    color: #ffffff !important;
-    padding: 8px 16px !important;
-    border-radius: 20px !important;
-}
-
-.btn-sistema:hover {
-    background-color: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-
-.theme-toggle-btn,
-.cart-icon,
-.btn-auth {
-    background-color: var(--bg-secondary) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-}
-
-.theme-toggle-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    outline: none;
-}
-
-.theme-toggle-btn i {
-    font-size: 20px;
-    color: #ffffff !important;
-}
-
-body.light-mode .theme-toggle-btn i {
-    color: #f59e0b !important;
-}
 
 .cart-icon {
     position: relative;

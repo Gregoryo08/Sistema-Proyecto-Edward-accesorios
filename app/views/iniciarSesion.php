@@ -19,9 +19,7 @@
 
 <body>
     
-    <button id="theme-toggle" class="theme-toggle-btn" title="Cambiar modo claro/oscuro">
-        <i class='bx bx-moon' id="theme-icon"></i>
-    </button>
+   
 
     <div class="wrapper">
         
@@ -219,26 +217,7 @@
             });
         });
 
-        $(document).ready(function() {
-            const $body = $('body');
-            const $themeIcon = $('#theme-icon');
-
-            if (localStorage.getItem('theme') === 'light') {
-                $body.addClass('light-mode');
-                $themeIcon.removeClass('bx-moon').addClass('bx-sun');
-            }
-
-            $('#theme-toggle').on('click', function() {
-                $body.toggleClass('light-mode');
-                if ($body.hasClass('light-mode')) {
-                    localStorage.setItem('theme', 'light');
-                    $themeIcon.removeClass('bx-moon').addClass('bx-sun');
-                } else {
-                    localStorage.setItem('theme', 'dark');
-                    $themeIcon.removeClass('bx-sun').addClass('bx-moon');
-                }
-            });
-        });
+        
     </script>
 
     <style>

@@ -75,22 +75,6 @@ if (isset($despachos_activos['error'])) {
 }
 
 // =============================================
-// 5. ESTADÍSTICAS (CORREGIDAS)
-// =============================================
-$stats = [
-    'pendientes' => count($pagos_pendientes),
-    'aprobados' => count($pagos_aprobados),
-    'en_ruta' => count($despachos_activos)
-];
-
-// =============================================
-// 6. DEBUG (para verificar que hay datos)
-// =============================================
-error_log("📊 CajeraPanel - Pendientes: " . $stats['pendientes']);
-error_log("📊 CajeraPanel - Aprobados: " . $stats['aprobados']);
-error_log("📊 CajeraPanel - En Ruta: " . $stats['en_ruta']);
-
-// =============================================
-// 7. CARGAR VISTA
+// 5. CARGAR VISTA
 // =============================================
 require_once __DIR__ . '/../views/admin/panelCajera.php';

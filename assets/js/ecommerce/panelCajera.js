@@ -14,170 +14,22 @@ function toggleSection(sectionId) {
 }
 
 // =============================================
-// ACTUALIZAR DASHBOARD (AJAX) — contadores
+// ACTUALIZAR SECCIONES (AJAX) — pendientes / aprobados / despachos
 // =============================================
 function actualizarDashboard() {
     fetch('?pagina=getDashboardData')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const pendientes = document.getElementById('pendientesCount');
-                const aprobados = document.getElementById('aprobadosCount');
-                const ruta = document.getElementById('rutaCount');
-                const total = document.getElementById('totalPedidosCount');
-                if (pendientes) pendientes.innerText = data.pendientes || 0;
-                if (aprobados) aprobados.innerText = data.aprobados || 0;
-                if (ruta) ruta.innerText = data.en_ruta || 0;
-                if (total) total.innerText = data.total_pedidos || 0;
-
                 const contPendientes = document.querySelector('#pendientesSection .card-body');
                 const contAprobados = document.querySelector('#aprobadosSection .card-body');
                 const contDespachos = document.querySelector('#despachosSection .card-body');
                 if (contPendientes) contPendientes.innerHTML = data.html_pendientes;
                 if (contAprobados) contAprobados.innerHTML = data.html_aprobados;
                 if (contDespachos) contDespachos.innerHTML = data.html_despachos;
-
-                cargarGraficoDespachosMensuales();
             }
         })
-        .catch(err => console.error('Error al actualizar dashboard:', err));
-}
-
-// =============================================
-// CARGAR GRÁFICOS CON HIGHCHARTS
-// =============================================
-function cargarGraficos() {
-    // Gráfico 1: Ventas diarias (últimos 7 días)
-    fetch('?pagina=getDashboardData&tipo=ventas_diarias')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartVentasDiarias', {
-                    chart: { type: 'column' },
-                    title: { text: 'Ventas Aprobadas (Últimos 7 Días)', style: { fontSize: '12px' } },
-                    xAxis: { categories: data.categorias, title: { text: 'Fecha' } },
-                    yAxis: { title: { text: 'Monto ($)' }, min: 0 },
-                    series: [{ name: 'Ventas', data: data.valores, color: '#28a745' }],
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar ventas diarias:', err));
-
-    // Gráfico 2: Ventas mensuales
-    fetch('?pagina=getDashboardData&tipo=ventas_mensuales')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartVentasMensuales', {
-                    chart: { type: 'line' },
-                    title: { text: 'Ventas Acumuladas del Mes', style: { fontSize: '12px' } },
-                    xAxis: { categories: data.categorias, title: { text: 'Semana' } },
-                    yAxis: { title: { text: 'Monto ($)' }, min: 0 },
-                    series: [{ name: 'Acumulado', data: data.valores, color: '#007bff' }],
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar ventas mensuales:', err));
-
-    // Gráfico 3: Ventas no concretadas
-    fetch('?pagina=getDashboardData&tipo=ventas_no_concretadas')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartVentasNoConcretadas', {
-                    chart: { type: 'pie' },
-                    title: { text: 'Ventas No Concretadas', style: { fontSize: '12px' } },
-                    series: [{ name: 'Motivo', data: data.datos }],
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar ventas no concretadas:', err));
-
-    // Gráfico 4: Métodos de pago
-    fetch('?pagina=getDashboardData&tipo=metodos_pago')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartMetodosPago', {
-                    chart: { type: 'pie' },
-                    title: { text: 'Métodos de Pago', style: { fontSize: '14px' } },
-                    series: [{ name: 'Pedidos', data: data.datos }],
-                    plotOptions: { pie: { dataLabels: { enabled: true, format: '{point.name}: {point.y}' } } },
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar métodos de pago:', err));
-
-    // Gráfico 5: Top 5 clientes
-    fetch('?pagina=getDashboardData&tipo=top_clientes')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartTopClientes', {
-                    chart: { type: 'bar' },
-                    title: { text: 'Top 5 Mejores Clientes', style: { fontSize: '14px' } },
-                    xAxis: { categories: data.categorias, title: { text: 'Cliente' } },
-                    yAxis: { title: { text: 'Total Gastado ($)' }, min: 0 },
-                    series: [{ name: 'Compras', data: data.valores, color: '#ffc107' }],
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar top clientes:', err));
-
-    // Gráfico 6: Top 5 productos más vendidos
-    fetch('?pagina=getDashboardData&tipo=top_productos')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                Highcharts.chart('chartTopProductos', {
-                    chart: { type: 'bar' },
-                    title: { text: 'Top 5 Productos Más Vendidos', style: { fontSize: '14px' } },
-                    xAxis: { categories: data.categorias, title: { text: 'Producto' } },
-                    yAxis: { title: { text: 'Cantidad Vendida' }, min: 0 },
-                    series: [{ name: 'Ventas', data: data.valores, color: '#28a745' }],
-                    credits: { enabled: false }
-                });
-            }
-        })
-        .catch(err => console.error('Error al cargar top productos:', err));
-
-    // Gráfico 7: Despachos del mes
-    cargarGraficoDespachosMensuales();
-}
-
-// =============================================
-// GRÁFICO 7: DESPACHOS DEL MES (actualizable en tiempo real)
-// =============================================
-let despachosChart = null;
-
-function cargarGraficoDespachosMensuales() {
-    fetch('?pagina=getDashboardData&tipo=despachos_mensuales')
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                if (despachosChart) {
-                    despachosChart.update({
-                        xAxis: { categories: data.categorias },
-                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }]
-                    });
-                } else {
-                    despachosChart = Highcharts.chart('chartDespachosMensuales', {
-                        chart: { type: 'column' },
-                        title: { text: 'Despachos del Mes', style: { fontSize: '12px' } },
-                        xAxis: { categories: data.categorias, title: { text: 'Semana' } },
-                        yAxis: { title: { text: 'Cantidad' }, min: 0 },
-                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }],
-                        credits: { enabled: false }
-                    });
-                }
-            }
-        })
-        .catch(err => console.error('Error al cargar despachos:', err));
+        .catch(err => console.error('Error al actualizar panel:', err));
 }
 
 // =============================================
@@ -448,7 +300,6 @@ function registrarBitacora(tabla, accion, modulo, id_modulo) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Panel de Cajera inicializado');
     actualizarDashboard();
-    cargarGraficos();
     iniciarActualizacion();
 
     // Sincronizar margen del contenido con el ancho del sidebar

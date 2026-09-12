@@ -7,7 +7,7 @@
     <title>Ventas Online | Edward Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="assets/CSS/temas.css">
     <style>
         body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .main-content { padding: 60px 20px 20px 20px; margin-left: 65px; transition: margin-left 0.3s ease, width 0.3s ease; width: calc(100% - 65px); box-sizing: border-box; }
@@ -26,32 +26,15 @@
 </head>
 <body>
 
-<div class="main-content" >
+<div class="main-content">
     <!-- Título -->
     <div class="d-flex justify-content-between align-items-center main-title">
-        <h2 class="d-flex justify-content-between align-items-center main-title" style="color: black;padding-top: 20px;"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
+        <h2 class="fw-bold"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
         <div class="d-flex align-items-center gap-3">
           
             <span class="badge bg-secondary p-2">
                 <i class="fas fa-user me-1"></i> Cajera: <?= htmlspecialchars($_SESSION['username'] ?? '') ?>
             </span>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 1: ESTADÍSTICAS RÁPIDAS -->
-    <div class="card shadow">
-        <div class="card-header bg-dark text-white card-header-custom" onclick="toggleSection('statsSection')">
-            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>📊 Resumen de Ventas Online ▼</h5>
-        </div>
-        <div id="statsSection" class="collapse show">
-            <div class="card-body dashboard-body">
-                <div class="row g-3">
-                    <div class="col-md-3"><div class="card text-white bg-danger shadow stats-card"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h6 class="card-title">Pagos Pendientes</h6><h2 class="mb-0" id="pendientesCount"><?= $stats['pendientes'] ?? 0 ?></h2></div><i class="fas fa-question-circle stat-icon"></i></div></div></div></div>
-                    <div class="col-md-3"><div class="card text-white bg-success shadow stats-card"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h6 class="card-title">Aprobados x Despachar</h6><h2 class="mb-0" id="aprobadosCount"><?= $stats['aprobados'] ?? 0 ?></h2></div><i class="fas fa-dollar-sign stat-icon"></i></div></div></div></div>
-                    <div class="col-md-3"><div class="card text-white bg-warning shadow stats-card"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h6 class="card-title">Despachos en Ruta</h6><h2 class="mb-0" id="rutaCount"><?= $stats['en_ruta'] ?? 0 ?></h2></div><i class="fas fa-motorcycle stat-icon"></i></div></div></div></div>
-                    <div class="col-md-3"><div class="card text-white bg-dark shadow stats-card"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h6 class="card-title">Total Pedidos</h6><h2 class="mb-0" id="totalPedidosCount">-</h2></div><i class="fas fa-chart-simple stat-icon"></i></div></div></div></div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -181,38 +164,12 @@
         </div>
     </div>
 </div>
-    <!-- SECCIÓN 5: ESTADÍSTICAS CON HIGHCHARTS -->
-    <div class="card shadow">
-        <div class="card-header bg-dark text-white card-header-custom" onclick="toggleSection('estadisticasSection')">
-            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>📈 Estadísticas de Ventas Online ▼</h5>
-        </div>
-        <div id="estadisticasSection" class="collapse show">
-            <div class="card-body dashboard-body">
-                <div class="row g-3">
-                    <div class="col-md-4"><div id="chartVentasDiarias" style="height: 280px;"></div></div>
-                    <div class="col-md-4"><div id="chartVentasMensuales" style="height: 280px;"></div></div>
-                    <div class="col-md-4"><div id="chartVentasNoConcretadas" style="height: 280px;"></div></div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-6"><div id="chartMetodosPago" style="height: 300px;"></div></div>
-                    <div class="col-md-6"><div id="chartTopClientes" style="height: 300px;"></div></div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12"><div id="chartTopProductos" style="height: 300px;"></div></div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12"><div id="chartDespachosMensuales" style="height: 280px;"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- ✅ SOLO JS EXTERNOS (MVC PURO) -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="assets/js/ecommerce/panelCajera.js"></script>
-
+<script src="assets/js/ecommerce/temas.js"></script>
 
 </body>
 </html>

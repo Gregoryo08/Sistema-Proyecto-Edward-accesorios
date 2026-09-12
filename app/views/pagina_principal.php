@@ -1,6 +1,5 @@
 <?php include 'assets/comunes/menu_principal.php'; ?> 
 
-
 <div class="chat-widget">
     <div id="chat-window" class="chat-window">
         <div class="chat-header">
@@ -8,16 +7,14 @@
                 <img src="assets/avatar.jpg" alt="Avatar IA" class="avatar-img-zoom">
             </div>
             <span>Ed-AI Asistente</span>
-            <button id="close-chat">&times;</button>
+            <button id="close-chat" aria-label="Cerrar chat">&times;</button>
         </div>
         <div class="chat-body" id="chat-content">
             <p class="bot-msg">¡Hola! Soy Ed-AI de <strong>Edward Accesorios</strong>. ¿En qué puedo ayudarte hoy?</p>
-
-            
         </div>
         <div class="chat-footer">
-            <input type="text" id="chat-input" placeholder="Escribe tu duda...">
-            <button id="send-msg"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="chat-input" placeholder="Escribe tu duda..." aria-label="Campo para escribir mensaje">
+            <button id="send-msg" aria-label="Enviar mensaje"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -69,15 +66,15 @@
             <h2 class="title">Lo Más Buscado</h2>
             <div class="gallery">
                 <div class="gallery-item reveal">
-                    <img src="https://tuapplemundo.com/wp-content/uploads/2024/07/camaras-iphone-17.webp" alt="iPhone">
+                    <img src="https://tuapplemundo.com/wp-content/uploads/2024/07/camaras-iphone-17.webp" alt="Cámaras de iPhone" loading="lazy">
                     <div class="overlay"><span>Smartphones</span></div>
                 </div>
                 <div class="gallery-item reveal">
-                    <img src="https://i.ytimg.com/vi/0uUwWaVSUaY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDCe6huhrrhJZThyRyd3fnNlRIYCw" alt="Accesorios">
+                    <img src="https://i.ytimg.com/vi/0uUwWaVSUaY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDCe6huhrrhJZThyRyd3fnNlRIYCw" alt="Accesorios de audio" loading="lazy">
                     <div class="overlay"><span>Audio & Cornetas</span></div>
                 </div>
                 <div class="gallery-item reveal">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8fYMHoFe2S_wmOKuy4kmbZG_UaWAqPVuzzs0tlgJSM0EukSGygk_qAPPY&s=10" alt="Forros">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8fYMHoFe2S_wmOKuy4kmbZG_UaWAqPVuzzs0tlgJSM0EukSGygk_qAPPY&s=10" alt="Forros protectores" loading="lazy">
                     <div class="overlay"><span>Forros & Protectores</span></div>
                 </div>
             </div>
@@ -87,18 +84,18 @@
     <section id="servicio" class="section">
         <div class="container service-flex">
             <div class="service-img reveal">
-                <img src="https://i.blogs.es/7ccd29/mobile-phone-2510529_960_720/1366_2000.jpg" alt="Soporte">
+                <img src="https://i.blogs.es/7ccd29/mobile-phone-2510529_960_720/1366_2000.jpg" alt="Soporte Técnico de móviles" loading="lazy">
             </div>
             <div class="service-text reveal">
                 <h2 class="title left">Soporte Técnico</h2>
                 <p>¿Tu teléfono falló? No te preocupes, somos especialistas en:</p>
                 <ul class="service-list">
-                    <p><i class="fas fa-check-circle"></i> Cambio de pantallas (Display)</p>
-                    <p><i class="fas fa-check-circle"></i> Reemplazo de baterías</p>
-                    <p><i class="fas fa-check-circle"></i> Limpieza de puertos y cornetas</p>
-                    <p><i class="fas fa-check-circle"></i> Mantenimiento preventivo</p>
+                    <li><i class="fas fa-check-circle"></i> Cambio de pantallas (Display)</li>
+                    <li><i class="fas fa-check-circle"></i> Reemplazo de baterías</li>
+                    <li><i class="fas fa-check-circle"></i> Limpieza de puertos y cornetas</li>
+                    <li><i class="fas fa-check-circle"></i> Mantenimiento preventivo</li>
                 </ul>
-                <a href="https://wa.me/tu-numero" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Consultar Precio</a>
+                <a href="https://wa.me/tu-numero" class="btn-whatsapp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> Consultar Precio</a>
             </div>
         </div>
     </section>
@@ -109,6 +106,7 @@
             <div class="location-wrapper reveal">
                 <div class="map-container">
                     <iframe
+                        title="Mapa de ubicación de Edward Accesorios"
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d278.2913223208099!2d-69.31666140063034!3d10.068811551334043!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e87670c33ca4e37%3A0x30c12a6bf1cc59f!2sCosmos%20Mall!5e1!3m2!1sen!2sve!4v1774383093426!5m2!1sen!2sve"
                         width="100%" height="350" style="border:0; border-radius: 20px;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
@@ -124,10 +122,10 @@
             </div>
         </div>
     </section>
-
-    <footer class="footer">
-        <p>&copy; 2026 <strong>Edward Accesorios</strong>. Todos los derechos reservados.</p>
-    </footer>
-
-    <script src="assets/js/script.js"></script>
 </main>
+
+<footer class="footer">
+    <p>&copy; 2026 <strong>Edward Accesorios</strong>. Todos los derechos reservados.</p>
+</footer>
+
+<script src="assets/js/script.js"></script>
