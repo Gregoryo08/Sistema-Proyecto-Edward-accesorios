@@ -2,6 +2,30 @@ $(function() {
 
     let tipoEntrega = 'retiro';
     let costoEnvio = 0;
+    const COSTO_ENVIO = 10;
+    const ENVIO_GRATIS_DESDE = 100;
+
+    // Mismo criterio que CarritoModel::calcularTotal (envío gratis desde $100)
+    function calcularSubtotal(carrito) {
+        return carrito.reduce(function(sum, item) {
+            return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
+        }, 0);
+    }
+
+    function calcularCostoEnvio(subtotal) {
+        if (tipoEntrega !== 'delivery') return 0;
+        return subtotal >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
+    }
+
+    function actualizarBotonEnvio() {
+        var boton = $('#btn-delivery');
+        if (!boton.length) return;
+        var texto = '🚚 Delivery ($' + COSTO_ENVIO.toFixed(2) + ')';
+        if (tipoEntrega === 'delivery') {
+            texto = costoEnvio > 0 ? '🚚 Delivery ($' + costoEnvio.toFixed(2) + ')' : '🚚 Delivery (Gratis)';
+        }
+        boton.text(texto);
+    }
 
     // =============================================
     // VALIDACIONES
@@ -38,11 +62,12 @@ $(function() {
             return;
         }
 
+        let subtotalProductos = calcularSubtotal(carrito);
+        costoEnvio = calcularCostoEnvio(subtotalProductos);
+
         let html = '<strong>Resumen del pedido:</strong><ul>';
-        let subtotalProductos = 0;
         carrito.forEach(function(item) {
             let subtotal = parseFloat(item.precio) * parseInt(item.cantidad);
-            subtotalProductos += subtotal;
             html += '<li>' + item.nombre + ' x ' + item.cantidad + ' - $' + subtotal.toFixed(2) + '</li>';
         });
         html += '</ul>';
@@ -51,7 +76,7 @@ $(function() {
         html += '<p class="fw-bold">Total: $' + (subtotalProductos + costoEnvio).toFixed(2) + '</p>';
 
         $('#resumen-carrito').html(html);
-        $('#total-final').text('$' + (subtotalProductos + costoEnvio).toFixed(2));
+        actualizarTotal();
     }
 
     // =============================================
@@ -59,11 +84,11 @@ $(function() {
     // =============================================
     function actualizarTotal() {
         let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-        let subtotal = carrito.reduce(function(sum, item) {
-            return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
-        }, 0);
+        let subtotal = calcularSubtotal(carrito);
+        costoEnvio = calcularCostoEnvio(subtotal);
         let total = subtotal + costoEnvio;
         $('#total-final').text('$' + total.toFixed(2));
+        actualizarBotonEnvio();
     }
 
     // =============================================
@@ -98,14 +123,15 @@ $(function() {
             }
         }
 
+        let subtotal = calcularSubtotal(carrito);
+        costoEnvio = calcularCostoEnvio(subtotal);
+
         const pedido = {
             cliente: { cedula: cedula, nombre: nombre, email: email, telefono: telefono },
             entrega: tipoEntrega,
             direccion: direccion,
             costo_envio: costoEnvio,
-            total: carrito.reduce(function(sum, item) {
-                return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
-            }, 0) + costoEnvio,
+            total: subtotal + costoEnvio,
             carrito: carrito,
             metodo_pago: metodoPago
         };
@@ -157,7 +183,6 @@ $(function() {
 
     $('#btn-delivery').on('click', function() {
         tipoEntrega = 'delivery';
-        costoEnvio = 10;
         $('#delivery-form').show();
         actualizarTotal();
     });

@@ -1,9 +1,9 @@
 <?php require_once('assets/comunes/menu.php'); ?>
 
-<main class="main-wrapper" style="padding-top: 92px;">
+<main class="main-wrapper" style="padding-top: 92px; padding-bottom: 92px;">
     <div class="container-fluid pt-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3" >
                 <h3 class="mb-0">Reporte de Financiamiento</h3>
                 <button type="button" class="btn btn-danger" id="btnDescargarReporteFinanciamiento">
                     <i class="fa-solid fa-file-pdf me-1"></i> PDF
@@ -128,9 +128,9 @@
             </div>
         </div>
     </div>
-</main>
+</main >
 
-<?php require_once('assets/comunes/footer.php'); ?>
+<?php require_once('assets/comunes/footer.php');  ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/validaciones/reportes/reporteFinanciamiento.js"></script>

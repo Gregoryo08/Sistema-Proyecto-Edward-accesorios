@@ -28,8 +28,8 @@
 
 <div class="main-content">
     <!-- Título -->
-    <div class="d-flex justify-content-between align-items-center main-title">
-        <h2 class="fw-bold"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
+    <div class="d-flex justify-content-between align-items-center main-title" style="padding-top: 40px;">
+        <h2 class="fw-bold"><i class="fa-solid fa-globe me-2" ></i>Ventas Online</h2>
         <div class="d-flex align-items-center gap-3">
           
             <span class="badge bg-secondary p-2">
@@ -169,7 +169,7 @@
 <!-- ✅ SOLO JS EXTERNOS (MVC PURO) -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="assets/js/ecommerce/panelCajera.js"></script>
-<script src="assets/js/ecommerce/temas.js"></script>
+
 
 </body>
 </html>

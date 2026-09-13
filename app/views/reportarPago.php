@@ -38,11 +38,16 @@ $metodo = $metodo ?? 'transferencia';
                         <div class="alert alert-info py-2 small">
                             <i class="fas fa-info-circle"></i>
                             Monto a pagar: <strong>$<?= number_format($total_usd, 2) ?> USD</strong>
-                            → <strong>Bs. <?= number_format($total_bs, 2) ?></strong>
+                            → <strong>Bs. <span id="total-bs-reportar"><?= number_format($total_bs, 2) ?></span></strong>
                             <br>Tasa: <span class="tasa-valor"><?= number_format($tasa, 2) ?></span> Bs./USD
                             <span class="tasa-fecha ms-2"><?= $fecha_tasa ?></span>
                             <?php if ($vigencia['expirada']): ?>
-                                <span class="text-danger ms-2"><i class="fas fa-exclamation-triangle"></i> <?= $vigencia['mensaje'] ?></span>
+                                <span class="d-block mt-1">
+                                    <span class="text-danger me-2"><i class="fas fa-exclamation-triangle"></i> <?= $vigencia['mensaje'] ?></span>
+                                    <button type="button" class="btn btn-warning btn-sm fw-bold" id="btnActualizarTasa">
+                                        <i class="fas fa-sync-alt"></i> ACTUALIZAR TASA
+                                    </button>
+                                </span>
                             <?php endif; ?>
                         </div>
 
@@ -65,7 +70,8 @@ $metodo = $metodo ?? 'transferencia';
                             <small class="text-muted">Banco desde donde realizaste la transferencia</small>
                         </div>
 
-                        <!-- TELÉFONO -->
+                        <!-- TELÉFONO (solo Pago Móvil; la transferencia se hace por el portal del banco en browser) -->
+                        <?php if ($metodo === 'pago_movil'): ?>
                         <div class="mb-3">
                             <label class="form-label fw-bold">📱 Teléfono desde donde transfirió</label>
                             <input type="tel" class="form-control form-control-lg" name="telefono"
@@ -73,6 +79,7 @@ $metodo = $metodo ?? 'transferencia';
                             <div id="msg-telf" class="text-danger small" style="display:none;"></div>
                             <small class="text-muted">Número de teléfono asociado a la cuenta bancaria (mín. 10 dígitos)</small>
                         </div>
+                        <?php endif; ?>
 
                         <!-- MONTO -->
                         <div class="mb-3">
@@ -144,9 +151,7 @@ $metodo = $metodo ?? 'transferencia';
     <i class="fas fa-sun" id="themeIcon"></i>
 </button>
 <script src="assets/js/ecommerce/temaBoton.js"></script>
-
-
-
+<script src="assets/js/ecommerce/reportarPago.js"></script>
 
 </body>
 </html>

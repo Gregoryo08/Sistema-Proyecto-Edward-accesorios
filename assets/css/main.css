@@ -9,6 +9,40 @@
   --card-white: #ffffff;
 }
 
+
+/* Botón Ver / Info en tablas */
+.table .btn-info {
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    border-color: rgba(13, 202, 240, 0.3) !important;
+    color: #38bdf8 !important;
+}
+.table .btn-info:hover {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+/* Botón Modificar / Warning en tablas */
+.table .btn-warning {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    border-color: rgba(255, 193, 7, 0.3) !important;
+    color: #fbbf24 !important;
+}
+.table .btn-warning:hover {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Botón Eliminar / Danger en tablas */
+.table .btn-danger {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    border-color: rgba(220, 53, 69, 0.3) !important;
+    color: #f87171 !important;
+}
+.table .btn-danger:hover {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
 /* 1. Sidebar y Header unificados */
 #header { background: var(--header-bg) !important; border-bottom: 1px solid #d2d2d7; }
 .navmenu { background: var(--sidebar-bg) !important; color: #ffffff !important; }

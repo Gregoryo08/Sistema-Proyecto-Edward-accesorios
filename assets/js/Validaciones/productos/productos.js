@@ -32,43 +32,24 @@ $(document).ready(function () {
     }
 
     function ajustarCamposPorCategoria(select) {
-    let isMod = ($(select).attr("id") === "categoriaModificar");
-    let seccionTel = isMod ? "#seccion_telefono_modificar" : "#seccion_telefono";
-    let stockAct = isMod ? "#stock_actualModificar" : "#stock_actual";
-    let stockMin = isMod ? "#stock_minimoModificar" : "#stock_minimo";
-    let stockMax = isMod ? "#stock_maximoModificar" : "#stock_maximo";
+        let isMod = ($(select).attr("id") === "categoriaModificar");
+        let seccionTel = isMod ? "#seccion_telefono_modificar" : "#seccion_telefono";
+        let stockAct = isMod ? "#stock_actualModificar" : "#stock_actual";
+        let stockMin = isMod ? "#stock_minimoModificar" : "#stock_minimo";
+        let stockMax = isMod ? "#stock_maximoModificar" : "#stock_maximo";
 
-    if ($(select).val() == "26") {
-        $(seccionTel).slideDown();
-        
-        
-        $(stockAct).val(1).attr("readonly", true).trigger("input");
-
-        
-        $(stockMin).closest(".col-md-4, .col-md-3, div").hide();
-        $(stockMax).closest(".col-md-4, .col-md-3, div").hide();
-
-        
-        $(stockMin).val(0).addClass("is-valid").removeClass("is-invalid");
-        $(stockMax).val(0).addClass("is-valid").removeClass("is-invalid");
-
-        
-        if (typeof verificarFormularios === "function") {
-            verificarFormularios();
+        if ($(select).val() == "26") {
+            $(seccionTel).slideDown();
+            $(stockAct).val(1).attr("readonly", true);
+            $(stockMin).closest(".col-md-4, .col-md-3, div").hide();
+            $(stockMax).closest(".col-md-4, .col-md-3, div").hide();
+        } else {
+            $(seccionTel).slideUp();
+            $(stockAct).attr("readonly", false);
+            $(stockMin).closest(".col-md-4, .col-md-3, div").show();
+            $(stockMax).closest(".col-md-4, .col-md-3, div").show();
         }
-    } else {
-        $(seccionTel).slideUp();
-        $(stockAct).attr("readonly", false);
-        
-        $(stockMin).closest(".col-md-4, .col-md-3, div").show();
-        $(stockMax).closest(".col-md-4, .col-md-3, div").show();
-
-        // Disparar validación si cambia de categoría
-        $(stockAct).trigger("input");
-        $(stockMin).trigger("input");
-        $(stockMax).trigger("input");
     }
-}
 
     $(document).on("change", "#id_categoria, #categoriaModificar", function() {
         ajustarCamposPorCategoria(this);
@@ -80,7 +61,6 @@ $(document).ready(function () {
             ajax: { url: "?pagina=productos&ajax=true&x=productos", dataSrc: "" },
             columns: [
                 { data: "id_producto", visible: false },
-                { data: "imagen_principal", visible: false },
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
@@ -94,9 +74,7 @@ $(document).ready(function () {
                     data: null,
                     render: function (data, type, row) {
                         let b = '<div class="btn-group">';
-                        
-                        b += `<button type="button" class="btn btn-success btn-sm btn_gestionarImagen" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-imagen="${row.imagen_principal || 'default.jpg'}" title="Gestionar imagen"><i class="fa-solid fa-image"></i></button>`;
-                        
+
                         b += `<button type="button" class="btn btn-info btn-sm btn_verDetalles" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-categoria="${row.nombre_categoria || ''}" data-marca="${row.nombre_marca || ''}" data-precio="${row.precio_detal}" data-sact="${row.stock_actual}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-estado="${row.estado}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-eye"></i></button>`;
 
                         if (row.imei) {
@@ -148,109 +126,26 @@ $(document).ready(function () {
         $("#modalDetallesTelefono").modal("show");
     });
 
-    // Clic en la foto del producto → abre el modal de gestionar imagen
-    $(document).on("click", ".img-thumbnail-producto", function() {
-        let btn = $(this);
-        abrirGestionarImagen(btn.data("id"), btn.data("nombre"), btn.data("imagen"));
-    });
-
-    // Ícono de imagen → abre el modal de gestionar imagen (no el de modificar)
-    $(document).on("click", ".btn_gestionarImagen", function() {
-        let btn = $(this);
-        abrirGestionarImagen(btn.data("id"), btn.data("nombre"), btn.data("imagen"));
-    });
-
-    function abrirGestionarImagen(id, nombre, imagen) {
-        $("#img_producto_id").val(id);
-        let img = (imagen && imagen !== "null" && imagen !== "") ? "assets/img/productos/" + imagen : "assets/img/productos/default.jpg";
-        let src = img;
-        $("#previewImgGestionar").html(`<img src="${src}" onerror="this.src='assets/img/productos/default.jpg'" style="max-height:150px; max-width:200px; border-radius:8px; object-fit:contain;">`);
-        $("#img_nombre_archivo").text(nombre ? "Producto: " + nombre : "");
-        $("#imagenGestionar").val("");
-        $("#modalGestionarImagen").modal("show");
+    // Gestión de imagen dentro del modal de modificar
+    function estadoBotonEliminarImagen(mostrar) {
+        $("#contenedorEliminarImagenModificar").toggle(mostrar);
     }
 
-    // Vista previa en el modal de gestionar imagen
-    $(document).on("change", "#imagenGestionar", function() {
-        if (this.files && this.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                $("#previewImgGestionar").html(`<img src="${e.target.result}" style="max-height:150px; max-width:200px; border-radius:8px; object-fit:contain;">`);
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Subir imagen
-    $("#btnSubirImagenProducto").on("click", function() {
-        let id = $("#img_producto_id").val();
-        let archivo = document.getElementById("imagenGestionar").files[0];
-        if (!archivo) {
-            showSweetAlert("invalido", "Seleccione una imagen para subir.");
-            return;
-        }
-        let fd = new FormData();
-        fd.append("accion", "subirImagen");
-        fd.append("id", id);
-        fd.append("imagen", archivo);
-        showProcessingAlert();
-        $.ajax({
-            type: "POST",
-            url: window.location.href,
-            data: fd,
-            processData: false,
-            contentType: false,
-            dataType: "json",
-            success: function(res) {
-                if (res.success) {
-                    Swal.close();
-                    $("#modalGestionarImagen").modal("hide");
-                    showSweetAlert("success").then(() => { $("#tablaProductos").DataTable().ajax.reload(); });
-                } else {
-                    Swal.close();
-                    $(".modal-backdrop").remove();
-                    $("body").removeClass("modal-open");
-                    showSweetAlert("invalido", res.invalido || res.error || "Error");
-                }
-            },
-            error: function() { Swal.close(); showSweetAlert("error"); }
-        });
-    });
-
-    // Eliminar imagen
-    $("#btnEliminarImagenProducto").on("click", function() {
-        let id = $("#img_producto_id").val();
-        let config = {
+    $(document).on("click", "#btnEliminarImagenModificar", function() {
+        commonSwalMixin.fire({
             title: "¿Eliminar imagen?",
             text: "La imagen se restablecerá a la de defecto.",
             icon: "warning",
-            cb: function() {
-                let fd = new FormData();
-                fd.append("accion", "eliminarImagen");
-                fd.append("id", id);
-                showProcessingAlert();
-                $.ajax({
-                    type: "POST",
-                    url: window.location.href,
-                    data: fd,
-                    processData: false,
-                    contentType: false,
-                    dataType: "json",
-                    success: function(res) {
-                        if (res.success) {
-                            Swal.close();
-                            $("#modalGestionarImagen").modal("hide");
-                            showSweetAlert("success").then(() => { $("#tablaProductos").DataTable().ajax.reload(); });
-                        } else {
-                            Swal.close();
-                            showSweetAlert("invalido", res.invalido || res.error || "Error");
-                        }
-                    },
-                    error: function() { Swal.close(); showSweetAlert("error"); }
-                });
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $("#quitar_imagenModificar").val("1");
+                $("#imagenModificar").val("");
+                $("#previewImagenModificar").html('<span class="text-muted">Sin imagen</span>');
+                estadoBotonEliminarImagen(false);
             }
-        };
-        commonSwalMixin.fire({ title: config.title, text: config.text, icon: config.icon, showCancelButton: true, confirmButtonText: "Sí, eliminar" }).then((result) => { if (result.isConfirmed) config.cb(); });
+        });
     });
 
     function previewImagen(input, target) {
@@ -270,6 +165,9 @@ $(document).ready(function () {
     });
 
     $(document).on("change", "#imagenModificar", function() {
+        if (this.files && this.files[0]) {
+            $("#quitar_imagenModificar").val("0");
+        }
         previewImagen(this, "#previewImagenModificar");
     });
 
@@ -316,10 +214,13 @@ $(document).ready(function () {
 
         let imgActual = btn.data("imagen") || "";
         $("#imagen_actualModificar").val(imgActual);
-        if (imgActual && imgActual !== "null") {
+        $("#quitar_imagenModificar").val("0");
+        if (imgActual && imgActual !== "null" && imgActual !== "default.jpg") {
             $("#previewImagenModificar").html(`<img src="assets/img/productos/${imgActual}" onerror="this.src='assets/img/productos/default.jpg'" style="max-height:110px; border-radius:6px;">`);
+            estadoBotonEliminarImagen(true);
         } else {
             $("#previewImagenModificar").html('<span class="text-muted">Sin imagen</span>');
+            estadoBotonEliminarImagen(false);
         }
         $("#imagenModificar").val("");
 
@@ -348,6 +249,7 @@ $(document).ready(function () {
         fd.append("ram", $("#ramModificar").val() || "");
         fd.append("almacenamiento", $("#almacenamientoModificar").val() || "");
         fd.append("imagen_actual", $("#imagen_actualModificar").val() || "");
+        fd.append("quitar_imagen", $("#quitar_imagenModificar").val() || "0");
 
         let archivo = document.getElementById("imagenModificar").files[0];
         if (archivo) fd.append("imagen", archivo);

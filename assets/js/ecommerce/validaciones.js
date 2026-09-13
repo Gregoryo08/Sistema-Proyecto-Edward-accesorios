@@ -155,6 +155,7 @@ function validarYEnviar() {
     let montoRaw = document.querySelector('[name="monto"]')?.value?.trim() || '';
     var tipoCed = document.querySelector('[name="tipo_cedula_pagador"]')?.value || 'V';
     let cedulaRaw = document.querySelector('[name="cedula_pagador"]')?.value?.trim() || '';
+    let metodo = document.querySelector('[name="metodo"]')?.value?.trim() || 'transferencia';
 
     // Validar referencia: solo números, 12-13 dígitos
     if (!/^[0-9]+$/.test(ref)) {
@@ -171,14 +172,18 @@ function validarYEnviar() {
         return;
     }
 
-    // Validar teléfono: solo números, mínimo 10 dígitos
-    if (!/^[0-9]+$/.test(telf)) {
-        mostrarError('El teléfono solo debe contener números');
-        return;
-    }
-    if (!validarTelefono(telf)) {
-        mostrarError('El teléfono debe tener al menos 10 dígitos');
-        return;
+    // Validar teléfono SOLO para Pago Móvil.
+    // La transferencia bancaria se hace desde el portal del banco (browser),
+    // por eso no se pide teléfono y no debe exigirse.
+    if (metodo === 'pago_movil') {
+        if (!/^[0-9]+$/.test(telf)) {
+            mostrarError('El teléfono solo debe contener números');
+            return;
+        }
+        if (!validarTelefono(telf)) {
+            mostrarError('El teléfono debe tener al menos 10 dígitos');
+            return;
+        }
     }
 
     // Validar monto

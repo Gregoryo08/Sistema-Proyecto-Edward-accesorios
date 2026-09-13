@@ -270,3 +270,93 @@
         </div>
     </div>
 </div>
+
+<style>
+ body.dark-mode .modal #seccion_telefono_modificar,
+body.dark-mode .modal [id*="seccion_telefono"] {
+    background-color: #242424 !important;
+    border-color: #383838 !important;
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .modal #seccion_telefono_modificar h6,
+body.dark-mode .modal [id*="seccion_telefono"] h6 {
+    color: #ffda6a !important;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #333 !important;
+}
+
+
+body.dark-mode .modal-title {
+    color: #f8f9fa !important;
+}
+
+
+body.dark-mode .modal .form-control,
+body.dark-mode .modal .form-select,
+body.dark-mode .modal select {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .modal .form-control:focus {
+    background-color: #212529 !important;
+    border-color: #38bdf8 !important;
+    color: #f8f9fa !important;
+    box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
+}
+
+
+body.dark-mode .modal [style*="background:#f8f9fa"],
+body.dark-mode .modal [style*="background:#f0f4f8"],
+body.dark-mode .modal [style*="background: #f8f9fa"],
+body.dark-mode .modal .bg-light {
+    background-color: #242424 !important;
+    border-color: #383838 !important;
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .modal [style*="background:#fff3cd"] {
+    background-color: #332701 !important;
+    border-color: #664d03 !important;
+    color: #ffda6a !important;
+}
+
+body.dark-mode .modal [style*="background:#fff3cd"] h6 {
+    color: #ffda6a !important;
+}
+
+
+body.dark-mode .modal .list-group-item {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
+    color: #f8f9fa !important;
+}
+
+
+body.dark-mode .modal .text-muted,
+body.dark-mode .modal span.text-muted {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .modal h4,
+body.dark-mode .modal strong,
+body.dark-mode .modal code {
+    color: #f8f9fa !important;
+}
+
+
+body.dark-mode .modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+</style>

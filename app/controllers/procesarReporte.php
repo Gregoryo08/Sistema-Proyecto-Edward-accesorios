@@ -53,22 +53,29 @@ try {
 
     // =============================================
     // 2. LIMPIAR TELÉFONO (SOLO NÚMEROS)
+    //    El teléfono es OBLIGATORIO solo para Pago Móvil.
+    //    La transferencia bancaria se hace por el portal del banco (browser),
+    //    por lo tanto NO se solicita teléfono y no debe exigirse.
     // =============================================
     $telefono_limpio = preg_replace('/[^0-9]/', '', $telefono_raw);
     
-    if (empty($telefono_limpio)) {
-        echo json_encode(['success' => false, 'message' => 'El teléfono es requerido']);
-        exit;
-    }
-    
-    if (strlen($telefono_limpio) < 10) {
-        echo json_encode(['success' => false, 'message' => 'El teléfono debe tener al menos 10 dígitos']);
-        exit;
-    }
-    
-    if (strlen($telefono_limpio) > 11) {
-        echo json_encode(['success' => false, 'message' => 'El teléfono no puede tener más de 11 dígitos']);
-        exit;
+    if ($metodo === 'pago_movil') {
+        if (empty($telefono_limpio)) {
+            echo json_encode(['success' => false, 'message' => 'El teléfono es requerido para Pago Móvil']);
+            exit;
+        }
+        
+        if (strlen($telefono_limpio) < 10) {
+            echo json_encode(['success' => false, 'message' => 'El teléfono debe tener al menos 10 dígitos']);
+            exit;
+        }
+        
+        if (strlen($telefono_limpio) > 11) {
+            echo json_encode(['success' => false, 'message' => 'El teléfono no puede tener más de 11 dígitos']);
+            exit;
+        }
+    } else {
+        $telefono_limpio = '';
     }
 
     // =============================================
