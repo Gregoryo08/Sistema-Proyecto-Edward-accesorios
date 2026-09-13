@@ -74,7 +74,8 @@ body.dark-mode .card i {
 <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
         class="bi bi-arrow-up-short"></i></a>
 
-
+   <script src="assets/Library/JQuery/jquery-3.7.0.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/validaciones/perfil/perfiles.js"></script>
 
 

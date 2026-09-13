@@ -63,7 +63,7 @@ function inicializarTablaServicio() {
     $("#servicioTabla").DataTable({
         destroy: true,
         ajax: { url: "?pagina=servicio_tecnico&ajax=true", dataSrc: "" },
-        pageLength: 8,
+        pageLength: 10,
         ordering: true,
         responsive: true,
         language: {
