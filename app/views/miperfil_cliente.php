@@ -4,12 +4,12 @@
 <main class="main m-4 pt-4" id="main">
     <section class="content_data pt-4" id="hero" style="height: auto;">
         <div class="div_data mt-4 card border-0 shadow bg-transparent">
-            <div class="card-header bg-primary text-white py-3">
-                <h2 class="title mb-0 fs-4">Tus Datos Personales</h2>
+            <div class="card-header bg-secondary  py-3">
+                <h2 class=" mb-0 fs-4 text-center" style="color: white;">MIS DATOS PERSONALES</h2>
             </div>
             <div class="card-body p-4 bg-transparent">
-                <div class="cont_content" id="cont_content">
-                    <div class="container-fluid">
+                <div >
+                    <div >
                         <div class="row mb-3">
                             <div class="col-5 text-secondary small fw-bold">Nombre:</div>
                             <div class="col-7 fw-semibold text-body" id="d_nombre"></div>
