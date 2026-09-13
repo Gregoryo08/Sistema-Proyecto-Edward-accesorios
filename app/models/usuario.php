@@ -89,6 +89,14 @@ class Usuario extends Conexion
                 $this->cedula_usuario = 'V-' . preg_replace('/^[VEve]-?/', '', $cedulaLimpia);
             }
 
+            $conexUser = new Conexion("usuario");
+            $stmtExiste = $conexUser->prepare("SELECT COUNT(*) FROM usuarios WHERE cedula_usuario = :c");
+            $stmtExiste->execute([":c" => $this->cedula_usuario]);
+            if ((int)$stmtExiste->fetchColumn() > 0) {
+                return ["success" => false, "error" => "Esta cédula ya tiene un usuario registrado."];
+            }
+            unset($conexUser);
+
             $usuarioSesion = $_SESSION["username"] ?? 'sistema';
 
             $conexSistema = new Conexion("sistema");
@@ -140,6 +148,9 @@ class Usuario extends Conexion
         } catch (PDOException $e) {
             if (isset($conexSistema) && $conexSistema->inTransaction()) {
                 $conexSistema->rollBack();
+            }
+            if ((int)$e->getCode() === 23000) {
+                return ["success" => false, "error" => "Esta cédula ya tiene un usuario registrado."];
             }
             return ["success" => false, "error" => $e->getMessage()];
         }

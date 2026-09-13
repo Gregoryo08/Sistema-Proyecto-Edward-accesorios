@@ -56,7 +56,11 @@ $(document).ready(function () {
         }
 
         camposModificar.forEach(selector => {
-            if ($(selector).length && !$(selector).hasClass('is-valid')) {
+            const $campo = $(selector);
+            if (
+                $campo.length &&
+                (!$campo.val() || $campo.hasClass('is-invalid'))
+            ) {
                 modificarValido = false;
             }
         });
@@ -67,6 +71,41 @@ $(document).ready(function () {
         if (!cadena) return "";
         return cadena.replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
     }
+
+    function limitarDescripcion(selector) {
+        $(selector).on('input', function () {
+            $(this).val($(this).val().slice(0, 40));
+        });
+    }
+
+    function limitarNumeros(selector, permiteDecimal = false) {
+        $(selector).on('input', function () {
+            let valor = $(this).val().replace(/[^0-9.]/g, '');
+
+            if (permiteDecimal) {
+                const partes = valor.split('.');
+                const entero = partes[0].slice(0, 10);
+                const decimalesDisponibles = 10 - entero.length;
+                const decimales = partes.length > 1
+                    ? partes[1].slice(0, decimalesDisponibles)
+                    : '';
+
+                valor = entero;
+                if (partes.length > 1 && decimalesDisponibles > 0) {
+                    valor += '.' + decimales;
+                }
+            } else {
+                valor = valor.replace(/\./g, '').slice(0, 10);
+            }
+
+            $(this).val(valor);
+        });
+    }
+
+    limitarDescripcion('#descripcion, #descripcionModificar');
+    limitarNumeros('#stock_minimo, #stock_maximo, #stock_actual');
+    limitarNumeros('#stock_minimoModificar, #stock_maximoModificar, #stock_actualModificar');
+    limitarNumeros('#precio, #precioModificar', true);
 
     function validarCampoProducto(id) {
     let $input = $("#" + id);
@@ -100,6 +139,12 @@ $(document).ready(function () {
 
     if (id === "descripcion" || id === "descripcionModificar") {
         let valorTrim = entrada.trim();
+        if (entrada.length > 40) {
+            entrada = entrada.slice(0, 40);
+            $input.val(entrada);
+            valorTrim = entrada.trim();
+        }
+
         if (valorTrim.length > 0) {
             if (valorTrim.length < 4 || valorTrim.length > 40) {
                 gestionarEstado(id, false, "La descripción debe tener entre 4 y 40 caracteres");
@@ -152,6 +197,7 @@ $(document).ready(function () {
 
     if (id.includes('stock')) {
         let limpio = entrada.replace(/[^0-9]/g, "");
+        limpio = limpio.slice(0, 10);
         if (entrada !== limpio) $input.val(limpio);
 
         const esModificar = id.includes('Modificar');
@@ -197,6 +243,13 @@ $(document).ready(function () {
         if (partes.length > 2) {
             limpio = partes[0] + "." + partes.slice(1).join("").slice(0, 2);
         }
+        const partesPrecio = limpio.split('.');
+        const enteroPrecio = partesPrecio[0].slice(0, 10);
+        const disponiblesPrecio = 10 - enteroPrecio.length;
+        limpio = enteroPrecio;
+        if (partesPrecio.length > 1 && disponiblesPrecio > 0) {
+            limpio += '.' + partesPrecio[1].slice(0, disponiblesPrecio);
+        }
         if (entrada !== limpio) $input.val(limpio);
 
         if (limpio === "" || isNaN(limpio) || parseFloat(limpio) <= 0) {
@@ -225,18 +278,8 @@ $(document).ready(function () {
         $("#" + id).on("input change blur", () => validarCampoProducto(id));
     });
 
-    function validarTodosAlCargar() {
-        camposMonitoreados.forEach(id => {
-            if ($("#" + id).length) {
-                validarCampoProducto(id);
-            }
-        });
-    }
-
-    setTimeout(validarTodosAlCargar, 100);
-
-    $('.modal').on('shown.bs.modal', function () {
-        validarTodosAlCargar();
+    $('#modalModificarProducto').on('shown.bs.modal', function () {
+        verificarFormularios();
     });
 
     $('.modal').on('hidden.bs.modal', function () {
