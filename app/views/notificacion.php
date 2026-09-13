@@ -33,6 +33,26 @@
     </section>
 </main>
 
+<style>
+    body.dark-mode .btn-info {
+    background-color: #0dcaf0 !important; 
+    border-color: #0dcaf0 !important;
+    color: #000 !important; 
+}
+
+
+body.dark-mode .table .btn-info {
+    background-color: transparent !important;
+    color: #38bdf8 !important;
+    border: 1px solid #38bdf8 !important;
+}
+
+body.dark-mode .table .btn-info:hover {
+    background-color: #38bdf8 !important;
+    color: #0f172a !important;
+}
+</style>
+
 <?php require_once('assets/comunes/footer.php'); ?>
 
 <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

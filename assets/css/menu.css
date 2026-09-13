@@ -31,6 +31,17 @@ header#header {
     z-index: 1001;
 }
 
+body.dark-mode #dropdown_noti,
+body.dark-mode #dropdown_noti * {
+    color: #ffffff !important;
+}
+
+body.dark-mode #container_notificacion > div:last-child {
+    background: #1a1a1a !important;
+    border-top: 1px solid #333 !important;
+}
+
+
 .sitename {
     color: white;
     font-size: 30px;

@@ -76,6 +76,60 @@
     </div>
 </main>
 
+
+<style>
+    body.dark-mode .select2-container--bootstrap-5 .select2-selection {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-selection__rendered {
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-dropdown {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-results__option {
+    color: #f8f9fa !important;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-results__option[aria-selected="true"] {
+    background-color: #343a40 !important;
+}
+
+body.dark-mode .select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+body.dark-mode .select2-search--dropdown .select2-search__field {
+    background-color: #2b3035 !important;
+    border-color: #495057 !important;
+    color: #f8f9fa !important;
+}
+body.dark-mode .btn-info {
+    background-color: #0dcaf0 !important; 
+    border-color: #0dcaf0 !important;
+    color: #000 !important; 
+}
+
+
+body.dark-mode .table .btn-info {
+    background-color: transparent !important;
+    color: #38bdf8 !important;
+    border: 1px solid #38bdf8 !important;
+}
+
+body.dark-mode .table .btn-info:hover {
+    background-color: #38bdf8 !important;
+    color: #0f172a !important;
+}
+</style>
+
 <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 <?php require_once('assets/comunes/footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
