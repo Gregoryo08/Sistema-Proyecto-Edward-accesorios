@@ -29,6 +29,7 @@ require_once('assets/comunes/modal_pagocuotas.php');
     </section>
 </main>
 
+
 <?php require_once('assets/comunes/footer.php'); ?>
 
 
