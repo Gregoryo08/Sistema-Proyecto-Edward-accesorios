@@ -64,11 +64,11 @@ $(document).ready(function () {
                             
                             if (esActivo) {
                                 botones += `<button type="button" class="btn btn-danger btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="inactivo">
-                                                <i class="fa-solid fa-trash-can" title="Inhabilitar"></i>
+                                                <i class="fa-solid fa-trash-can" title="Inhabilitar Empleado"></i>
                                             </button>`;
                             } else {
                                 botones += `<button type="button" class="btn btn-success btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="activo">
-                                                <i class="bi bi-person-check" title="Habilitar"></i>
+                                                <i class="bi bi-person-check" title="Habilitar Empleado"></i>
                                             </button>`;
                             }
                         }
