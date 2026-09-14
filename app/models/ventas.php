@@ -91,7 +91,7 @@ class ventas extends Conexion
         }
     }
 
-    private function registrarVenta($datos) {
+   private function registrarVenta($datos) {
         if (empty($datos)) {
             return ["success" => false, "mensaje" => "Faltan los datos requeridos para procesar la venta."];
         }
@@ -103,19 +103,21 @@ class ventas extends Conexion
             $stmtSesion = $this->prepare($sqlSesion);
             $stmtSesion->execute([
                 ':usuario' => $datos['cedula_usuario'],
-                ':modulo'  => 'Administrar Ventas'                  
+                ':modulo'  => 'Administrar Ventas'                     
             ]);
 
-            $sqlVenta = "INSERT INTO ventas (fecha_venta, origen_venta, total_venta, estado, cedula_persona, cedula_empleado) 
-                         VALUES (NOW(), :origen, :total_venta, :estado, :cedula_persona, :cedula_empleado)";
+            $sqlVenta = "INSERT INTO ventas (fecha_venta, origen_venta, total_venta, estado, cedula_persona, cedula_empleado, id_tasa, tasa_monto) 
+                         VALUES (NOW(), :origen, :total_venta, :estado, :cedula_persona, :cedula_empleado, :id_tasa, :tasa_monto)";
             
             $stmtVenta = $this->prepare($sqlVenta);
             $stmtVenta->execute([
-                ':origen'         => 'Presencial',
-                ':total_venta'    => number_format($datos['total_usd'], 2, '.', ''),
-                ':estado'         => 'completada',
-                ':cedula_persona' => $datos['cliente']['cedula'] ?? null,
-                ':cedula_empleado' => $datos['cedula_usuario']
+                ':origen'          => 'Presencial',
+                ':total_venta'     => number_format($datos['total_usd'], 2, '.', ''),
+                ':estado'          => 'completada',
+                ':cedula_persona'  => $datos['cliente']['cedula'] ?? null,
+                ':cedula_empleado' => $datos['cedula_usuario'],
+                ':id_tasa'         => $datos['id_tasa'] ?? null,
+                ':tasa_monto'      => number_format($datos['tasa_monto'] ?? 0, 2, '.', '')
             ]);
 
             $idVenta = $this->lastInsertId();

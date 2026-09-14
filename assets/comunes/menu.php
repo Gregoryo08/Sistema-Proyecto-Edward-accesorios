@@ -66,16 +66,47 @@
                 <button class="btn-sm btn-tasa bg-white border rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 40px; height: 40px;">
                     <i class="bi bi-currency-dollar text-success" id="tasa-dolar" style="font-size: 1.25rem;"></i>
                 </button>
-                <div id="tasa-tooltip" class="tasa-tooltip p-2" style="display: none;">
-                    <div class="d-flex flex-column align-items-center text-center gap-1">
-                        <span class="text-success fw-bold" style="font-size: 0.75rem;">TASA BCV</span>
-                        <span id="tasa-valor" class="fw-bold fs-6 text-dark">0.00 Bs.</span>
-                        <span class="text-muted" style="font-size: 0.75rem;">
-                            Última Actualización:<br>
-                            <span id="tasa-fecha" class="fw-bold text-dark">--/--/----</span>
-                        </span>
+            <div id="tasa-tooltip" class="tasa-tooltip p-2" style="display: none; pointer-events: auto !important; z-index: 9999; position: absolute;">
+    <div class="d-flex flex-column align-items-center text-center gap-1">
+        <span class="text-success fw-bold" style="font-size: 0.75rem;">TASA BCV</span>
+        <span id="tasa-valor" class="fw-bold fs-6 text-dark">0.00 Bs.</span>
+        <span class="text-muted" style="font-size: 0.75rem;">
+            Última Actualización:<br>
+            <span id="tasa-fecha" class="fw-bold text-dark">--/--/----</span>
+        </span>
+        <button class="btn btn-sm btn-outline-primary mt-2" style="cursor: pointer; pointer-events: auto !important;" data-bs-toggle="modal" data-bs-target="#modalEditarTasa">
+            Editar Tasa
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarTasa" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Actualizar Tasa BCV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paso-password">
+                    <label class="form-label">Contraseña de Administrador</label>
+                    <div class="input-group mb-3">
+                        <input type="password" id="admin-password" class="form-control">
+                        <button class="btn btn-outline-secondary" type="button" id="btn-toggle-password">
+                            <i class="bi bi-eye-slash" id="icono-password"></i>
+                        </button>
                     </div>
+                    <button class="btn btn-primary w-100" id="btn-verificar-password">Verificar</button>
                 </div>
+                <div id="paso-tasa" style="display: none;">
+                    <label class="form-label">Nueva Tasa (Bs.)</label>
+                    <input type="number" step="0.01" id="nueva-tasa" class="form-control mb-3">
+                    <button class="btn btn-success w-100" id="btn-guardar-tasa">Guardar Tasa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                 <div class="dropdown user-dropdown">
                     <button class="btn btn-sm dropdown-toggle btn-usuario d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle fs-5"></i>
@@ -424,6 +455,13 @@
     display: block !important;
     z-index: 9999 !important;
     position: absolute !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+#modalEditarTasa {
+    z-index: 1055 !important;
 }
 
 /* Evitar que contenedores padres corten el menú */

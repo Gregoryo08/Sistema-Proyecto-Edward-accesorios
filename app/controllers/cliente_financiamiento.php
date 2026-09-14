@@ -1,9 +1,14 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 use App\Sistema\models\cliente_financiamiento;
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\scrape_dolar;
 use App\Sistema\models\principal;
+use App\Sistema\models\TasaModel;
 
 $action = $_GET['action'] ?? null;
 
@@ -32,8 +37,32 @@ if (!$cedula) {
     exit();
 }
 
+if (!function_exists('obtenerTasaOptimizada')) {
+    function obtenerTasaOptimizada(): float
+    {
+        $cacheTtl = 3600;
+
+        $tasa = scrape_dolar::obtenerPrecioDolarBCV();
+
+        if ($tasa !== null && $tasa > 0) {
+            $_SESSION['tasa_bcv'] = $tasa;
+            $_SESSION['tasa_bcv_time'] = time();
+            return (float) $tasa;
+        }
+
+        if (
+            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
+            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
+        ) {
+            return (float) $_SESSION['tasa_bcv'];
+        }
+
+        return 0.0;
+    }
+}
 
 $obj_usuario = new Usuarios();
+$obj_tasa = new TasaModel();
 $modulo_actual = "Administrar Pago De Cuotas";
 
 if (!$obj_usuario->tienePermiso($modulo_actual, "listar")) {
@@ -73,8 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
             echo json_encode($objeto_cliente->procesar('listarHistorialCuotas', $id_fin));
             break;
         case "tasa":
-            $tasaModel = new scrape_dolar();
-            echo json_encode($tasaModel->obtenerPrecioDolarBCV());
+            $tasaFinal = obtenerTasaOptimizada();
+            if ($tasaFinal <= 0) {
+                $tasaDB = $obj_tasa->obtenerTasaActual();
+                if ($tasaDB && !empty($tasaDB['monto'])) {
+                    $tasaFinal = (float)$tasaDB['monto'];
+                }
+            }
+            echo json_encode($tasaFinal);
             break;
     }
     exit();

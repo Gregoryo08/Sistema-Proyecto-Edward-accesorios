@@ -7,20 +7,19 @@ if (session_status() === PHP_SESSION_NONE) {
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\ventas;
 use App\Sistema\models\scrape_dolar;
+use App\Sistema\models\TasaModel;
 
 $action = $_GET['action'] ?? null;
 
 if ($action === 'DatosDashboardCliente') {
     header('Content-Type: application/json; charset=utf-8');
     
-    $$cedula = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
+    $cedula = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
     
     if (!$cedula) {
         echo json_encode(["error" => "Sesion no encontrada o expirada"]);
         exit();
     }
-
-  
 }
 
 $cedula = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
@@ -41,13 +40,6 @@ if (!function_exists('obtenerTasaOptimizada')) {
     {
         $cacheTtl = 3600;
 
-        if (
-            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
-            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
-        ) {
-            return (float) $_SESSION['tasa_bcv'];
-        }
-
         $tasa = scrape_dolar::obtenerPrecioDolarBCV();
 
         if ($tasa !== null && $tasa > 0) {
@@ -56,13 +48,21 @@ if (!function_exists('obtenerTasaOptimizada')) {
             return (float) $tasa;
         }
 
-        return (float) ($_SESSION['tasa_bcv'] ?? 0.0);
+        if (
+            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
+            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
+        ) {
+            return (float) $_SESSION['tasa_bcv'];
+        }
+
+        return 0.0;
     }
 }
 
 $obj_usuario = new Usuarios();
 $modulo_actual = "Administrar Ventas";
 $obj_ventas = new ventas();
+$obj_tasa = new TasaModel();
 
 $accion = $_GET['accion'] ?? $_POST['accion'] ?? null;
 
@@ -91,12 +91,12 @@ if ($accion !== null) {
                 exit();
             }
 
-            $cedula   = trim($datosCliente['cedula'] ?? '');
-            $nombre   = trim($datosCliente['nombre'] ?? '');
-            $apellido = trim($datosCliente['apellido'] ?? '');
-            $telefono = trim($datosCliente['telefono'] ?? '');
+            $cedulaCliente = trim($datosCliente['cedula'] ?? '');
+            $nombre        = trim($datosCliente['nombre'] ?? '');
+            $apellido      = trim($datosCliente['apellido'] ?? '');
+            $telefono      = trim($datosCliente['telefono'] ?? '');
 
-            if ($cedula === '' || $nombre === '' || $apellido === '') {
+            if ($cedulaCliente === '' || $nombre === '' || $apellido === '') {
                 echo json_encode([
                     "success" => false, 
                     "mensaje" => "Los campos Cédula, Nombre y Apellido son obligatorios."
@@ -105,7 +105,7 @@ if ($accion !== null) {
             }
 
             try {
-                $obj_ventas->setCedula($cedula);
+                $obj_ventas->setCedula($cedulaCliente);
                 $obj_ventas->setNombre($nombre);
                 $obj_ventas->setApellido($apellido);
                 $obj_ventas->setCel($telefono !== '' ? $telefono : 'No registrado');
@@ -141,12 +141,69 @@ if ($accion !== null) {
             }
             break;
 
+        case 'verificarAdmin':
+            $clave = $_POST['clave'] ?? '';
+            if (empty($clave)) {
+                echo json_encode(["success" => false, "mensaje" => "Debe ingresar la contraseña."]);
+                exit();
+            }
+
+            $esAdmin = $obj_tasa->validarClaveAdministrador($clave);
+            if ($esAdmin) {
+                $_SESSION['admin_tasa_autorizado'] = true;
+                echo json_encode(["success" => true]);
+            } else {
+                echo json_encode(["success" => false, "mensaje" => "Contraseña incorrecta o permisos insuficientes."]);
+            }
+            break;
+
+        case 'guardarTasaManual':
+            if (empty($_SESSION['admin_tasa_autorizado'])) {
+                echo json_encode(["success" => false, "mensaje" => "No posee autorización de administrador."]);
+                exit();
+            }
+
+            $nuevaTasa = $_POST['tasa'] ?? null;
+            if (!$nuevaTasa || !is_numeric($nuevaTasa) || $nuevaTasa <= 0) {
+                echo json_encode(["success" => false, "mensaje" => "Monto de tasa inválido."]);
+                exit();
+            }
+
+            $resultado = $obj_tasa->cambiarTasaManual($nuevaTasa, $cedula, '');
+            
+            if ($resultado === true || (is_array($resultado) && !isset($resultado['error']))) {
+                unset($_SESSION['admin_tasa_autorizado']);
+                $_SESSION['tasa_bcv'] = (float) $nuevaTasa;
+                $_SESSION['tasa_bcv_time'] = time();
+                echo json_encode(["success" => true, "mensaje" => "Tasa actualizada correctamente."]);
+            } else {
+                $errorMsg = is_array($resultado) && isset($resultado['error']) ? $resultado['error'] : "Error al guardar la tasa.";
+                echo json_encode(["success" => false, "mensaje" => $errorMsg]);
+            }
+            break;
+
         case 'obtenerTasaCambio':
             $tasa = obtenerTasaOptimizada();
+            $fecha = date('d/m/Y');
+
+            if ($tasa > 0) {
+                $idTasaDB = null;
+            } else {
+                $tasaDB = $obj_tasa->obtenerTasaActual();
+                if ($tasaDB && !empty($tasaDB['monto'])) {
+                    $tasa = (float) $tasaDB['monto'];
+                    $fecha = date('d/m/Y', strtotime($tasaDB['fecha']));
+                }
+            }
+
+            if ($tasa <= 0) {
+                $obj_tasa->registrarNotificacionTasaNoDisponible();
+            }
+
             echo json_encode([
                 "success" => $tasa > 0,
                 "tasa" => $tasa,
-                "fecha" => date('d/m/Y'),
+                "fecha" => $fecha,
                 "mensaje" => $tasa > 0 ? "Tasa obtenida con éxito" : "No se pudo obtener la tasa de cambio"
             ]);
             break;
@@ -182,7 +239,23 @@ if ($accion !== null) {
                 echo json_encode(["success" => false, "mensaje" => "Error de sesión: No se localizó la cédula del operador de caja."]);
                 exit();
             }
-            $datosVenta['tasa_bcv'] = $datosVenta['tasa_bcv'] ?? obtenerTasaOptimizada();
+
+            $tasaMonto = obtenerTasaOptimizada();
+            $idTasa = null;
+
+            if ($tasaMonto > 0) {
+                $datosVenta['id_tasa'] = null;
+                $datosVenta['tasa_monto'] = $tasaMonto;
+            } else {
+                $tasaDB = $obj_tasa->obtenerTasaActual();
+                if ($tasaDB && !empty($tasaDB['monto'])) {
+                    $datosVenta['id_tasa'] = $tasaDB['id'] ?? null;
+                    $datosVenta['tasa_monto'] = (float)$tasaDB['monto'];
+                } else {
+                    $datosVenta['id_tasa'] = null;
+                    $datosVenta['tasa_monto'] = 0.0;
+                }
+            }
 
             $respuesta = $obj_ventas->procesarSolicitud('registrarVenta', $datosVenta);
             echo json_encode($respuesta);
@@ -196,6 +269,14 @@ if ($accion !== null) {
 }
 
 $tasaCambioActual = obtenerTasaOptimizada();
+if ($tasaCambioActual <= 0) {
+    $tasaDB = $obj_tasa->obtenerTasaActual();
+    $tasaCambioActual = ($tasaDB && !empty($tasaDB['monto'])) ? (float)$tasaDB['monto'] : 0.0;
+}
+
+if ($tasaCambioActual <= 0) {
+    $obj_tasa->registrarNotificacionTasaNoDisponible();
+}
 
 $ruta_vista = "app/views/ventas.php"; 
 

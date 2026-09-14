@@ -139,16 +139,20 @@ $(document).ready(function () {
         });
     }
 
-    const $btnTasa = $('.btn-tasa');
-    const $tooltipTasa = $('#tasa-tooltip');
+    let timeoutTasa;
 
-    $btnTasa.on('mouseenter', function () {
-        $tooltipTasa.stop(true, true).fadeIn(150);
+    $('.btn-tasa, #tasa-tooltip').on('mouseenter', function () {
+        clearTimeout(timeoutTasa);
+        $('#tasa-tooltip').stop(true, true).fadeIn(350);
     });
 
-    $btnTasa.on('mouseleave', function () {
-        $tooltipTasa.stop(true, true).fadeOut(150);
+    $('.btn-tasa, #tasa-tooltip').on('mouseleave', function () {
+        timeoutTasa = setTimeout(function() {
+            $('#tasa-tooltip').stop(true, true).fadeOut(350);
+        }, 600);
     });
+
+    $('#modalEditarTasa').appendTo('body');
 
     function cargarTasaHeader() {
         $.ajax({
@@ -176,27 +180,111 @@ $(document).ready(function () {
     }
 
     cargarTasaHeader();
-});
 
-const toggleBtn = document.getElementById('theme-toggle');
-const icon = document.getElementById('theme-icon');
+    $('#btn-toggle-password').on('click', function () {
+        let $input = $('#admin-password');
+        let $icon = $('#icono-password');
+        let esPassword = $input.attr('type') === 'password';
 
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-
-        if (document.body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-            icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
-        } else {
-            localStorage.setItem('theme', 'light');
-            icon.classList.replace('bi-sun-fill', 'bi-moon-fill');
-        }
+        $input.attr('type', esPassword ? 'text' : 'password');
+        $icon.toggleClass('bi-eye-slash bi-eye');
     });
-}
 
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark' && icon) {
-    document.body.classList.add('dark-mode');
-    icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
-}
+    $('#nueva-tasa').on('input', function () {
+        let digitos = $(this).val().replace(/\D/g, '');
+        if (!digitos) {
+            $(this).val('0.0');
+            return;
+        }
+        let valorCalculado = (parseInt(digitos, 10) / 10).toFixed(1);
+        $(this).val(valorCalculado);
+    });
+
+    $('#btn-verificar-password').on('click', function() {
+        let password = $('#admin-password').val();
+        
+        $.post('?pagina=ventas&accion=verificarAdmin', { clave: password }, function(res) {
+            if(res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Acceso concedido',
+                    text: 'Contraseña correcta',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    $('#paso-password').hide();
+                    $('#paso-tasa').show();
+                    $('#nueva-tasa').val('0.0').focus();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: 'Contraseña incorrecta No eres administrador'
+                });
+            }
+        }, 'json');
+    });
+
+    $('#btn-guardar-tasa').on('click', function() {
+        let nuevaTasa = $('#nueva-tasa').val();
+        
+        $.post('?pagina=ventas&accion=guardarTasaManual', { tasa: nuevaTasa }, function(res) {
+            if(res.success) {
+                let valorFormateado = parseFloat(nuevaTasa).toFixed(2);
+                $('#tasa-valor').text(valorFormateado + ' Bs.');
+                $('#tasa-fecha').text(new Date().toLocaleDateString('es-VE'));
+                
+                $('#modalEditarTasa').modal('hide');
+                $('#admin-password').val('').attr('type', 'password');
+                $('#icono-password').removeClass('bi-eye').addClass('bi-eye-slash');
+                $('#nueva-tasa').val('0.0');
+                $('#paso-password').show();
+                $('#paso-tasa').hide();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Tasa actualizada correctamente.'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: res.mensaje || 'Ocurrió un error al guardar la tasa.'
+                });
+            }
+        }, 'json');
+    });
+
+    $('#modalEditarTasa').on('hidden.bs.modal', function () {
+        $('#admin-password').val('').attr('type', 'password');
+        $('#icono-password').removeClass('bi-eye').addClass('bi-eye-slash');
+        $('#nueva-tasa').val('0.0');
+        $('#paso-password').show();
+        $('#paso-tasa').hide();
+    });
+
+    const toggleBtn = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+            }
+        });
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' && icon) {
+        document.body.classList.add('dark-mode');
+        icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+    }
+});
