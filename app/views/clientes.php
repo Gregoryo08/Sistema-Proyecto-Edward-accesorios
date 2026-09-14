@@ -3,19 +3,10 @@
 
 <main class="main m-4" id="main">
     <section id="hero" class="hero section" style="height: auto;">
-        <?php require_once('assets/comunes/tablaClientesInactivos.php'); ?>
-
-        <div>
             <h2 class="text-center">Administrar Clientes</h2>
-
-            <div class="text-right" style="display: flex; justify-content: space-between;">
-                <button type="button" class="btn btn-success btn-register-client" data-bs-toggle="modal"
-                    data-bs-target="#modalRegistroCliente">
-                <i class="fas fa-pen"></i>&nbsp;&nbsp; Registrar
-                </button>
-
-                <button type="button" class="btn btn-success" id="btn_verInactivos">
-                    Inactivos
+            <div class="text-end mb-3">
+                <button type="button" class="btn btn-success btn-register-client" data-bs-toggle="modal" data-bs-target="#modalRegistroCliente">
+                    <i class="bi bi-person-add" style="font-size: 1.2rem;"></i> Registrar Cliente
                 </button>
             </div>
 
@@ -27,6 +18,7 @@
                                 <th>C.I</th>
                                 <th>Nombre y Apellido</th>
                                 <th>Sexo</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -42,10 +34,7 @@
                     </table>
                 </div>
             </div>
-        </div>
-
     </section>
-
 </main>
 
 <?php require_once('assets/comunes/footer.php'); ?>

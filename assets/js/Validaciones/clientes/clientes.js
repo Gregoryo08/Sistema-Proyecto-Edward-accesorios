@@ -17,7 +17,6 @@ $(document).ready(function () {
         }
 
         cargarTablaClientes();
-        cargarTablaInactivos();
     });
 
     function cargarTablaClientes() {
@@ -39,24 +38,43 @@ $(document).ready(function () {
                 {
                     data: null,
                     render: function (data, type, row) {
+                        let esActivo = (row.estado === 'activo');
+                        return esActivo 
+                            ? '<span class="badge bg-success">Activo</span>' 
+                            : '<span class="badge bg-danger">Inactivo</span>';
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
                         let btns = `<div class="btn-group" role="group">`;
 
                         if (permisos.control_total || permisos.consultar) {
-                            btns += `<button type="button" class="btn btn-info btn-verDatos" data-id="${row.cedula_persona}"><i class="bi bi-eye-fill"></i></button>`;
+                            btns += `<button type="button" class="btn btn-info btn-verDatos m-2" data-id="${row.cedula_persona}"><i class="bi bi-eye-fill"></i></button>`;
                         }
 
                         if (permisos.control_total || permisos.modificar) {
-                            btns += `<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalModificar" data-id="${row.cedula_persona}"><i class="fa-solid fa-pen-to-square"></i></button>`;
+                            btns += `<button type="button" class="btn btn-warning m-2" data-toggle="modal" data-target="#modalModificar" data-id="${row.cedula_persona}"><i class="fa-solid fa-pen-to-square"></i></button>`;
                         }
 
                         if (permisos.control_total || permisos.registrar) {
                             if (row.ingresos_mensuales === null || row.ingresos_mensuales === undefined) {
-                                btns += `<button type="button" class="btn btn-primary btn-agregarPerfil" data-toggle="modal" data-target="#modalRegistroPerfilFinanciero" data-id="${row.cedula_persona}"><i class="bi bi-wallet2"></i></button>`;
+                                btns += `<button type="button" class="btn btn-primary btn-agregarPerfil m-2" data-toggle="modal" data-target="#modalRegistroPerfilFinanciero" data-id="${row.cedula_persona}"><i class="bi bi-wallet2"></i></button>`;
                             }
                         }
 
                         if (permisos.control_total || permisos.eliminar) {
-                            btns += `<button type="button" class="btn btn-danger btn-eliminar" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}"><i class="fa-solid fa-trash-can"></i></button>`;
+                            let esActivo = (row.estado == 1 || row.estado === 'activo');
+                            
+                            if (esActivo) {
+                                btns += `<button type="button" class="btn btn-danger btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="inactivo">
+                                                <i class="bi bi-person-fill-slash" style="font-size: 1.25rem;" title="Inhabilitar Cliente"></i>
+                                            </button>`;
+                            } else {
+                                btns += `<button type="button" class="btn btn-success btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="activo">
+                                                <i class="bi bi-person-check p-0" style="font-size: 1.25rem;" title="Habilitar Cliente"></i>
+                                            </button>`;
+                            }
                         }
 
                         btns += `</div>`;
@@ -91,59 +109,6 @@ $(document).ready(function () {
         });
     }
 
-    function cargarTablaInactivos() {
-        $("#tablaInactivos").DataTable({
-            destroy: true,
-            ajax: {
-                url: "?pagina=clientes&ajax=true&x=inactivos",
-                dataSrc: "",
-            },
-            columns: [
-                { data: "cedula_persona" },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return `${row.nombre} ${row.apellido}`;
-                    },
-                },
-                { data: "sexo" },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        if (permisos.control_total || permisos.eliminar || permisos.modificar) {
-                            return `<button type="button" class="btn btn-danger btn-activar" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}"><i class="bi bi-x"></i></button>`;
-                        }
-                        return '<i class="bi bi-lock-fill"></i>';
-                    },
-                },
-            ],
-            pageLength: 4,
-            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
-            language: {
-                processing: "Procesando...",
-                search: "Buscar Inactivos:",
-                lengthMenu: "Mostrar _MENU_ registros",
-                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-                infoFiltered: "(filtrado de un total de _MAX_ registros)",
-                loadingRecords: "Cargando...",
-                zeroRecords: "No hay clientes inactivos",
-                emptyTable: "Ningún dato disponible en esta tabla",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior"
-                }
-            }
-        });
-    }
-});
-
-
-
-// -----------------------------------------------------------------------------------------------------------
-$(document).ready(function () {
   $("#modalRegistroCliente").on("show.bs.modal", function () {
     $.ajax({
       type: "GET",
@@ -414,6 +379,56 @@ $(document).on("click", ".btn-verDatos", function () {
 $("#btn_salir_ver, .btn-close").click(function () {
     $("#modalVerDatos").modal("hide");
 });
+
+$(document).on("click", ".btn-cambiar-estado", function () {
+        var id = $(this).data("id");
+        var nombre = $(this).data("nombre");
+        var nuevaAccion = $(this).data("accion");
+
+        let textoMensaje = (nuevaAccion === 'inactivo') 
+            ? "¿Estás seguro de inhabilitar al cliente '" + nombre + "'?" 
+            : "¿Estás seguro de habilitar al cliente '" + nombre + "'?";
+
+        alertas("eliminar", textoMensaje, "Espera un momento!", estado, {id: id, nuevaAccion: nuevaAccion});
+    });
+
+    function estado(datos) {
+        let timerInterval;
+        Swal.fire({
+            title: "Procesando!",
+            timer: 1500,
+            color: "white",
+            background: "#000910",
+            timerProgressBar: true,
+            didOpen: () => { Swal.showLoading(); },
+            willClose: () => { clearInterval(timerInterval); },
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+                $.ajax({
+                    type: "POST",
+                    url: "",
+                    data: {
+                        id: datos.id,
+                        estado: datos.nuevaAccion,
+                        accion: "eliminar"
+                    },
+                    success: function (response) {
+                        var res = JSON.parse(response);
+
+                        if (res.success) {
+                            $("#clientestabla").DataTable().ajax.reload();
+                            alertas("success");
+                        } else if (res.error) {
+                            alertas("error", res.error, "Ups!");
+                        }
+                    },
+                    error: function () {
+                        mensaje("error");
+                    },
+                });
+            }
+        });
+    }
 
 
  $(document).on("click", ".btn-warning", function () {
@@ -713,72 +728,6 @@ function modificar() {
         }
     });
 }
-  $(document).ready(function () {
-    
-   
-    $("#btn_verInactivos").click(function () {
-        $("#container_clientes").addClass("active");
-    });
-
-    $("#btn_salir").on("click", function () {
-        $("#container_clientes").removeClass("active");
-    });
-
-   
-
-    
-    $(document).on("click", ".btn-eliminar", function () {
-        var id = $(this).data("id");
-        var nombre = $(this).data("nombre");
-        
-        alertas(
-            "eliminar",
-            "¿Estás seguro de inactivar al cliente '" + nombre + "'?",
-            "¡Atención!",
-            function() { cambiarEstado(id, "inactivo"); }
-        );
-    });
-
-    // Botón de Activar (En tabla de inactivos)
-    $(document).on("click", ".btn-activar", function () {
-        var id = $(this).data("id");
-        var nombre = $(this).data("nombre");
-        
-        alertas(
-            "pregunta",
-            "¿Desea activar nuevamente al cliente '" + nombre + "'?",
-            "Restaurar Cliente",
-            function() { cambiarEstado(id, "activo"); }
-        );
-    });
-
-    function cambiarEstado(id, nuevoEstado) {
-        $.ajax({
-            type: "POST",
-            url: "", 
-            data: {
-                id: id,
-                estado: nuevoEstado,
-                accion: "eliminar" 
-            },
-            success: function (response) {
-                try {
-                    var res = JSON.parse(response);
-                    if (res.success) {
-                        alertas("success");
-                        
-                        $("#clientestabla").DataTable().ajax.reload();
-                        $("#tablaInactivos").DataTable().ajax.reload();
-                    } else {
-                        alertas("error", res.error, "Error");
-                    }
-                } catch (e) {
-                    console.error("Error parseando respuesta:", e);
-                }
-            }
-        });
-    }
-});
   //--------------------------------------------------------------------------------------------
   function validarDatosModificar() {
     var nombre = $("#nombreModificar").val();
