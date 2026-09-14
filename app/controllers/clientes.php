@@ -93,9 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setCel(trim($_POST['telefono'] ?? ''));
     $cliente->setDireccion(trim($_POST['direccion'] ?? ''));
     $cliente->setSexo(trim($_POST['sexo'] ?? ''));
-    $cliente->setEdad(trim($_POST['fecha'] ?? '')); 
+    $fechaNacimiento = trim($_POST['fecha'] ?? $_POST['fecha_nacimiento'] ?? '');
+    $cliente->setEdad($fechaNacimiento);
     $cliente->setIngresos(trim($_POST['ingresos_mensuales'] ?? '0')); 
-    
+
     $cliente->setResidenciaTipo(trim($_POST['tipo_residencia'] ?? 'No especificado'));
     $cliente->setCargaFamiliar(trim($_POST['carga_familiar'] ?? '0'));
     $cliente->setEstadoCivil(trim($_POST['estado_civil'] ?? 'Soltero/a'));

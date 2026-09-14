@@ -35,6 +35,29 @@ $(document).ready(function () {
     }
   }
 
+  function limitarTexto(selector, patron, maximo) {
+    $(selector).on('input', function () {
+      const valor = $(this).val();
+      $(this).val(valor.replace(patron, '').slice(0, maximo));
+    });
+  }
+
+  function limitarLongitud(selector, maximo) {
+    $(selector).on('input', function () {
+      $(this).val($(this).val().slice(0, maximo));
+    });
+  }
+
+  function limitarNumeroDecimal(selector, maximo) {
+    $(selector).on('input', function () {
+      let valor = $(this).val().replace(/[^0-9,.-]/g, '');
+      if (valor.indexOf(',') !== -1 && valor.indexOf('.') !== -1) {
+        valor = valor.replace(/[.,](?=.*[.,])/g, '');
+      }
+      $(this).val(valor.slice(0, maximo));
+    });
+  }
+
   function esMayorDeEdad(fechaStr) {
     const hoy = new Date();
     const fechaNac = new Date(fechaStr + 'T00:00:00');
@@ -188,8 +211,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#sexo', '#texto_mensaje_sexo');
     }
 
-    if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-      mostrarValidacionSimple('#correo', '#texto_mensaje_correo', 'Ingrese un correo válido, ejemplo: correo@gmail.com');
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      mostrarValidacionSimple('#correo', '#texto_mensaje_correo', 'Ingrese un correo válido, máximo 45 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#correo', '#texto_mensaje_correo');
@@ -212,8 +235,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#telefono', '#texto_mensaje_telefono');
     }
 
-    if (!direccion || direccion.trim().length < 10) {
-      mostrarValidacionSimple('#direccion', '#texto_mensaje_direccion', 'La dirección debe tener al menos 10 caracteres.');
+    if (!direccion || direccion.trim().length < 5 || direccion.trim().length > 50) {
+      mostrarValidacionSimple('#direccion', '#texto_mensaje_direccion', 'La dirección debe tener entre 5 y 50 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#direccion', '#texto_mensaje_direccion');
@@ -250,8 +273,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#carga_familiar', '#texto_mensaje_carga_familiar');
     }
 
-    if (!ocupacion || !ocupacion.trim()) {
-      mostrarValidacionSimple('#ocupacion', '#texto_mensaje_ocupacion', 'Este campo no puede estar vacío.');
+    if (!ocupacion || ocupacion.trim().length < 5 || ocupacion.trim().length > 60) {
+      mostrarValidacionSimple('#ocupacion', '#texto_mensaje_ocupacion', 'La ocupación debe tener entre 5 y 60 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#ocupacion', '#texto_mensaje_ocupacion');
@@ -269,6 +292,15 @@ $(document).ready(function () {
 
     return valido;
   }
+
+  limitarTexto('#nombre, #apellido, #nombreModificar, #apellidoModificar', /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, 35);
+  limitarTexto('#ocupacion, #ocupacionModificar, #ocupacionPerfil', /[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]/g, 60);
+  limitarLongitud('#cedula', 9);
+  limitarLongitud('#correo, #correoModificar', 45);
+  limitarLongitud('#direccion, #direccionModificar', 50);
+  limitarLongitud('#telefono, #telefonoModificar', 11);
+  limitarLongitud('#carga_familiar, #carga_familiarModificar, #carga_familiarPerfil', 2);
+  limitarNumeroDecimal('#ingreso_bs, #ingreso_bs_perfil, #ingresosModificar', 12);
 
   bloquearNumerosEnTexto('#nombre', '#texto_mensaje_nombre');
   bloquearNumerosEnTexto('#apellido', '#texto_mensaje_apellido');
@@ -289,13 +321,6 @@ $(document).ready(function () {
     .on("input change blur", function () {
       validarDatosCliente();
     });
-
-  $("#guardarCliente").on("click", function (event) {
-    event.preventDefault();
-    if (validarDatosCliente()) {
-      console.log("Registro de cliente exitoso. Proceder con AJAX.");
-    }
-  });
 
   function validarModificaciónCliente() {
     var nombre = $("#nombreModificar").val();
@@ -334,8 +359,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#apellidoModificar', '#texto_mensaje_apellido_modificar');
     }
 
-    if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-      mostrarValidacionSimple('#correoModificar', '#texto_mensaje_correo_modificar', 'Ingrese un correo válido.');
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      mostrarValidacionSimple('#correoModificar', '#texto_mensaje_correo_modificar', 'Ingrese un correo válido, máximo 45 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#correoModificar', '#texto_mensaje_correo_modificar');
@@ -396,8 +421,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#carga_familiarModificar', '#texto_mensaje_carga_familiar_modificar');
     }
 
-    if (!ocupacion || !ocupacion.trim()) {
-      mostrarValidacionSimple('#ocupacionModificar', '#texto_mensaje_ocupacion_modificar', 'Este campo no puede estar vacío.');
+    if (!ocupacion || ocupacion.trim().length < 5 || ocupacion.trim().length > 60) {
+      mostrarValidacionSimple('#ocupacionModificar', '#texto_mensaje_ocupacion_modificar', 'La ocupación debe tener entre 5 y 60 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#ocupacionModificar', '#texto_mensaje_ocupacion_modificar');
@@ -410,8 +435,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#ingresosModificar', '#texto_mensaje_ingresos_modificar');
     }
 
-    if (!direccion || direccion.trim().length < 10) {
-      mostrarValidacionSimple('#direccionModificar', '#texto_mensaje_direccion_modificar', 'La dirección debe tener al menos 10 caracteres.');
+    if (!direccion || direccion.trim().length < 5 || direccion.trim().length > 50) {
+      mostrarValidacionSimple('#direccionModificar', '#texto_mensaje_direccion_modificar', 'La dirección debe tener entre 5 y 50 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#direccionModificar', '#texto_mensaje_direccion_modificar');
@@ -425,18 +450,14 @@ $(document).ready(function () {
   bloquearLetrasEnNumeros('#telefonoModificar', '#texto_mensaje_telefono_modificar');
   bloquearLetrasEnNumeros('#carga_familiarModificar', '#texto_mensaje_carga_familiar_modificar');
   bloquearLetrasEnNumeros('#ingresosModificar', '#texto_mensaje_ingresos_modificar', true);
+  limitarLongitud('#telefonoModificar', 11);
+  limitarLongitud('#carga_familiarModificar', 2);
+  limitarNumeroDecimal('#ingresosModificar', 12);
 
   $("#nombreModificar, #apellidoModificar, #correoModificar, #sexoModificar, #operadoraModificar, #telefonoModificar, #tipo_residenciaModificar, #estado_civilModificar, #profesionModificar, #carga_familiarModificar, #ocupacionModificar, #ingresosModificar, #direccionModificar")
     .on("input change blur", function () {
       validarModificaciónCliente();
     });
-
-  $("#modificarDatos").on("click", function (event) {
-    event.preventDefault();
-    if (validarModificaciónCliente()) {
-      console.log("Modificación del cliente válida. Procesar datos.");
-    }
-  });
 
   function validarPerfilFinanciero() {
     var cedula = $("#cedulaPerfil").val();
@@ -487,8 +508,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#carga_familiarPerfil', '#texto_mensaje_carga_familiar_perfil');
     }
 
-    if (!ocupacion || !ocupacion.trim()) {
-      mostrarValidacionSimple('#ocupacionPerfil', '#texto_mensaje_ocupacion_perfil', 'Este campo no puede estar vacío.');
+    if (!ocupacion || ocupacion.trim().length < 5 || ocupacion.trim().length > 60) {
+      mostrarValidacionSimple('#ocupacionPerfil', '#texto_mensaje_ocupacion_perfil', 'La ocupación debe tener entre 5 y 60 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#ocupacionPerfil', '#texto_mensaje_ocupacion_perfil');
@@ -512,21 +533,15 @@ $(document).ready(function () {
 
   $("#ingreso_bs_perfil").on("input", function() {
     let bs = parseFloat($(this).val()) || 0;
-    let tasa = parseFloat($("#tasa_bcv_perfil").val()) || 60.00; 
-    $("#calc_usd_perfil").text(usd.toFixed(2));
-    $("#modalRegistroPerfilFinanciero #ingresos_mensuales").val(usd.toFixed(2));
+    let tasa = parseFloat($("#tasa_bcv_perfil").val()) || 1;
+    let usd = (bs / tasa).toFixed(2);
+    $("#calc_usd_perfil").text(usd);
+    $("#modalRegistroPerfilFinanciero #ingresos_mensuales").val(usd);
   });
 
   $("#tipo_residenciaPerfil, #estado_civilPerfil, #profesionPerfil, #carga_familiarPerfil, #ocupacionPerfil, #ingreso_bs_perfil")
     .on("input change blur", function () {
       validarPerfilFinanciero();
     });
-
-  $("#guardarPerfilFinanciero").on("click", function (event) {
-    event.preventDefault();
-    if (validarPerfilFinanciero()) {
-      console.log("Perfil financiero válido. Enviando datos.");
-    }
-  });
 
 });

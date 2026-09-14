@@ -168,7 +168,7 @@ $(document).ready(function () {
     $("#ingresos_mensuales").val(usd); 
   });
 
-  $("#guardarCliente").on("click", function () {
+  $("#guardarCliente").off("click.validacionCliente").on("click.validacionCliente", function () {
     if (validarDatos()) {
       alertas(
         "pregunta",
@@ -189,7 +189,7 @@ function registrar() {
     var direccion = $("#direccion").val();
     var correo = $("#correo").val();
     var sexo = $("#sexo").val();
-    var fecha = $("#fecha").val();
+    var fecha = $("#fecha_nacimiento").val();
     var ingresos_mensuales = $("#ingresos_mensuales").val();
     var tipo_residencia = $("#tipo_residencia").val();
     var profesion = $("#profesion").val();
@@ -303,14 +303,57 @@ function registrar() {
     limpiarEstilos();
   });
 
+  function validarFechaNacimientoCliente(fechaStr) {
+    const hoy = new Date();
+    const fechaNac = new Date(fechaStr + 'T00:00:00');
+
+    if (!fechaStr || isNaN(fechaNac.getTime())) {
+      return false;
+    }
+
+    let edad = hoy.getFullYear() - fechaNac.getFullYear();
+    const mes = hoy.getMonth() - fechaNac.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+      edad--;
+    }
+
+    return fechaNac <= hoy && edad >= 18;
+  }
+
   function validarDatos() {
-    var valid = true;
-    $("#formRegistroCliente [required]").each(function() {
-        if ($(this).val() === "" || $(this).val() === null) {
-            valid = false;
-        }
-    });
-    return valid;
+    const nombre = ($("#nombre").val() || "").trim();
+    const apellido = ($("#apellido").val() || "").trim();
+    const cedula = ($("#cedula").val() || "").trim();
+    const prefijo = ($("#prefijo").val() || "").trim();
+    const correo = ($("#correo").val() || "").trim();
+    const telefono = ($("#telefono").val() || "").trim();
+    const direccion = ($("#direccion").val() || "").trim();
+    const fecha = ($("#fecha_nacimiento").val() || "").trim();
+    const sexo = ($("#sexo").val() || "").trim();
+    const tipoResidencia = ($("#tipo_residencia").val() || "").trim();
+    const estadoCivil = ($("#estado_civil").val() || "").trim();
+    const profesion = ($("#profesion").val() || "").trim();
+    const cargaFamiliar = ($("#carga_familiar").val() || "").trim();
+    const ocupacion = ($("#ocupacion").val() || "").trim();
+    const ingresoBs = ($("#ingreso_bs").val() || "").trim();
+    const operadora = ($("#operadora").val() || "").trim();
+
+    if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+    if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
+    if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
+    if (!fecha || !validarFechaNacimientoCliente(fecha)) return false;
+    if (!sexo) return false;
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
+    if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
+    if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+    if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
+    if (!tipoResidencia || !estadoCivil || !profesion) return false;
+    if (cargaFamiliar === "" || isNaN(cargaFamiliar) || Number(cargaFamiliar) < 0 || Number(cargaFamiliar) > 20) return false;
+    if (!ocupacion || ocupacion.length < 5 || ocupacion.length > 60 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test(ocupacion)) return false;
+    if (!ingresoBs || !/^[0-9]+([.,][0-9]+)?$/.test(ingresoBs) || Number(ingresoBs.replace(",",".")) <= 0) return false;
+
+    return true;
   }
 
 
@@ -480,7 +523,7 @@ $("#btn_salir_ver, .btn-close").click(function () {
     });
   });
 
-  $("#modificarDatos").on("click", function () {
+  $("#modificarDatos").off("click.validacionModCliente").on("click.validacionModCliente", function () {
     if (validarDatosModificar()) {
       alertas(
         "pregunta",
@@ -489,7 +532,7 @@ $("#btn_salir_ver, .btn-close").click(function () {
         modificar
       );
     } else {
-      alertas("errorC", "Debes completar todos los campos.", "Lo Siento!");
+      alertas("errorC", "Debes completar todos los campos y cumplir con el formato solicitado.", "Lo Siento!");
     }
   });
 
@@ -526,17 +569,23 @@ $(document).on("input", "#ingreso_bs_perfil", function () {
     $("#ingresos_mensuales").val(usd);
 });
 
-$("#guardarPerfilFinanciero").on("click", function () {
+$("#guardarPerfilFinanciero").off("click.validacionPerfil").on("click.validacionPerfil", function () {
     var cedula = $("#cedulaPerfil").val();
-   
     var ingresosUsd = $("#calc_usd_perfil").text();
 
-    if (!cedula) {
-        alertas("error", "La cédula no está definida", "¡Error!");
+    if (!cedula || !/^[VE]-\d{7,9}$/.test(cedula)) {
+        alertas("error", "Debe asociar una cédula válida antes de guardar el perfil financiero.", "¡Error!");
         return;
     }
 
-    
+    if (!$("#tipo_residenciaPerfil").val() || !$("#estado_civilPerfil").val() || !$("#profesionPerfil").val() ||
+        !$("#carga_familiarPerfil").val() || !$("#ocupacionPerfil").val() || !$("#ingreso_bs_perfil").val() ||
+        Number($("#ingreso_bs_perfil").val()) <= 0 || !/^[0-9]+([.,][0-9]+)?$/.test($("#ingreso_bs_perfil").val().trim()) ||
+        !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test($("#ocupacionPerfil").val().trim())) {
+        alertas("warning", "Debes completar todos los campos y respetar el formato indicado.", "¡Lo Siento!");
+        return;
+    }
+
     var formData = $("#formRegistroPerfil").serializeArray();
     formData.push({ name: "ingresos_mensuales", value: ingresosUsd });
     formData.push({ name: "accion", value: "registrarPerfil" });
@@ -781,37 +830,34 @@ function modificar() {
 });
   //--------------------------------------------------------------------------------------------
   function validarDatosModificar() {
-    var nombre = $("#nombreModificar").val();
-    var apellido = $("#apellidoModificar").val();
-    var cedula = $("#cedulaModificar").val();
-    var correo = $("#correoModificar").val();
-    var telefono = $("#telefonoModificar").val();
-    var direccion = $("#direccionModificar").val();
-    var sexo = $("#sexoModificar").val();
-    var tipo_residencia = $("#tipo_residenciaModificar").val();
-    var estado_civil = $("#estado_civilModificar").val();
-    var profesion = $("#profesionModificar").val();
-    var carga_familiar = $("#carga_familiarModificar").val();
-    var ocupacion = $("#ocupacionModificar").val();
-    var ingresos_mensuales = $("#ingresosModificar").val();
+    const nombre = ($("#nombreModificar").val() || "").trim();
+    const apellido = ($("#apellidoModificar").val() || "").trim();
+    const cedula = ($("#cedulaModificar").val() || "").trim();
+    const correo = ($("#correoModificar").val() || "").trim();
+    const telefono = ($("#telefonoModificar").val() || "").trim();
+    const direccion = ($("#direccionModificar").val() || "").trim();
+    const sexo = ($("#sexoModificar").val() || "").trim();
+    const tipoResidencia = ($("#tipo_residenciaModificar").val() || "").trim();
+    const estadoCivil = ($("#estado_civilModificar").val() || "").trim();
+    const profesion = ($("#profesionModificar").val() || "").trim();
+    const cargaFamiliar = ($("#carga_familiarModificar").val() || "").trim();
+    const ocupacion = ($("#ocupacionModificar").val() || "").trim();
+    const ingresosMensuales = ($("#ingresosModificar").val() || "").trim();
+    const operadora = ($("#operadoraModificar").val() || "").trim();
 
-    if (
-        nombre === "" || 
-        apellido === "" || 
-        cedula === "" || 
-        correo === "" || 
-        telefono === "" || 
-        direccion === "" || 
-        sexo === "" || 
-        tipo_residencia === "" || 
-        estado_civil === "" || 
-        profesion === "" || 
-        carga_familiar === "" || 
-        ocupacion === "" || 
-        ingresos_mensuales === ""
-    ) {
-        return false;
-    }
+    if (!cedula || !/^[VE]-?[0-9]{7,9}$/.test(cedula.replace(/\s+/g, ''))) return false;
+    if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
+    if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
+    if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
+    if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+    if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
+    if (!sexo) return false;
+    if (!tipoResidencia || !estadoCivil || !profesion) return false;
+    if (cargaFamiliar === "" || isNaN(cargaFamiliar) || Number(cargaFamiliar) < 0 || Number(cargaFamiliar) > 20) return false;
+    if (!ocupacion || ocupacion.length < 5 || ocupacion.length > 60 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test(ocupacion)) return false;
+    if (!ingresosMensuales || !/^[0-9]+([.,][0-9]+)?$/.test(ingresosMensuales) || Number(ingresosMensuales.replace(",",".")) <= 0) return false;
+
     return true;
 }
 
