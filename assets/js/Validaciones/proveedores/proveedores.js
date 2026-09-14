@@ -21,24 +21,30 @@ $(document).ready(function () {
             columns: [
                 { data: "rif_proveedor" },
                 { data: "nombre_proveedor" },
-                { data: "telefono_proveedor" },
+                { data: "telefono_proveedor",},
                 {
                     data: null,
                     render: function (data, type, row) {
                         let b = '<div class="btn-group">';
                         
-                        b += '<button type="button" class="btn btn-info btn-sm btn_verProveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="bi bi-eye"></i></button>';
+                        b += '<button type="button" class="btn btn-info btn-sm btn_verProveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="bi bi-eye"></i></button>';
                         
                         if (permisos.control_total || permisos.modificar) {
-                            b += '<button type="button" class="btn btn-warning btn-sm btn_modificarProveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="fa-solid fa-pen-to-square"></i></button>';
+                            b += '<button type="button" class="btn btn-warning btn-sm btn_modificarProveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="fa-solid fa-pen-to-square"></i></button>';
                         }
                         
                         if (permisos.control_total || permisos.eliminar) {
-                            b += '<button type="button" class="btn btn-danger btn-sm btn-eliminar-proveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '"><i class="fa-solid fa-trash"></i></button>';
+                            b += '<button type="button" class="btn btn-danger btn-sm btn-eliminar-proveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '"><i class="fa-solid fa-trash"></i></button>';
                         }
                         
                         return b + '</div>';
                     }
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }

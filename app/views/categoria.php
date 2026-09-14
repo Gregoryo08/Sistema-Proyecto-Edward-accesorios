@@ -4,13 +4,13 @@
 <main class="main m-4" id="main">
     <section id="hero" class="hero section m-2" style="height: auto;">
 
-        <div>
-            <h2 class="text-center">Administrar Categorías del Sistema</h2>
+        <div class="w-75 mx-auto">
+            <h2 class="text-center" style="font-size: 45px;">Administrar Categorías</h2>
 
-            <div class="text-right">
+            <div class="text-end m-3">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal"
                     data-bs-target="#modalRegistroCategoria">
-                    Registrar Categoría
+                    <i class="bi bi-plus-circle"></i> Registrar Categoría
                 </button>
             </div>
 

@@ -83,8 +83,10 @@ $(document).ready(function () {
                 {
                     data: null,
                     render: function (data, type, row) {
-                        var color = row.estado == "activo" ? "rgb(14, 184, 37)" : "rgb(158, 3, 3)";
-                        return `<span class="interruptor" style="background: ${color};">${capitalizarPalabras(row.estado)}</span>`;
+                        let esActivo = (row.estado === 'activo');
+                        return esActivo 
+                            ? '<span class="badge bg-success">Activo</span>' 
+                            : '<span class="badge bg-danger">Inactivo</span>';
                     },
                 },
                 {
@@ -107,6 +109,12 @@ $(document).ready(function () {
             ],
             pageLength: 4,
             lengthMenu: [[4, 10, 25, 50, 100], [4, 10, 25, 50, 100]],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
             language: {
                 processing: "Procesando...",
                 search: "Buscar:",

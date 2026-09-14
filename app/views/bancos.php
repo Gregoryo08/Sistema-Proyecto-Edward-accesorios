@@ -7,9 +7,9 @@
         <div>
             <h2 class="text-center">Administrar Bancos</h2>
 
-            <div class="text-right">
+            <div class="text-end m-3">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalBancos">
-                    Registrar
+                    <i class="bi bi-bank"></i> Registrar banco
                 </button>
 
             </div>

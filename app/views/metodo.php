@@ -9,9 +9,9 @@ require_once("assets/comunes/menu.php")
         <div>
             <h2 class="text-center">Administrar Métodos De Pago</h2>
 
-            <div class="text-right">
+            <div class="text-end mb-3">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistroMetodopago" id="btn_registro_metodo" data-bs-backdrop="false">
-                    Registrar Método De Pago
+                    <i class="bi bi-plus-circle"></i> Registrar Método De Pago
                 </button>
             </div>
 

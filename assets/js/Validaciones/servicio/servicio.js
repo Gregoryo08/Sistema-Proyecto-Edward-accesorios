@@ -139,7 +139,13 @@ function inicializarTablaServicio() {
                     return `<div class="d-flex flex-wrap justify-content-center gap-2">${acciones.join('')}</div>`;
                 }
             }
-        ]
+        ],
+        columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ]
     });
 }
 

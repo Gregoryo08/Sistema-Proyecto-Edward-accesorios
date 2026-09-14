@@ -82,7 +82,12 @@ $(document).ready(function () {
             ],
             pageLength: 4,
             lengthMenu: [[4, 8, 12, 16], ["4", "8", "12", "16"]],
-            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
             language: {
                 "emptyTable": "No hay datos disponibles en la tabla",
                 "zeroRecords": "No se encontraron resultados",

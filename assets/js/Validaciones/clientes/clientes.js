@@ -84,7 +84,12 @@ $(document).ready(function () {
             ],
             pageLength: 4,
             lengthMenu: [[4, 8, 12, 16], ["4", "8", "12", "16"]],
-            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
             language: {
                 processing: "Procesando...",
                 search: "Buscar:",

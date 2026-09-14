@@ -64,8 +64,13 @@ $(document).ready(function () {
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
-                { data: "stock_actual" },
-                { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2) },
+                { data: "stock_actual",
+                    render: (d) => '<span class="badge bg-primary text-capitalize">' + d + '</span>'
+                    
+                 },
+                { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2),
+                    className: "text-success"
+                 },
                 {
                     data: "estado",
                     render: (d) => d == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'
@@ -89,6 +94,12 @@ $(document).ready(function () {
                         }
                         return b + '</div>';
                     }
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
