@@ -21,16 +21,7 @@
     color: #000 !important;
 }
 
-select.dt-input, .dt-length select {
-    background-color: #000910 !important;
-    color: #ffffff !important;
-    border-color: #334155 !important;
-}
 
-select.dt-input option, .dt-length select option {
-    background-color: #000910 !important;
-    color: #ffffff !important;
-}
 
 
 /* Botón Modificar / Warning en tablas */
