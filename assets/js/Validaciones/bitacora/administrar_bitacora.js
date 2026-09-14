@@ -130,6 +130,12 @@ function renderizarTabla(data) {
         pageLength: 16,
         lengthMenu: [[8, 16, 32], ["8", "16", "32"]],
         order: [[4, "desc"]],
+        columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
         language: {
             processing: "Procesando...",
             lengthMenu: "Mostrar _MENU_ registros",

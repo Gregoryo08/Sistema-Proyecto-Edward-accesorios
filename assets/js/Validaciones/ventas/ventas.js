@@ -229,7 +229,7 @@ $(document).ready(function () {
         subtotalDolarCalculado = Math.round(subtotalUSD * 100) / 100;
         let ivaUSD = Math.round((subtotalDolarCalculado * IVA_PORCENTAJE) * 100) / 100;
         totalDolarCalculado = Math.round((subtotalDolarCalculado + ivaUSD) * 100) / 100;
-        
+
         let subtotalBs = subtotalDolarCalculado * TASA_DOLAR;
         let ivaBs = ivaUSD * TASA_DOLAR;
         let totalBs = totalDolarCalculado * TASA_DOLAR;
@@ -269,7 +269,7 @@ $(document).ready(function () {
         } else {
             let vueltoDolar = Math.abs(restanteDolar);
             let vueltoBs = vueltoDolar * TASA_DOLAR;
-            
+
             $('#lblRestante').text("Vuelto").removeClass('text-warning').addClass('text-success');
             $('#mTotalRestante').text(`$${vueltoDolar.toFixed(2)}`).removeClass('text-warning').addClass('text-success');
             $('#mTotalRestanteBs').text(`${vueltoBs.toFixed(2)} bs`);
@@ -402,7 +402,7 @@ $(document).ready(function () {
         e.stopPropagation();
         let id = $(this).data('id');
         let cambio = parseInt($(this).data('cambio'));
-        
+
         let item = carrito.find(i => i.id == id);
         if (!item) return;
 
@@ -478,14 +478,14 @@ $(document).ready(function () {
 
     $(document).on('click', '#btnPagoExacto', function () {
         let totalDolar = totalDolarCalculado;
-        let abonadoDolar = 0;                  
+        let abonadoDolar = 0;
         listaPagosRegistrados.forEach(p => abonadoDolar += p.monto_dolar);
-        
+
         let pendienteDolar = Math.round((totalDolar - abonadoDolar) * 100) / 100;
         if (pendienteDolar <= 0) return;
 
         let moneda = $('select[name="paymentMethod[]"]').find(':selected').data('currency') || 'USD';
-        
+
         if (moneda === 'VES') {
             let pendienteBs = Math.round((pendienteDolar * TASA_DOLAR) * 100) / 100;
             $('#montoPagoInput').val(pendienteBs.toFixed(2).replace('.', ','));
@@ -656,17 +656,29 @@ $(document).ready(function () {
                     let modalPago = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
                     if (modalPago) modalPago.hide();
 
+                    let timerInterval;
                     Swal.fire({
-                        position: "center",
-                        icon: 'success',
-                        title: '¡Venta Realizada!',
-                        showConfirmButton: false,
-                        timer: 1500
+                        title: "Procesando!",
+                        timer: 1500,
+                        color: "#000910",
+                        background: "white",
+                        timerProgressBar: true,
+                        didOpen: () => { Swal.showLoading(); },
+                        willClose: () => { clearInterval(timerInterval); },
                     }).then(() => {
                         carrito = [];
                         actualizarCarritoUI();
                         clienteSeleccionado = null;
                         $('#selectedClientContainer').addClass('d-none');
+                        Swal.fire({
+                            title: "Exito!",
+                            text: "Venta realizada correctamente!",
+                            icon: "success",
+                            showConfirmButton: false,
+                            color: "black",
+                            background: "white",
+                            timer: 1000,
+                        });
                         obtenerCatalogo();
                     });
                 } else {

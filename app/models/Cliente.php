@@ -40,7 +40,7 @@ class Cliente extends Persona
         return $stmt->fetch(PDO::FETCH_ASSOC)["conteo"];
     }
 
-   public function datosClientesActivos()
+   public function datosClientes()
 {
    
     $sql = "SELECT p.cedula_persona, p.nombre, p.apellido, p.sexo, p.telefono, p.correo, p.fecha_nacimiento, p.direccion,
@@ -49,8 +49,7 @@ class Cliente extends Persona
                    pf.ocupacion, pf.ingresos_mensuales, pf.score_credito 
             FROM persona p
             INNER JOIN clientes c ON p.cedula_persona = c.cedula_persona
-            LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona
-            WHERE c.estado = 'activo' 
+            LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona 
             ORDER BY p.nombre ASC";
             
     return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
@@ -170,25 +169,6 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
             if ($this->inTransaction()) $this->rollBack();
             return ["error" => $e->getMessage()];
         }
-    }
-
-    public function consultaInactivos()
-    {
-        $sql = "SELECT p.cedula_persona, p.nombre, p.apellido, p.sexo, p.telefono, p.correo, p.fecha_nacimiento, p.direccion,
-                       c.estado, pf.tipo_residencia, pf.carga_familiar, pf.estado_civil, pf.profesion, 
-                       pf.ocupacion, pf.ingresos_mensuales, pf.score_credito 
-                FROM persona p 
-                INNER JOIN clientes c ON p.cedula_persona = c.cedula_persona 
-                LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona 
-                WHERE c.estado = 'inactivo' 
-                ORDER BY p.nombre ASC";
-
-        $stmt = $this->prepare($sql);
-        
-        if (!($stmt->execute())) {
-            return ["error" => "Error al cargar clientes inactivos!"];
-        }
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function consultarCliente()

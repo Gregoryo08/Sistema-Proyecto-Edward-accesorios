@@ -43,15 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['permisos'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true' && !(isset($_GET['x']))) {
     $cliente = new Cliente();
-    $resultado = $cliente->datosClientesActivos();
+    $resultado = $cliente->datosClientes();
     echo json_encode($resultado);
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true' && isset($_GET['x']) && $_GET['x'] === 'inactivos') {
-    $cliente = new Cliente();
-    $inactivos = $cliente->consultaInactivos();
-    echo json_encode($inactivos);
     exit();
 }
 

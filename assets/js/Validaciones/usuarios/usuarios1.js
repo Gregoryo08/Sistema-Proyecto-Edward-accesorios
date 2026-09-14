@@ -34,6 +34,12 @@ $(document).ready(function () {
                     else if (permisos.modificar && row.estatus === "Inactivo") btn += `<button type="button" class="btn btn-sm btn-success btn-habilitar m-2" title="Habilitar Usuario" data-id="${row.cedula_usuario}"><i class="bi bi-person-check"></i></button>`;
                     return btn + `</div>`;
                 }}
+            ],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
             ]
         });
     }

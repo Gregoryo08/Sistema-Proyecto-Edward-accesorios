@@ -43,6 +43,8 @@ $(document).ready(function() {
 
     $("#loginForm").on("submit", function (e) {
         e.preventDefault();
+        const $btn = $('#acceder');
+        $btn.text('Iniciando sesión...').prop('disabled', true);
 
         let recaptchaResponse = $(this).find('[name="g-recaptcha-response"]').val() || "";
         if (recaptchaResponse.length === 0) {
@@ -54,6 +56,7 @@ $(document).ready(function() {
                 color: "white",
                 confirmButtonColor: "rgb(238, 191, 0)"
             });
+            $btn.text('Ingresar').prop('disabled', false);
             return false;
         }
 
@@ -85,6 +88,7 @@ $(document).ready(function() {
                     }
 
                     mensaje(tipo, texto);
+                    $btn.text('Ingresar').prop('disabled', false);
 
                     if (typeof grecaptcha !== "undefined") {
                         grecaptcha.reset();
@@ -94,6 +98,7 @@ $(document).ready(function() {
             error: function (xhr) {
                 console.error("Respuesta del servidor:", xhr.responseText);
                 mensaje("error", "Error de comunicación con el servidor. Revise la consola.");
+                $btn.text('Ingresar').prop('disabled', false);
                 
                 if (typeof grecaptcha !== "undefined") {
                     grecaptcha.reset();
@@ -105,12 +110,19 @@ $(document).ready(function() {
     const $cedula = $('#cedula');
     const $btnValidar = $('#btnValidarCedula');
     const $formRegistro = $('#formRegistro');
-    const $todosInputs = $formRegistro.find('.input-box:not(:first-child)');
     
-    $todosInputs.not(':has(.g-recaptcha)').hide();
-    $todosInputs.not(':has(.g-recaptcha)').find('input, select').prop('disabled', true);
+    $formRegistro.find('.input-box').not('.cedula-group .input-box').hide();
+    $formRegistro.find('button[type="submit"]').hide();
 
     let esActivacion = false;
+
+    function reiniciarFormularioRegistro() {
+        $cedula.prop('readOnly', false);
+        $btnValidar.prop('disabled', false).text('Validar');
+        $formRegistro.find('.input-box').not('.cedula-group .input-box').hide();
+        $formRegistro.find('button[type="submit"]').hide();
+        $formRegistro[0].reset();
+    }
 
     $btnValidar.on('click', function() {
         const cedulaVal = $cedula.val().trim();
@@ -136,16 +148,16 @@ $(document).ready(function() {
                         text: response.msj,
                         confirmButtonText: 'Ir al Login'
                     }).then(() => {
-                        $('.login-link').click();
+                      
+                           window.location.reload();
+                       
                     });
                 } else if (response.status === 'SOLICITAR_TELEFONO') {
                     Swal.fire({
                         title: 'Verificación de seguridad',
                         text: 'Ingrese su número de teléfono asociado (Formato: ' + response.telefono_mascara + ')',
                         input: 'text',
-                        inputAttributes: {
-                            autocapitalize: 'off'
-                        },
+                        inputAttributes: { autocapitalize: 'off' },
                         showCancelButton: true,
                         confirmButtonText: 'Verificar',
                         cancelButtonText: 'Cancelar',
@@ -186,16 +198,13 @@ $(document).ready(function() {
                                 if (idInp === 'reg_pass' || idInp === 'conf_pass' || $box.find('.g-recaptcha').length > 0) {
                                     $box.show();
                                     $inp.prop('disabled', false);
-                                    if ($box.find('.g-recaptcha').length > 0 && typeof grecaptcha !== 'undefined') {
-                                        grecaptcha.reset();
-                                    }
                                 } else if (idInp !== 'cedula') {
                                     $box.hide();
                                     $inp.prop('disabled', true).prop('required', false);
                                 }
                             });
                             
-                            $formRegistro.find('button[type="submit"]').prop('disabled', false);
+                            $formRegistro.find('button[type="submit"]').show().prop('disabled', false);
                         }
                     });
                 } else if (response.status === 'NO_ENCONTRADO') {
@@ -210,11 +219,11 @@ $(document).ready(function() {
                     $btnValidar.prop('disabled', true);
                     
                     $formRegistro.find('.input-box').show();
-                    $todosInputs.find('input, select').prop('disabled', false);
+                    $formRegistro.find('.input-box').find('input, select').prop('disabled', false);
                     if (typeof grecaptcha !== 'undefined') {
                         grecaptcha.reset();
                     }
-                    $formRegistro.find('button[type="submit"]').prop('disabled', false);
+                    $formRegistro.find('button[type="submit"]').show().prop('disabled', false);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -235,6 +244,8 @@ $(document).ready(function() {
 
     $("#formRegistro").on("submit", function (e) {
         e.preventDefault();
+        const $btnReg = $(this).find('button[type="submit"]');
+        $btnReg.text('Registrando...').prop('disabled', true);
         
         let recaptchaResponse = $(this).find('[name="g-recaptcha-response"]').val() || "";
 
@@ -247,6 +258,7 @@ $(document).ready(function() {
                 color: "white",
                 confirmButtonColor: "rgb(238, 191, 0)"
             });
+            $btnReg.text('Registrarse').prop('disabled', false);
             return false;
         }
 
@@ -281,6 +293,7 @@ $(document).ready(function() {
                         background: "#000910",
                         color: "white"
                     });
+                    $btnReg.text('Registrarse').prop('disabled', false);
                     if (typeof grecaptcha !== 'undefined') {
                         grecaptcha.reset();
                     }
@@ -295,6 +308,7 @@ $(document).ready(function() {
                     background: "#000910",
                     color: "white"
                 });
+                $btnReg.text('Registrarse').prop('disabled', false);
                 if (typeof grecaptcha !== 'undefined') {
                     grecaptcha.reset();
                 }

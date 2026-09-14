@@ -64,11 +64,11 @@ $(document).ready(function () {
                             
                             if (esActivo) {
                                 botones += `<button type="button" class="btn btn-danger btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="inactivo">
-                                                <i class="fa-solid fa-trash-can" title="Inhabilitar"></i>
+                                                <i class="fa-solid fa-trash-can" title="Inhabilitar Empleado"></i>
                                             </button>`;
                             } else {
                                 botones += `<button type="button" class="btn btn-success btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="activo">
-                                                <i class="bi bi-person-check" title="Habilitar"></i>
+                                                <i class="bi bi-person-check" title="Habilitar Empleado"></i>
                                             </button>`;
                             }
                         }
@@ -82,7 +82,12 @@ $(document).ready(function () {
             ],
             pageLength: 4,
             lengthMenu: [[4, 8, 12, 16], ["4", "8", "12", "16"]],
-            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
             language: {
                 "emptyTable": "No hay datos disponibles en la tabla",
                 "zeroRecords": "No se encontraron resultados",

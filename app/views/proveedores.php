@@ -6,7 +6,7 @@
         <div class="container">
             <h2 class="text-center mb-4">Administrar Proveedores</h2>
 
-            <div class="text-start mb-3">
+            <div class="text-end mb-3">
                 <button type="button" class="btn btn-success" id="btn_nuevo_proveedor" data-bs-toggle="modal" data-bs-target="#modalRegistroProveedor">
                     <i class="bi bi-plus-circle"></i> Registrar Proveedor
                 </button>

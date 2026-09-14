@@ -64,8 +64,13 @@ $(document).ready(function () {
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
-                { data: "stock_actual" },
-                { data: "precio_detal", render: (d) => parseFloat(d).toFixed(2) },
+                { data: "stock_actual",
+                    render: (d) => '<span class="badge bg-primary text-capitalize">' + d + '</span>'
+                    
+                 },
+                { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2),
+                    className: "text-success"
+                 },
                 {
                     data: "estado",
                     render: (d) => d == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'
@@ -75,20 +80,26 @@ $(document).ready(function () {
                     render: function (data, type, row) {
                         let b = '<div class="btn-group">';
 
-                        b += `<button type="button" class="btn btn-info btn-sm btn_verDetalles" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-categoria="${row.nombre_categoria || ''}" data-marca="${row.nombre_marca || ''}" data-precio="${row.precio_detal}" data-sact="${row.stock_actual}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-estado="${row.estado}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-eye"></i></button>`;
+                        b += `<button type="button" class="btn btn-info btn-sm btn_verDetalles m-2" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-categoria="${row.nombre_categoria || ''}" data-marca="${row.nombre_marca || ''}" data-precio="${row.precio_detal}" data-sact="${row.stock_actual}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-estado="${row.estado}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-eye"></i></button>`;
 
                         if (row.imei) {
-                            b += `<button type="button" class="btn btn-white btn-sm btn_verTelefono" data-imei="${row.imei}" data-ram="${row.memoria_ram}" data-alm="${row.almacenamiento}"><i class="bi bi-phone"></i></button>`;
+                            b += `<button type="button" class="btn btn-white btn-sm btn_verTelefono m-2" data-imei="${row.imei}" data-ram="${row.memoria_ram}" data-alm="${row.almacenamiento}"><i class="bi bi-phone"></i></button>`;
                         }
                         
                         if (permisos.control_total || permisos.modificar) {
-                            b += `<button type="button" class="btn btn-warning btn-sm btn_modificarProducto" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-marca="${row.id_marca}" data-categoria="${row.id_categoria}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-sact="${row.stock_actual}" data-precio="${row.precio_detal}" data-imei="${row.imei || ''}" data-ram="${row.memoria_ram || ''}" data-alm="${row.almacenamiento || ''}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-pen-to-square"></i></button>`;
+                            b += `<button type="button" class="btn btn-warning btn-sm btn_modificarProducto m-2" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-marca="${row.id_marca}" data-categoria="${row.id_categoria}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-sact="${row.stock_actual}" data-precio="${row.precio_detal}" data-imei="${row.imei || ''}" data-ram="${row.memoria_ram || ''}" data-alm="${row.almacenamiento || ''}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-pen-to-square"></i></button>`;
                         }
                         if (permisos.control_total || permisos.eliminar) {
-                            b += `<button type="button" class="btn btn-danger btn-sm btn-eliminar-prod" data-id="${row.id_producto}"><i class="fa-solid fa-trash"></i></button>`;
+                            b += `<button type="button" class="btn btn-danger btn-sm btn-eliminar-prod m-2" data-id="${row.id_producto}"><i class="fa-solid fa-trash"></i></button>`;
                         }
                         return b + '</div>';
                     }
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }

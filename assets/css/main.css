@@ -21,16 +21,7 @@
     color: #000 !important;
 }
 
-select.dt-input, .dt-length select {
-    background-color: #000910 !important;
-    color: #ffffff !important;
-    border-color: #334155 !important;
-}
 
-select.dt-input option, .dt-length select option {
-    background-color: #000910 !important;
-    color: #ffffff !important;
-}
 
 
 /* Botón Modificar / Warning en tablas */
@@ -1197,8 +1188,6 @@ body.dark-mode #main {
 body.dark-mode .card,
 body.dark-mode .card-custom,
 body.dark-mode .container_notificacion,
-body.dark-mode section, 
-body.dark-mode .section,
 body.dark-mode .contenido_separado {
     background-color: #121212 !important;
     border-color: #333 !important;

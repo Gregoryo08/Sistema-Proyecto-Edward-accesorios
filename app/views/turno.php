@@ -2,17 +2,14 @@
 <?php require_once('assets/comunes/modal_turnos.php'); ?>
 
 <main class="main m-4" id="main">
-
     <section id="hero" class="hero section" style="height: auto;">
-        <div>
+        <div class="w-75 mx-auto">
             <h2 class="text-center">Administrar Turnos</h2>
-
-            <div class="text-right">
-                <button type="button" class="btn btn-success" id="btn_turno">
-                    Registrar Turno
+            <div class="text-end mb-3">
+                <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm" id="btn_turno">
+                    <i class="bi bi-plus-circle"></i> Registrar Turno
                 </button>
             </div>
-
             <div class="table-responsive">
                 <div class="table-container">
                     <table id="tablaTurnos" class="table table-striped table-bordered text-center">
@@ -26,7 +23,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr class="text-center">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -37,10 +34,8 @@
                     </table>
                 </div>
             </div>
-        </div>
-
+        </div>    
     </section>
-
 </main>
 
 <?php require_once('assets/comunes/footer.php'); ?>
@@ -56,8 +51,3 @@
 </body>
 
 </html>
-<style>
-    #btn_turno {
-    display: block !important;
-}
-</style>

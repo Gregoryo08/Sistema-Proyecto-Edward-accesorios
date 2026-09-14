@@ -62,6 +62,12 @@ $(document).ready(function () {
                     },
                 },
             ],
+            columnDefs: [
+                {
+                    targets: "_all",
+                    className: "text-center align-middle"
+                }
+            ],
             language: {
                 search: "Buscar:",
                 lengthMenu: "Mostrar _MENU_ registros",

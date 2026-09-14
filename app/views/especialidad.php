@@ -3,14 +3,12 @@
 
 <main class="main m-4" id="main">
     <section id="hero" class="hero section m-2" style="height: auto;">
-
-        <div class="container-fluid">
-            <h2 class="text-center">Administrar Especialidades del Sistema</h2>
-
-            <div class="text-right">
+        <h2 class="text-center" style="font-size: 40px;">Administrar Especialidades</h2>
+         <div class="w-75 mx-auto">
+            <div class="text-end m-3">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                    data-bs-target="#modalRegistroEspecialidad" style="display: none;">
-                    Registrar Especialidad
+                    data-bs-target="#modalRegistroEspecialidad">
+                    <i class="bi bi-plus-circle"></i> Registrar Especialidad
                 </button>
             </div>
 
@@ -27,8 +25,7 @@
                     </table>
                 </div>
             </div>
-        </div>
-
+        </div>   
     </section>
 </main>
 
