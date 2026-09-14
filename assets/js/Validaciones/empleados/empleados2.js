@@ -34,10 +34,10 @@ $(document).ready(function () {
     }
   }
 
-  // Helper para validar si la fecha corresponde a un mayor de 18 años
+  
   function esMayorDeEdad(fechaStr) {
     const hoy = new Date();
-    const fechaNac = new Date(fechaStr + 'T00:00:00'); // Evita desfasajes por zona horaria
+    const fechaNac = new Date(fechaStr + 'T00:00:00'); 
     
     if (isNaN(fechaNac.getTime())) return false;
 
@@ -52,6 +52,19 @@ $(document).ready(function () {
       esMayor: edad >= 18,
       esFutura: fechaNac > hoy
     };
+  }
+
+  function limitarTexto(selector, patron, maximo) {
+    $(selector).on('input', function () {
+      const valor = $(this).val();
+      $(this).val(valor.replace(patron, '').slice(0, maximo));
+    });
+  }
+
+  function limitarLongitud(selector, maximo) {
+    $(selector).on('input', function () {
+      $(this).val($(this).val().slice(0, maximo));
+    });
   }
 
   function bloquearNumerosEnTexto(selector, mensajeSelector) {
@@ -121,8 +134,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#prefijo', '#texto_mensaje_cedula');
     }
 
-    if (!cedula || !/^[0-9]{7,9}$/.test(cedula)) {
-      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener entre 7 y 9 dígitos.');
+    if (!cedula || !/^[0-9]{1,9}$/.test(cedula) || cedula.length > 9) {
+      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener máximo 9 dígitos.');
       valido = false;
     } else {
       limpiarValidacionSimple('#cedula', '#texto_mensaje_cedula');
@@ -131,8 +144,8 @@ $(document).ready(function () {
     if (!nombre || !nombre.trim()) {
       mostrarValidacionSimple('#nombre', '#texto_mensaje_nombre', 'Este campo no puede estar vacío.');
       valido = false;
-    } else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre.trim())) {
-      mostrarValidacionSimple('#nombre', '#texto_mensaje_nombre', 'Este campo no acepta números.');
+    } else if (nombre.trim().length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre.trim())) {
+      mostrarValidacionSimple('#nombre', '#texto_mensaje_nombre', 'El nombre solo debe tener letras y espacios, máximo 35 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#nombre', '#texto_mensaje_nombre');
@@ -141,14 +154,13 @@ $(document).ready(function () {
     if (!apellido || !apellido.trim()) {
       mostrarValidacionSimple('#apellido', '#texto_mensaje_apellido', 'Este campo no puede estar vacío.');
       valido = false;
-    } else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido.trim())) {
-      mostrarValidacionSimple('#apellido', '#texto_mensaje_apellido', 'Este campo no acepta números.');
+    } else if (apellido.trim().length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido.trim())) {
+      mostrarValidacionSimple('#apellido', '#texto_mensaje_apellido', 'El apellido solo debe tener letras y espacios, máximo 35 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#apellido', '#texto_mensaje_apellido');
     }
 
-    // Validación de Fecha de Nacimiento (Edad mínima: 18 años)
     if (!fecha) {
       mostrarValidacionSimple('#fecha_nacimiento', '#texto_mensaje_fecha_nacimiento', 'Debes seleccionar la fecha de nacimiento.');
       valido = false;
@@ -172,8 +184,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#sexo', '#texto_mensaje_sexo');
     }
 
-    if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-      mostrarValidacionSimple('#correo', '#texto_mensaje_correo', 'Ingrese un correo válido, ejemplo: correo@gmail.com');
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      mostrarValidacionSimple('#correo', '#texto_mensaje_correo', 'Ingrese un correo válido, máximo 45 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#correo', '#texto_mensaje_correo');
@@ -189,15 +201,15 @@ $(document).ready(function () {
     if (!telefono || !telefono.trim()) {
       mostrarValidacionSimple('#telefono', '#texto_mensaje_telefono', 'Este campo no puede estar vacío.');
       valido = false;
-    } else if (!/^[0-9]{6,7}$/.test(telefono)) {
-      mostrarValidacionSimple('#telefono', '#texto_mensaje_telefono', 'Este campo no acepta letras.');
+    } else if (!/^[0-9]{1,11}$/.test(telefono) || telefono.length > 11) {
+      mostrarValidacionSimple('#telefono', '#texto_mensaje_telefono', 'El teléfono debe tener máximo 11 dígitos.');
       valido = false;
     } else {
       limpiarValidacionSimple('#telefono', '#texto_mensaje_telefono');
     }
 
-    if (!direccion || direccion.trim().length < 10) {
-      mostrarValidacionSimple('#direccion', '#texto_mensaje_direccion', 'La dirección debe tener al menos 10 caracteres.');
+    if (!direccion || direccion.trim().length < 5 || direccion.trim().length > 50) {
+      mostrarValidacionSimple('#direccion', '#texto_mensaje_direccion', 'La dirección debe tener entre 5 y 50 caracteres.');
       valido = false;
     } else {
       limpiarValidacionSimple('#direccion', '#texto_mensaje_direccion');
@@ -218,12 +230,12 @@ $(document).ready(function () {
     var valido = true;
 
     var campos = [
-      { campo: '#nombreModificar', mensaje: '#texto_mensaje_nombre_modificar', regla: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/ },
-      { campo: '#apellidoModificar', mensaje: '#texto_mensaje_apellido_modificar', regla: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/ },
-      { campo: '#correoModificar', mensaje: '#texto_mensaje_correo_modificar', regla: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
-      { campo: '#telefonoModificar', mensaje: '#texto_mensaje_telefono_modificar', regla: /^[0-9]{6,7}$/ },
-      { campo: '#direccionModificar', mensaje: '#texto_mensaje_direccion_modificar', regla: /^.{10,}$/ },
-      { campo: '#cargoModificar', mensaje: '#texto_mensaje_cargo_modificar', regla: /^.+$/ }
+      { campo: '#nombreModificar', mensaje: '#texto_mensaje_nombre_modificar', regla: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, max: 35 },
+      { campo: '#apellidoModificar', mensaje: '#texto_mensaje_apellido_modificar', regla: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, max: 35 },
+      { campo: '#correoModificar', mensaje: '#texto_mensaje_correo_modificar', regla: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, max: 45 },
+      { campo: '#telefonoModificar', mensaje: '#texto_mensaje_telefono_modificar', regla: /^[0-9]+$/, max: 11 },
+      { campo: '#direccionModificar', mensaje: '#texto_mensaje_direccion_modificar', regla: /^.{1,}$/ , max: 50 },
+      { campo: '#cargoModificar', mensaje: '#texto_mensaje_cargo_modificar', regla: /^.+$/, max: 100 }
     ];
 
     campos.forEach(function (item) {
@@ -235,17 +247,19 @@ $(document).ready(function () {
       hayAlgoEscrito = true;
       const valorLimpio = String(valor).trim();
 
-      if (!item.regla.test(valorLimpio)) {
+      if (valorLimpio.length > item.max || !item.regla.test(valorLimpio)) {
         let mensaje = 'Este campo no puede estar vacío.';
 
         if (item.campo === '#telefonoModificar') {
-          mensaje = 'Este campo no acepta letras.';
+          mensaje = 'El teléfono debe tener máximo 11 dígitos.';
         } else if (item.campo === '#correoModificar') {
-          mensaje = 'Ingrese un correo válido, ejemplo: correo@gmail.com';
+          mensaje = 'Ingrese un correo válido, máximo 45 caracteres.';
         } else if (item.campo === '#nombreModificar' || item.campo === '#apellidoModificar') {
-          mensaje = 'Este campo no acepta números.';
+          mensaje = 'El nombre y apellido solo deben tener letras y espacios, máximo 35 caracteres.';
         } else if (item.campo === '#direccionModificar') {
-          mensaje = 'La dirección debe tener al menos 10 caracteres.';
+          mensaje = 'La dirección debe tener entre 5 y 50 caracteres.';
+        } else if (item.campo === '#cargoModificar') {
+          mensaje = 'Debes seleccionar un cargo.';
         }
 
         mostrarValidacionSimple(item.campo, item.mensaje, mensaje);
@@ -260,15 +274,36 @@ $(document).ready(function () {
     if (!nombre || !nombre.trim()) {
       mostrarValidacionSimple('#nombreModificar', '#texto_mensaje_nombre_modificar', 'Este campo no puede estar vacío.');
       valido = false;
+    } else if (nombre.trim().length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre.trim())) {
+      mostrarValidacionSimple('#nombreModificar', '#texto_mensaje_nombre_modificar', 'El nombre solo debe tener letras y espacios, máximo 35 caracteres.');
+      valido = false;
     }
 
     if (!apellido || !apellido.trim()) {
       mostrarValidacionSimple('#apellidoModificar', '#texto_mensaje_apellido_modificar', 'Este campo no puede estar vacío.');
       valido = false;
+    } else if (apellido.trim().length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido.trim())) {
+      mostrarValidacionSimple('#apellidoModificar', '#texto_mensaje_apellido_modificar', 'El apellido solo debe tener letras y espacios, máximo 35 caracteres.');
+      valido = false;
     }
 
-    if (!direccion || !direccion.trim()) {
-      mostrarValidacionSimple('#direccionModificar', '#texto_mensaje_direccion_modificar', 'Este campo no puede estar vacío.');
+    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      mostrarValidacionSimple('#correoModificar', '#texto_mensaje_correo_modificar', 'Ingrese un correo válido, máximo 45 caracteres.');
+      valido = false;
+    }
+
+    if (!telefono || !/^[0-9]+$/.test(telefono) || telefono.length > 11) {
+      mostrarValidacionSimple('#telefonoModificar', '#texto_mensaje_telefono_modificar', 'El teléfono debe tener máximo 11 dígitos.');
+      valido = false;
+    }
+
+    if (!direccion || direccion.trim().length < 5 || direccion.trim().length > 50) {
+      mostrarValidacionSimple('#direccionModificar', '#texto_mensaje_direccion_modificar', 'La dirección debe tener entre 5 y 50 caracteres.');
+      valido = false;
+    }
+
+    if (!cargo) {
+      mostrarValidacionSimple('#cargoModificar', '#texto_mensaje_cargo_modificar', 'Debes seleccionar un cargo.');
       valido = false;
     }
 
@@ -332,6 +367,12 @@ $(document).ready(function () {
     $("#texto_mensaje_cedula").css("display", "none").text("");
     $("#cedula").css("border", "1px solid #ced4da").css("box-shadow", "none");
   });
+
+  limitarTexto('#nombre, #apellido, #nombreModificar, #apellidoModificar', /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, 35);
+  limitarLongitud('#cedula, #cedulaModificar', 9);
+  limitarLongitud('#telefono, #telefonoModificar', 11);
+  limitarLongitud('#correo, #correoModificar', 45);
+  limitarLongitud('#direccion, #direccionModificar', 50);
 
   bloquearNumerosEnTexto('#nombre', '#texto_mensaje_nombre');
   bloquearNumerosEnTexto('#apellido', '#texto_mensaje_apellido');

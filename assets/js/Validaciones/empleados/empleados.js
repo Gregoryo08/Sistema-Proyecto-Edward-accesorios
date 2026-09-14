@@ -482,16 +482,76 @@ $(document).ready(function () {
         });
     }
 
+    function validarFechaNacimientoEmpleado(fechaStr) {
+        const hoy = new Date();
+        const fechaNac = new Date(fechaStr + 'T00:00:00');
+
+        if (!fechaStr || isNaN(fechaNac.getTime())) {
+            return false;
+        }
+
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+        }
+
+        return fechaNac <= hoy && edad >= 18;
+    }
+
     function validarDatos() {
-        return $("#cedula").val() && $("#prefijo").val() && $("#nombre").val() && 
-               $("#apellido").val() && $("#correo").val() && $("#telefono").val() && 
-               $("#operadora").val() && $("#direccion").val() && $("#cargo").val();
+        const cedula = ($("#cedula").val() || "").trim();
+        const prefijo = ($("#prefijo").val() || "").trim();
+        const nombre = ($("#nombre").val() || "").trim();
+        const apellido = ($("#apellido").val() || "").trim();
+        const correo = ($("#correo").val() || "").trim();
+        const telefono = ($("#telefono").val() || "").trim();
+        const operadora = ($("#operadora").val() || "").trim();
+        const direccion = ($("#direccion").val() || "").trim();
+        const cargo = ($("#cargo").val() || "").trim();
+        const fecha = ($("#fecha_nacimiento").val() || "").trim();
+        const sexo = ($("#sexo").val() || "").trim();
+
+        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+        if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
+        if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
+        if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
+        if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
+        if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+        if (!direccion || direccion.length < 10 || direccion.length > 80) return false;
+        if (!cargo) return false;
+        if (!fecha || !validarFechaNacimientoEmpleado(fecha)) return false;
+        if (!sexo) return false;
+
+        return true;
     }
 
     function validarDatosModificar() {
-        return $("#cedulaModificar").val() && $("#prefijoModificar").val() && $("#nombreModificar").val() && 
-               $("#apellidoModificar").val() && $("#correoModificar").val() && $("#telefonoModificar").val() && 
-               $("#operadoraModificar").val() && $("#direccionModificar").val() && $("#cargoModificar").val();
+        const cedula = ($("#cedulaModificar").val() || "").trim();
+        const prefijo = ($("#prefijoModificar").val() || "").trim();
+        const nombre = ($("#nombreModificar").val() || "").trim();
+        const apellido = ($("#apellidoModificar").val() || "").trim();
+        const correo = ($("#correoModificar").val() || "").trim();
+        const telefono = ($("#telefonoModificar").val() || "").trim();
+        const operadora = ($("#operadoraModificar").val() || "").trim();
+        const direccion = ($("#direccionModificar").val() || "").trim();
+        const cargo = ($("#cargoModificar").val() || "").trim();
+        const fecha = (($("#fecha_nacimiento_real").val() || $("#fechaNacimientoModificar").val()) || "").trim();
+        const sexo = ($("#sexoModificar").val() || "").trim();
+
+        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+        if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
+        if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
+        if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
+        if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
+        if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+        if (!direccion || direccion.length < 10 || direccion.length > 80) return false;
+        if (!cargo) return false;
+        if (!fecha || !validarFechaNacimientoEmpleado(fecha)) return false;
+        if (!sexo) return false;
+
+        return true;
     }
 
     function alertas(accion, texto, titulo, funcion, dato) {
