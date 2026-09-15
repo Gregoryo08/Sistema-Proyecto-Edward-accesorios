@@ -65,7 +65,7 @@ $(document).ready(function () {
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
                 { data: "stock_actual",
-                    render: (d) => '<span class="badge bg-primary text-capitalize">' + d + '</span>'
+                    render: (d) => d <= 3 ? '<span class="badge bg-warning text-capitalize" title="Advertencia poco stock">' + d + '</span>' : '<span class="badge bg-primary text-capitalize">' + d + '</span>'
                     
                  },
                 { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2),
