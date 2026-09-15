@@ -827,7 +827,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "error") {
@@ -837,7 +837,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "warning") {
@@ -847,7 +847,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "pregunta") {
@@ -857,8 +857,8 @@ function modificar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
-        confirmButtonBorder: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
+        confirmButtonBorder: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -875,8 +875,8 @@ function modificar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
-        confirmButtonBorder: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
+        confirmButtonBorder: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -893,7 +893,7 @@ function modificar() {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 1500,
       });

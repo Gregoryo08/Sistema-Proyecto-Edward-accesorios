@@ -323,7 +323,7 @@ $(document).ready(function () {
         });
     }
 
-    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" });
+    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "#2C74B3" });
 
     function showProcessingAlert() {
         Swal.fire({ title: "Procesando!", timerProgressBar: true, didOpen: () => { Swal.showLoading(); }, background: "#000910", color: "white", allowOutsideClick: false });

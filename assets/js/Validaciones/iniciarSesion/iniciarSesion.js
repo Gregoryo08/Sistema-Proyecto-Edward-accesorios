@@ -30,7 +30,7 @@ $(document).ready(function() {
             icon: accion === "notFound" ? "warning" : "error",
             background: "#000910",
             color: "white",
-            confirmButtonColor: "rgb(238, 191, 0)"
+            confirmButtonColor: "#2C74B3"
         });
         
         if (accion === "notFound") {
@@ -54,7 +54,7 @@ $(document).ready(function() {
                 icon: "warning",
                 background: "#000910",
                 color: "white",
-                confirmButtonColor: "rgb(238, 191, 0)"
+                confirmButtonColor: "#2C74B3"
             });
             $btn.text('Ingresar').prop('disabled', false);
             return false;
@@ -256,7 +256,7 @@ $(document).ready(function() {
                 icon: "warning",
                 background: "#000910",
                 color: "white",
-                confirmButtonColor: "rgb(238, 191, 0)"
+                confirmButtonColor: "#2C74B3"
             });
             $btnReg.text('Registrarse').prop('disabled', false);
             return false;

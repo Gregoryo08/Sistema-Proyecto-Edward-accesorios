@@ -251,7 +251,7 @@ $(document).ready(function () {
   }
 
   function mensaje(accion, texto, funcion) {
-    let config = { color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" };
+    let config = { color: "white", background: "#000910", confirmButtonColor: "#2C74B3" };
 
     if (accion == "yaExiste") {
       Swal.fire({ ...config, title: "Atención", text: texto, icon: "warning" });

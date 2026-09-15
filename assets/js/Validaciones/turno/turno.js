@@ -33,7 +33,7 @@ function mensaje(accion, mensajeTexto, funcion = null) {
     const baseOptions = {
         color: "white",
         background: "#000910",
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
     };
 
     if (accion === "error" || accion === "invalido") {

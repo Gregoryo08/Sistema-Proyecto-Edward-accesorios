@@ -243,7 +243,7 @@ $(document).ready(function() {
             text: "Confirma para agregar este nuevo menú.",
             icon: "question",
             showCancelButton: true,
-            confirmButtonColor: "rgb(238, 191, 0)",
+            confirmButtonColor: "#2C74B3",
             cancelButtonColor: "#d33",
             confirmButtonText: "Sí, registrar",
             cancelButtonText: "Cancelar",
@@ -381,7 +381,7 @@ $(document).ready(function() {
             text: "Confirma para actualizar este menú.",
             icon: "question",
             showCancelButton: true,
-            confirmButtonColor: "rgb(238, 191, 0)",
+            confirmButtonColor: "#2C74B3",
             cancelButtonColor: "#d33",
             confirmButtonText: "Sí, guardar cambios",
             cancelButtonText: "Cancelar",
@@ -449,7 +449,7 @@ $(document).ready(function() {
             text: "Confirma para eliminar este menú permanentemente. Esta acción no se puede deshacer.",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "rgb(238, 191, 0)",
+            confirmButtonColor: "#2C74B3",
             cancelButtonColor: "#d33",
             confirmButtonText: "Sí, eliminar",
             cancelButtonText: "Cancelar",
@@ -499,7 +499,7 @@ $(document).ready(function() {
     function mensaje(accion, message = "") {
         let config = {
             color: "white",
-            confirmButtonColor: "rgb(238, 191, 0)",
+            confirmButtonColor: "#2C74B3",
             background: "#000910",
             customClass: {
                 popup: 'my-swal-popup',
