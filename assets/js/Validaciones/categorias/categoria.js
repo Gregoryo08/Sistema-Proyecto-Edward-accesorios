@@ -284,7 +284,7 @@ $(document).ready(function () {
 
   
   function mensaje(accion, mensaje, funcion, title) {
-    const colorPrimario = "rgb(238, 191, 0)"; 
+    const colorPrimario = "#2C74B3"; 
     const fondoOscuro = "#000910";
 
     const configBase = {

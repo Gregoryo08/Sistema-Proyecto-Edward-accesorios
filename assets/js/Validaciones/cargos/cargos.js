@@ -326,7 +326,7 @@ $(document).ready(function () {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "warning") {
@@ -336,7 +336,7 @@ $(document).ready(function () {
         icon: "warning",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 2000,
       });
@@ -347,7 +347,7 @@ $(document).ready(function () {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "pregunta") {
@@ -357,7 +357,7 @@ $(document).ready(function () {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -374,7 +374,7 @@ $(document).ready(function () {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -391,7 +391,7 @@ $(document).ready(function () {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 1500,
       });

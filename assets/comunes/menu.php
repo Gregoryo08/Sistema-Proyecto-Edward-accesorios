@@ -63,22 +63,22 @@
                     <i class="bi bi-moon-fill" id="theme-icon"></i>
                 </button>
 
-                <button class="btn-sm btn-tasa bg-white border rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 40px; height: 40px;">
-                    <i class="bi bi-currency-dollar text-success" id="tasa-dolar" style="font-size: 1.25rem;"></i>
+                <button class="btn-tasa border rounded-circle">
+                    <i class="bi bi-currency-dollar" id="tasa-dolar" style="font-size: 1.25rem;"></i>
                 </button>
             <div id="tasa-tooltip" class="tasa-tooltip p-2" style="display: none; pointer-events: auto !important; z-index: 9999; position: absolute;">
-    <div class="d-flex flex-column align-items-center text-center gap-1">
-        <span class="text-success fw-bold" style="font-size: 0.75rem;">TASA BCV</span>
-        <span id="tasa-valor" class="fw-bold fs-6 text-dark">0.00 Bs.</span>
-        <span class="text-muted" style="font-size: 0.75rem;">
-            Última Actualización:<br>
-            <span id="tasa-fecha" class="fw-bold text-dark">--/--/----</span>
-        </span>
-        <button class="btn btn-sm btn-outline-primary mt-2" style="cursor: pointer; pointer-events: auto !important;" data-bs-toggle="modal" data-bs-target="#modalEditarTasa">
-            Editar Tasa
-        </button>
-    </div>
-</div>
+                <div class="d-flex flex-column align-items-center text-center gap-1">
+                    <span class="text-success fw-bold" style="font-size: 0.75rem;">TASA BCV</span>
+                    <span id="tasa-valor" class="fw-bold fs-6 text-dark">0.00 Bs.</span>
+                    <span class="text-muted" style="font-size: 0.75rem;">
+                        Última Actualización:<br>
+                        <span id="tasa-fecha" class="fw-bold text-dark">--/--/----</span>
+                    </span>
+                    <button class="btn btn-sm btn-outline-primary mt-2" style="cursor: pointer; pointer-events: auto !important;" data-bs-toggle="modal" data-bs-target="#modalEditarTasa">
+                        Editar Tasa
+                    </button>
+                </div>
+            </div>
 
 <div class="modal fade" id="modalEditarTasa" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm">

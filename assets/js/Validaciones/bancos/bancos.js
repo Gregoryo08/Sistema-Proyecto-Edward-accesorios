@@ -271,7 +271,7 @@ $(document).ready(function () {
     }
 
     function mensaje(accion, texto, funcion) {
-        const configBase = { color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" };
+        const configBase = { color: "white", background: "#000910", confirmButtonColor: "#2C74B3" };
         if (accion == "success") {
             Swal.fire({ ...configBase, title: "¡Listo!", text: "Proceso Ejecutado con Éxito!", icon: "success", timer: 1500, showConfirmButton: false });
         } else if (accion == "errorC") {

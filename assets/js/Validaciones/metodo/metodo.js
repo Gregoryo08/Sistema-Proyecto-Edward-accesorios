@@ -225,7 +225,7 @@ $(document).ready(function () {
     const commonSwalMixin = Swal.mixin({
         color: "white",
         background: "#000910",
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
     });
 
     function showProcessingAlert() {

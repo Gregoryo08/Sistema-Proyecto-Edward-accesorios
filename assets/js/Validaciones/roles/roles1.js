@@ -1004,7 +1004,7 @@ function eliminar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "warning") {
@@ -1014,7 +1014,7 @@ function eliminar() {
         icon: "warning",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 2000,
       });
@@ -1025,7 +1025,7 @@ function eliminar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "pregunta") {
@@ -1035,8 +1035,8 @@ function eliminar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
-        confirmButtonBorder: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
+        confirmButtonBorder: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -1053,8 +1053,8 @@ function eliminar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
-        confirmButtonBorder: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
+        confirmButtonBorder: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -1072,7 +1072,7 @@ function eliminar() {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 1500,
       });

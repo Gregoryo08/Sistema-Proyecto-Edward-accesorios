@@ -458,7 +458,7 @@ $(document).ready(function () {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "error") {
@@ -468,7 +468,7 @@ $(document).ready(function () {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "invalido") {
@@ -478,7 +478,7 @@ $(document).ready(function () {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
       });
     } else if (accion == "success") {
@@ -487,7 +487,7 @@ $(document).ready(function () {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 1500,
       });
@@ -498,8 +498,8 @@ $(document).ready(function () {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "rgb(238, 191, 0)",
-        confirmButtonBorder: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
+        confirmButtonBorder: "#2C74B3",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -516,7 +516,7 @@ $(document).ready(function () {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonColor: "#2C74B3",
         background: "#000910",
         timer: 1500,
       });

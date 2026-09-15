@@ -122,7 +122,7 @@ $(document).ready(function () {
             icon: accion === "notFound" ? "warning" : "error",
             background: "#000910",
             color: "white",
-            confirmButtonColor: "rgb(238, 191, 0)"
+            confirmButtonColor: "#2C74B3"
         });
     }
 });

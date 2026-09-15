@@ -70,7 +70,7 @@ $(document).ready(function () {
     }
 
     function mensaje(accion, mensaje, funcion, title) {
-        const configBase = { color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" };
+        const configBase = { color: "white", background: "#000910", confirmButtonColor: "#2C74B3" };
         if (accion == "pregunta") {
             Swal.fire({ ...configBase, title: mensaje, icon: "question", showCancelButton: true })
             .then((result) => { if (result.isConfirmed && funcion) funcion(); });
