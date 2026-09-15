@@ -36,7 +36,7 @@ class proveedores extends Conexion
 
     public function registrar()
     {
-        // Validaciones de campos
+
         if (empty($this->rif_proveedor)) {
             return ["error" => "El Rif del proveedor es obligatorio."];
         }
@@ -47,11 +47,8 @@ class proveedores extends Conexion
         if (empty($this->nombre_proveedor)) {
             return ["error" => "El nombre del proveedor es obligatorio."];
         }
-        if (!is_string($this->nombre_proveedor)) {
-            return ["error" => "El nombre debe ser solo texto."];
-        }
-        if (strlen($this->nombre_proveedor) < 1 || strlen($this->nombre_proveedor) > 50) {
-            return ["error" => "El nombre debe tener entre 1 y 50 caracteres."];
+        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,35}$/u', $this->nombre_proveedor)) {
+            return ["error" => "El nombre debe contener solo letras y espacios, máximo 35 caracteres."];
         }
 
         if (empty($this->telefono_proveedor)) {
@@ -64,15 +61,14 @@ class proveedores extends Conexion
         if (empty($this->correo_proveedor)) {
             return ["error" => "El correo electrónico es obligatorio."];
         }
-        if (!filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
+        if (strlen($this->correo_proveedor) > 45 || !filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
             return ["error" => "El correo electrónico no es válido."];
         }
 
-        if (empty($this->ubicacion_proveedor)) {
-            return ["error" => "La ubicación del proveedor es obligatoria."];
+        if (strlen($this->ubicacion_proveedor) < 5 || strlen($this->ubicacion_proveedor) > 50) {
+            return ["error" => "La dirección debe tener entre 5 y 50 caracteres."];
         }
 
-        // Verificar RIF duplicado
         if ($this->existeRif($this->rif_proveedor)) {
             return ["error" => "Ya existe un proveedor con este Rif."];
         }
@@ -108,7 +104,7 @@ class proveedores extends Conexion
 
     public function modificar()
     {
-        // Validaciones de campos
+
         if (empty($this->rif_proveedor)) {
             return ["error" => "El Rif del proveedor es obligatorio."];
         }
@@ -119,11 +115,8 @@ class proveedores extends Conexion
         if (empty($this->nombre_proveedor)) {
             return ["error" => "El nombre del proveedor es obligatorio."];
         }
-        if (!is_string($this->nombre_proveedor)) {
-            return ["error" => "El nombre debe ser solo texto."];
-        }
-        if (strlen($this->nombre_proveedor) < 1 || strlen($this->nombre_proveedor) > 50) {
-            return ["error" => "El nombre debe tener entre 1 y 50 caracteres."];
+        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,35}$/u', $this->nombre_proveedor)) {
+            return ["error" => "El nombre debe contener solo letras y espacios, máximo 35 caracteres."];
         }
 
         if (empty($this->telefono_proveedor)) {
@@ -136,12 +129,12 @@ class proveedores extends Conexion
         if (empty($this->correo_proveedor)) {
             return ["error" => "El correo electrónico es obligatorio."];
         }
-        if (!filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
+        if (strlen($this->correo_proveedor) > 45 || !filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
             return ["error" => "El correo electrónico no es válido."];
         }
 
-        if (empty($this->ubicacion_proveedor)) {
-            return ["error" => "La ubicación del proveedor es obligatoria."];
+        if (strlen($this->ubicacion_proveedor) < 5 || strlen($this->ubicacion_proveedor) > 50) {
+            return ["error" => "La dirección debe tener entre 5 y 50 caracteres."];
         }
 
         try {
@@ -215,7 +208,6 @@ class proveedores extends Conexion
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Getters y Setters
     public function getRif_proveedor() { return $this->rif_proveedor; }
     public function setRif_proveedor($rif) { $this->rif_proveedor = $rif; }
     public function getNombre_proveedor() { return $this->nombre_proveedor; }

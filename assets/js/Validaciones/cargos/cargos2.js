@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    $("#cargo, #cargo_modificar").on("input", function () {
+        $(this).val($(this).val().slice(0, 30));
+    });
+
     $("#registro, #modificar").prop('disabled', false);
 
     function gestionarEstado(id, esValido, mensaje = "") {

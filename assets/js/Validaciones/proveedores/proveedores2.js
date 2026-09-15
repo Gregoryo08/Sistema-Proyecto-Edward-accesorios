@@ -3,7 +3,7 @@ $(document).ready(function () {
 		const $input = $(id);
 		const valor = $input.val().trim();
 		const $feedback = $("#error_" + id.substring(1));
-		const esValido = valor.length >= 3 && /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s-]+$/.test(valor);
+		const esValido = valor.length > 0 && valor.length <= 35 && /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/.test(valor);
 
 		$input.removeClass("is-valid is-invalid");
 		$feedback.hide().text("");
@@ -16,7 +16,7 @@ $(document).ready(function () {
 
 		if (!esValido) {
 			$input.addClass("is-invalid");
-			$feedback.text("El nombre debe tener al menos 3 letras.").show();
+			$feedback.text("El nombre solo debe contener letras y espacios, máximo 35 caracteres.").show();
 			return false;
 		}
 
@@ -47,19 +47,19 @@ $(document).ready(function () {
 		const resultados = [];
 		resultados.push(validarProveedorAntesDeConfirmar("#proveedor" + sufijo));
 		if (!modificar) {
-			resultados.push(validarCampoProveedor("#rif", "El RIF es obligatorio.", valor => valor !== "" && /^[0-9]+$/.test(valor)));
+			resultados.push(validarCampoProveedor("#rif", "El RIF es obligatorio y debe tener máximo 9 dígitos.", valor => valor !== "" && /^[0-9]{1,9}$/.test(valor)));
 		}
-		resultados.push(validarCampoProveedor("#telefono" + sufijo, "El teléfono es obligatorio.", valor => valor !== "" && /^[0-9]{7,11}$/.test(valor)));
+		resultados.push(validarCampoProveedor("#telefono" + sufijo, "El teléfono debe tener 7 dígitos después del código.", valor => valor !== "" && /^[0-9]{7}$/.test(valor)));
 
 		const correoId = "#correo" + sufijo;
 		const correo = $(correoId).val().trim();
 		if (!correo) {
 			resultados.push(validarCampoProveedor(correoId, "El correo electrónico es obligatorio.", valor => valor !== ""));
 		} else {
-			resultados.push(validarCampoProveedor(correoId, "Formato incorrecto. Ingrese un correo electrónico válido: correo@gmail.com", valor => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)));
+			resultados.push(validarCampoProveedor(correoId, "Ingrese un correo válido de máximo 45 caracteres.", valor => valor.length <= 45 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)));
 		}
 
-		resultados.push(validarCampoProveedor("#ubicacion" + sufijo, "La ubicación es obligatoria.", valor => valor !== ""));
+		resultados.push(validarCampoProveedor("#ubicacion" + sufijo, "La dirección debe tener entre 5 y 50 caracteres.", valor => valor.length >= 5 && valor.length <= 50));
 
 		const valido = resultados.every(Boolean);
 		if (!valido) {
@@ -79,7 +79,7 @@ $(document).ready(function () {
 	}
 
 	$("#proveedor, #proveedor_modificar").on("input", function () {
-		$(this).val($(this).val().replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s-]/g, ""));
+		$(this).val($(this).val().replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]/g, "").slice(0, 35));
 	});
 
 	$("#proveedor, #proveedor_modificar").on("keypress", function (e) {
@@ -109,8 +109,12 @@ $(document).ready(function () {
 		}
 	});
 
-	$("#rif, #telefono, #rif_modificar, #telefono_modificar").on("input", function () {
-		$(this).val($(this).val().replace(/[^0-9]/g, ""));
+	$("#rif, #rif_modificar").on("input", function () {
+		$(this).val($(this).val().replace(/[^0-9]/g, "").slice(0, 9));
+	});
+
+	$("#telefono, #telefono_modificar").on("input", function () {
+		$(this).val($(this).val().replace(/[^0-9]/g, "").slice(0, 7));
 	});
 
 	$("#btn_registrar").on("click", function () {

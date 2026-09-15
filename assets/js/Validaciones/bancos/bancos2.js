@@ -17,12 +17,25 @@ $(document).ready(function () {
         const sufijo = tipo === "registro" ? "" : "_modificar";
         const boton = tipo === "registro" ? "#registrar" : "#modificar";
 
+        if (tipo === "modificar") {
+            $(boton).prop('disabled', false);
+            return;
+        }
+
         const todoValido = $(`#nombre${sufijo}`).hasClass('is-valid') &&
                            $(`#numero${sufijo}`).hasClass('is-valid') &&
                            $(`#cedula${sufijo}`).hasClass('is-valid') &&
                            $(`#telefono${sufijo}`).hasClass('is-valid');
 
-        $(boton).prop('disabled', false);
+        $(boton).prop('disabled', !todoValido);
+    }
+
+    function limitarCampo(selector, maximo, patron) {
+        $(selector).attr("maxlength", maximo).on("input", function () {
+            let valor = $(this).val();
+            if (patron) valor = valor.replace(patron, "");
+            $(this).val(valor.slice(0, maximo));
+        });
     }
 
     function validarNombreBanco(id, tipo) {
@@ -44,8 +57,8 @@ $(document).ready(function () {
 
         if (valorTrim.length === 0) {
             gestionarEstado(id, false, "Este campo es obligatorio");
-        } else if (valorTrim.length < 4 || valorTrim.length > 30) {
-            gestionarEstado(id, false, "Debe tener entre 4 y 30 letras");
+        } else if (valorTrim.length < 4 || valorTrim.length > 40) {
+            gestionarEstado(id, false, "Debe tener entre 4 y 40 letras");
         } else {
             gestionarEstado(id, true);
         }
@@ -67,8 +80,8 @@ $(document).ready(function () {
             gestionarEstado(id, false, "Este campo es obligatorio");
         } else if (entrada.length < 8) {
             gestionarEstado(id, false, "El valor ingresado debe de ser mayor a 8 digitos!");
-        } else if (entrada.length > 25) {
-            gestionarEstado(id, false, "El valor ingresado no debe superar los 25 dígitos");
+        } else if (entrada.length > 20) {
+            gestionarEstado(id, false, "El número de cuenta debe tener entre 8 y 20 dígitos");
         } else {
             gestionarEstado(id, true);
         }
@@ -110,14 +123,19 @@ $(document).ready(function () {
 
         if (entrada.length === 0) {
             gestionarEstado(id, false, "Este campo es obligatorio");
-        } else if (entrada.length !== 11) {
-            gestionarEstado(id, false, "Este campo debe tener exactamente 11 dígitos.");
+        } else if (entrada.length > 11) {
+            gestionarEstado(id, false, "El teléfono no debe superar los 11 dígitos.");
         } else {
             gestionarEstado(id, true);
         }
         verificarFormulario(tipo);
     }
     
+    limitarCampo("#nombre, #nombre_modificar", 40, /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g);
+    limitarCampo("#numero, #numero_modificar", 20, /[^0-9]/g);
+    limitarCampo("#cedula, #cedula_modificar", 9, /[^0-9]/g);
+    limitarCampo("#telefono, #telefono_modificar", 11, /[^0-9]/g);
+
     $("#nombre").on("input", () => validarNombreBanco("nombre", "registro"));
     $("#numero").on("input", () => validarNumeroCuenta("numero", "registro"));
     $("#cedula").on("input", () => validarCedulaRif("cedula", "registro"));

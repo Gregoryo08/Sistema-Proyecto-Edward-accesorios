@@ -110,7 +110,7 @@
 
                     <div class="form-group mb-3">
                         <label for="cantidadEntradaM" class="form-label fw-bold">Nueva Cantidad *</label>
-                        <input type="number" class="form-control solo-numeros" id="cantidadEntradaM" placeholder="Ingresa la nueva cantidad" min="1" required>
+                        <input type="number" class="form-control solo-numeros" id="cantidadEntradaM" placeholder="Ingresa la nueva cantidad" min="1" max="9999.99" step="0.01" required>
                         <div id="error_cantidadEntradaM" class="msg-error">Ingrese una cantidad válida mayor a 0</div>
                     </div>
 
@@ -118,7 +118,7 @@
                         <label for="garantiaEntradaM" class="form-label fw-bold">
                             <i class="bi bi-shield-check me-1 text-success"></i> Garantía (días)
                         </label>
-                        <input type="number" class="form-control solo-numeros" id="garantiaEntradaM" placeholder="Días de garantía" min="1">
+                        <input type="number" class="form-control solo-numeros" id="garantiaEntradaM" placeholder="Días de garantía" min="1" max="9999" maxlength="4">
                         <div id="error_garantiaEntradaM" class="msg-error">Formato de días incorrecto</div>
                         <small class="text-muted d-block mt-1">Dejar vacío si no aplica garantía</small>
                     </div>

@@ -64,16 +64,20 @@ $(document).ready(function() {
     });
 
     $('#reg_equipo, #orden_equipo_tecnico, input[name="equipo"]').on('input change blur', function() {
+        $(this).val($(this).val().slice(0, 30));
         let valor = $(this).val().trim();
 
         if (valor === "") {
             aplicarValidacion(this, false, "Campo Requerido", "Este campo es obligatorio");
+        } else if (valor.length > 30) {
+            aplicarValidacion(this, false, "Modelo inválido", "El modelo/equipo no puede superar 30 caracteres");
         } else {
             aplicarValidacion(this, true);
         }
     });
 
     $('#reg_falla, #orden_falla_tecnico, textarea[name="falla"]').on('input change blur', function() {
+        $(this).val($(this).val().slice(0, 50));
         let valor = $(this).val().trim();
 
         if (valor === "") {
@@ -111,8 +115,12 @@ $(document).ready(function() {
     });
 
     $('#mod_equipo, #mod_falla, #mod_diagnostico').on('input change blur', function() {
+        const maximo = this.id === 'mod_equipo' ? 30 : (this.id === 'mod_falla' ? 50 : 40);
+        $(this).val($(this).val().slice(0, maximo));
         if (!$(this).val().trim()) {
             aplicarValidacion(this, false, "", "Este campo es obligatorio");
+        } else if ($(this).val().trim().length > maximo) {
+            aplicarValidacion(this, false, "Campo inválido", `No puede superar ${maximo} caracteres`);
         } else {
             aplicarValidacion(this, true);
         }
@@ -135,7 +143,13 @@ $(document).ready(function() {
     });
 
     $('#mod_monto').on('input change blur', function() {
-        if ($(this).val() === '' || Number($(this).val()) < 0) {
+        let monto = $(this).val().replace(/[^0-9.]/g, '');
+        const partes = monto.split('.');
+        partes[0] = partes[0].slice(0, 6);
+        monto = partes[0] + (partes.length > 1 ? '.' + partes[1].slice(0, 2) : '');
+        $(this).val(monto);
+
+        if (monto === '' || Number(monto) < 0) {
             aplicarValidacion(this, false, "", "Este campo es obligatorio");
         } else {
             aplicarValidacion(this, true);
@@ -143,8 +157,12 @@ $(document).ready(function() {
     });
 
     $('#diagnostico_cobro, #nota_tecnico_cobro').on('input change blur', function() {
+        const maximo = this.id === 'diagnostico_cobro' ? 40 : 30;
+        $(this).val($(this).val().slice(0, maximo));
         if (!$(this).val().trim()) {
             aplicarValidacion(this, false, "", "Este campo es obligatorio");
+        } else if ($(this).val().trim().length > maximo) {
+            aplicarValidacion(this, false, "Campo inválido", `No puede superar ${maximo} caracteres`);
         } else {
             aplicarValidacion(this, true);
         }
@@ -163,7 +181,10 @@ $(document).ready(function() {
 
         const valorOriginal = $(this).val().trim();
         const contieneCaracteresInvalidos = /[^0-9.,]/.test(valorOriginal);
-        const monto = valorOriginal.replace(/[^0-9.,]/g, '').replace(',', '.');
+        let monto = valorOriginal.replace(/[^0-9.,]/g, '').replace(',', '.');
+        const partesMonto = monto.split('.');
+        partesMonto[0] = partesMonto[0].slice(0, 6);
+        monto = partesMonto[0] + (partesMonto.length > 1 ? '.' + partesMonto[1].slice(0, 2) : '');
 
         if (!monto) {
             aplicarValidacion(this, false, "", "Este campo es obligatorio");

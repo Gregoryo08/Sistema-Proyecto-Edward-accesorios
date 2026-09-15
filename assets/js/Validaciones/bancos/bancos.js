@@ -12,6 +12,7 @@ $(document).ready(function () {
         const $campo = $(id);
         const valor = $campo.val().trim();
         const $error = $("#error_" + id.substring(1));
+
         const valido = valor !== "";
 
         $campo.removeClass("is-valid is-invalid");
@@ -26,6 +27,19 @@ $(document).ready(function () {
         return valido;
     }
 
+    function validarReglasBanco(modificar) {
+        const sufijo = modificar ? "_modificar" : "";
+        const nombre = $("#nombre" + sufijo).val().trim();
+        const numero = $("#numero" + sufijo).val().trim();
+        const cedula = $("#cedula" + sufijo).val().trim();
+        const telefono = $("#telefono" + sufijo).val().trim();
+
+         return nombre.length >= 4 && nombre.length <= 40 && /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre) &&
+             numero.length >= 8 && numero.length <= 20 && /^[0-9]+$/.test(numero) &&
+             cedula.length >= 6 && cedula.length <= 9 && /^[0-9]+$/.test(cedula) &&
+             telefono.length >= 1 && telefono.length <= 11 && /^[0-9]+$/.test(telefono);
+    }
+
     function validarFormularioBanco(modificar) {
         const sufijo = modificar ? "_modificar" : "";
         const resultados = [
@@ -35,7 +49,7 @@ $(document).ready(function () {
               validarCampoBanco("#telefono" + sufijo, "El número de teléfono es obligatorio.")
         ];
 
-        if (resultados.every(Boolean)) return true;
+        if (resultados.every(Boolean) && validarReglasBanco(modificar)) return true;
 
         const titulos = ["Nombre requerido", "Número de cuenta requerido", "Cédula/RIF requerido", "Teléfono requerido"];
         const indicaciones = [
@@ -46,7 +60,7 @@ $(document).ready(function () {
         ];
         Swal.fire({
             title: titulos[resultados.indexOf(false)] || "Campos requeridos",
-            text: indicaciones[resultados.indexOf(false)] || "Indique los campos requeridos.",
+              text: indicaciones[resultados.indexOf(false)] || "Indique los campos requeridos.",
             icon: "warning",
             color: "white",
             background: "#000910"
@@ -83,10 +97,8 @@ $(document).ready(function () {
                 {
                     data: null,
                     render: function (data, type, row) {
-                        let esActivo = (row.estado === 'activo');
-                        return esActivo 
-                            ? '<span class="badge bg-success">Activo</span>' 
-                            : '<span class="badge bg-danger">Inactivo</span>';
+                        var color = row.estado == "activo" ? "rgb(14, 184, 37)" : "rgb(158, 3, 3)";
+                        return `<span class="interruptor" style="background: ${color};">${capitalizarPalabras(row.estado)}</span>`;
                     },
                 },
                 {
@@ -108,36 +120,29 @@ $(document).ready(function () {
                 },
             ],
             pageLength: 4,
-            lengthMenu: [[4, 10, 25, 50, 100], [4, 10, 25, 50, 100]],
-            columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ],
             language: {
-                processing: "Procesando...",
-                search: "Buscar:",
-                lengthMenu: "Mostrar _MENU_ registros por página",
-                zeroRecords: "No se encontraron resultados",
-                emptyTable: "Ningún dato disponible en esta tabla",
-                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-                infoFiltered: "(filtrado de un total de _MAX_ registros)",
-                infoPostFix: "",
-                thousands: ",",
-                loadingRecords: "Cargando...",
-                paginate: {
-                    first: "Primero",
-                    last: "Último",
-                    next: "Siguiente",
-                    previous: "Anterior"
-                },
-                aria: {
-                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
-                    sortDescending: ": Activar para ordenar la columna de manera descendente"
-                }
-            }
+    processing: "Procesando...",
+    search: "Buscar:",
+    lengthMenu: "Mostrar _MENU_ registros por página",
+    zeroRecords: "No se encontraron resultados",
+    emptyTable: "Ningún dato disponible en esta tabla",
+    info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+    infoFiltered: "(filtrado de un total de _MAX_ registros)",
+    infoPostFix: "",
+    thousands: ",",
+    loadingRecords: "Cargando...",
+    paginate: {
+        first: "Primero",
+        last: "Último",
+        next: "Siguiente",
+        previous: "Anterior"
+    },
+    aria: {
+        sortAscending: ": Activar para ordenar la columna de manera ascendente",
+        sortDescending: ": Activar para ordenar la columna de manera descendente"
+    }
+}
         });
     };
 

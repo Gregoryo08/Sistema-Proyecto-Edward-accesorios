@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    $("#categoria, #categoria_modificar").on("input", function () {
+        $(this).val($(this).val().slice(0, 30));
+    });
+
     function gestionarEstado(id, esValido, mensaje = "") {
         const $el = $("#" + id);
         const $errorDiv = $("#error_" + id);

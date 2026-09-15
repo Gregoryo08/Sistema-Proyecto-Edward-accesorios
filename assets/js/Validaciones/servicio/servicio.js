@@ -63,7 +63,7 @@ function inicializarTablaServicio() {
     $("#servicioTabla").DataTable({
         destroy: true,
         ajax: { url: "?pagina=servicio_tecnico&ajax=true", dataSrc: "" },
-        pageLength: 10,
+        pageLength: 8,
         ordering: true,
         responsive: true,
         language: {
@@ -139,13 +139,7 @@ function inicializarTablaServicio() {
                     return `<div class="d-flex flex-wrap justify-content-center gap-2">${acciones.join('')}</div>`;
                 }
             }
-        ],
-        columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ]
+        ]
     });
 }
 
@@ -251,6 +245,12 @@ $("#btnGuardarModificacion").off("click").on("click", function () {
         return;
     }
 
+    if (equipo.length > 30) {
+        Swal.fire({ icon: 'warning', title: 'Modelo/Equipo inválido', text: 'El modelo/equipo no puede superar 30 caracteres.', background: "#000910", color: "white" });
+        $("#mod_equipo").focus();
+        return;
+    }
+
     if (!falla) {
         Swal.fire({ icon: 'warning', title: 'Falla requerida', text: 'Ingresa la falla del equipo.', background: "#000910", color: "white" });
         $("#mod_falla").focus();
@@ -263,6 +263,12 @@ $("#btnGuardarModificacion").off("click").on("click", function () {
         return;
     }
 
+    if (falla.length > 50 || diagnostico.length > 40) {
+        Swal.fire({ icon: 'warning', title: 'Texto demasiado largo', text: falla.length > 50 ? 'La falla inicial no puede superar 50 caracteres.' : 'El diagnóstico técnico no puede superar 40 caracteres.', background: "#000910", color: "white" });
+        $(falla.length > 50 ? "#mod_falla" : "#mod_diagnostico").focus();
+        return;
+    }
+
     if (!estado || monto === '' || Number(monto) < 0) {
         Swal.fire({
             icon: 'warning',
@@ -272,6 +278,12 @@ $("#btnGuardarModificacion").off("click").on("click", function () {
             background: "#000910",
             color: "white"
         });
+        return;
+    }
+
+    if (!/^\d{1,6}(\.\d{1,2})?$/.test(monto)) {
+        Swal.fire({ icon: 'warning', title: 'Monto inválido', text: 'El monto no puede superar 6 dígitos enteros.', confirmButtonText: 'Aceptar', background: "#000910", color: "white" });
+        $("#mod_monto").focus();
         return;
     }
 
@@ -373,6 +385,12 @@ $("#btnGuardarRegistro").off("click").on("click", function () {
     if (!equipo) {
         Swal.fire({ icon: 'warning', title: 'Modelo/Equipo requerido', text: 'Ingresa el modelo o equipo.', background: "#000910", color: "white" });
         $('input[name="equipo"], #reg_equipo').focus();
+        return;
+    }
+
+    if (equipo.length > 30 || falla.length > 50) {
+        Swal.fire({ icon: 'warning', title: 'Texto demasiado largo', text: equipo.length > 30 ? 'El modelo/equipo no puede superar 30 caracteres.' : 'El diagnóstico inicial no puede superar 50 caracteres.', background: "#000910", color: "white" });
+        $(equipo.length > 30 ? 'input[name="equipo"], #reg_equipo' : 'textarea[name="falla"], #reg_falla').first().focus();
         return;
     }
 
@@ -624,6 +642,12 @@ $('#btnConfirmarCobro').on('click', function() {
         return;
     }
 
+    if (!/^\d{1,6}(\.\d{1,2})?$/.test(montoCobro.replace(',', '.'))) {
+        Swal.fire({ icon: 'warning', title: 'Monto inválido', text: 'El monto total no puede superar 6 dígitos enteros.', background: "#000910", color: "white" });
+        $('#montoTotalCobro').focus();
+        return;
+    }
+
     if (!diagnostico) {
         Swal.fire({
             icon: 'warning',
@@ -636,6 +660,12 @@ $('#btnConfirmarCobro').on('click', function() {
         return;
     }
 
+    if (diagnostico.length > 40) {
+        Swal.fire({ icon: 'warning', title: 'Diagnóstico inválido', text: 'El diagnóstico no puede superar 40 caracteres.', background: "#000910", color: "white" });
+        $('#diagnostico_cobro').focus();
+        return;
+    }
+
     if (!notaTecnico) {
         Swal.fire({
             icon: 'warning',
@@ -644,6 +674,12 @@ $('#btnConfirmarCobro').on('click', function() {
             background: "#000910",
             color: "white"
         });
+        $('#nota_tecnico_cobro').focus();
+        return;
+    }
+
+    if (notaTecnico.length > 30) {
+        Swal.fire({ icon: 'warning', title: 'Nota inválida', text: 'La nota del técnico no puede superar 30 caracteres.', background: "#000910", color: "white" });
         $('#nota_tecnico_cobro').focus();
         return;
     }

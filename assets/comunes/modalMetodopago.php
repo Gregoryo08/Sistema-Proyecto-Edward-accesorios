@@ -9,7 +9,7 @@
                     <div class="form-group mb-3" style="width: 100%;">
                         <label for="nombre_metodopago" class="form-label">Método De Pago</label>
                         <div>
-                            <input type="text" style="width: 100%;" class="form-control" id="nombre_metodopago" name="nombre_metodopago" placeholder="Ingresa el método de pago nuevo" required>
+                            <input type="text" style="width: 100%;" class="form-control" id="nombre_metodopago" name="nombre_metodopago" maxlength="30" placeholder="Ingresa el método de pago nuevo" required>
                             <div class="invalid-feedback" id="metodoFeedback"></div>
                             <div class="valid-feedback">¡Perfecto!</div>
                         </div>
@@ -61,7 +61,7 @@
                     
                     <div class="form-group mb-3" style="width: 100%;">
                         <label for="nombreModificar" class="form-label">Método De Pago</label>
-                        <input type="text" style="width: 100%;" class="form-control" id="nombreModificar" name="nombre_metodopago" required>
+                        <input type="text" style="width: 100%;" class="form-control" id="nombreModificar" name="nombre_metodopago" maxlength="30" required>
                         <div class="invalid-feedback" id="metodoModificarFeedback"></div>
                         <div class="valid-feedback">¡Perfecto!</div>
                     </div>

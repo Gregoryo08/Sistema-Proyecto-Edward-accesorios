@@ -8,7 +8,7 @@
                 <form id="formRegistroCargo">
                     <div class="form-group" style="width: 100%;">
                         <label for="cargo">Nombre del Cargo</label>
-                        <textarea name="tipo" id="cargo" class="form-control" placeholder="Ingresa el nombre del cargo" required></textarea>
+                        <textarea name="tipo" id="cargo" class="form-control" maxlength="30" placeholder="Ingresa el nombre del cargo" required></textarea>
                         <div id="error_cargo" class="invalid-feedback"></div>
                     </div>
                 </form>
@@ -34,7 +34,7 @@
 
                     <div class="form-group mb-3" style="width: 100%;">
                         <label for="cargo_modificar">Nombre del Cargo</label>
-                        <textarea name="tipo" id="cargo_modificar" class="form-control" placeholder="Ingresa el nombre del Cargo" required></textarea>
+                        <textarea name="tipo" id="cargo_modificar" class="form-control" maxlength="30" placeholder="Ingresa el nombre del Cargo" required></textarea>
                         <div id="error_cargo_modificar" class="invalid-feedback"></div>
                     </div>
                 </form>

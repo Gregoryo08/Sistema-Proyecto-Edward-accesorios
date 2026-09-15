@@ -9,7 +9,7 @@
                 <form id="formRegistroMarca" style="display: flex; flex-direction: column;">
                     <div class="form-group mb-3">
                         <label for="nombre" class="form-label">Nombre De La Marca</label>
-                        <input type="text" class="form-control" id="nombre" placeholder="Ej: Samsung, Apple, Xiaomi" required>
+                        <input type="text" class="form-control" id="nombre" maxlength="30" placeholder="Ej: Samsung, Apple, Xiaomi" required>
                         <div class="mensaje-marca mt-2">
                             <p id="texto_mensaje_nombre" class="text-danger small" style="display: none; margin: 0;"></p>
                         </div>
@@ -36,7 +36,7 @@
                     <input type="hidden" id="marca_id" name="id">
                     <div class="form-group mb-3">
                         <label for="nombreModificar" class="form-label">Nombre de la Marca</label>
-                        <input type="text" class="form-control" id="nombreModificar" name="nombre" required>
+                        <input type="text" class="form-control" id="nombreModificar" name="nombre" maxlength="30" required>
                         <div class="mensaje-marca mt-2">
                             <p id="texto_mensaje_nombre_modificar" class="text-danger small" style="display: none; margin: 0;"></p>
                         </div>

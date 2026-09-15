@@ -145,7 +145,7 @@ $(document).ready(function () {
             <td style="text-align: center; vertical-align: middle;">
                 <div class="form-check form-switch d-flex justify-content-center align-items-center gap-2">
                     <input type="checkbox" class="form-check-input toggle-garantia" role="switch" style="width: 40px; height: 20px; cursor: pointer;">
-                    <input type="number" class="form-control input-garantia d-none" style="width: 70px;" placeholder="Días" min="1" disabled>
+                    <input type="number" class="form-control input-garantia d-none" style="width: 70px;" placeholder="Días" min="1" max="9999" maxlength="4" disabled>
                     <span class="badge bg-secondary badge-garantia d-none">
                         <i class="fa-solid fa-shield-halved me-1"></i><span class="dias-texto">0</span> días
                     </span>
@@ -156,7 +156,7 @@ $(document).ready(function () {
         var nuevaFila = `<tr data-categoria="${id_categoria}">
             <td style="text-align: center;" class="id-producto">${id_producto}</td>
             <td style="text-align: center;">${productoNombre}</td>
-            <td style="text-align: center;"><input type="text" class="form-control input-cantidad" style="width: 80px; text-align: center;" placeholder="Cant"></td>
+            <td style="text-align: center;"><input type="text" class="form-control input-cantidad" maxlength="7" inputmode="decimal" style="width: 80px; text-align: center;" placeholder="Cant"></td>
             ${columnaGarantia}
             <td style="text-align: center;"><button type="button" class="btn btn-danger btn-sm eliminar-fila">X</button></td>
         </tr>`;

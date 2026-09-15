@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    $("#nombre_metodopago, #nombreModificar").on("input", function () {
+        $(this).val($(this).val().slice(0, 30));
+    });
+
     function gestionarEstado(id, esValido, mensaje = "") {
         const $el = $("#" + id);
         let idError = (id === "nombre_metodopago") ? "#metodoFeedback" : "#metodoModificarFeedback";
@@ -71,8 +75,8 @@ $(document).ready(function () {
             return;
         } 
         
-        if (valorTrim.length < 3 || valorTrim.length > 20) {
-            gestionarEstado(id, false, "Debe tener entre 3 y 20 letras");
+        if (valorTrim.length < 3 || valorTrim.length > 30) {
+            gestionarEstado(id, false, "Debe tener entre 3 y 30 letras");
             $(idBoton).prop('disabled', true);
             return;
         }
@@ -100,7 +104,7 @@ $(document).ready(function () {
         }
        
         else if (/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/.test(chr)) {
-            e.preventDefault(); // Evita que se escriba
+            e.preventDefault(); 
             gestionarEstado(id, false, "Este campo permite solo letras");
             $(idBoton).prop('disabled', true);
         }

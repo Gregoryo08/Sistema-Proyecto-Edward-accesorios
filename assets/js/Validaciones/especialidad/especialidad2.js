@@ -1,5 +1,9 @@
 $(document).ready(function () {
 
+    $("#especialidad, #especialidad_modificar").on("input", function () {
+        $(this).val($(this).val().slice(0, 30));
+    });
+
     $("#especialidad").on("input", function () {
         let entrada = $(this).val();
 

@@ -1,4 +1,8 @@
 $(document).ready(function () {
+  $("#nombre, #nombreModificar").on("input", function () {
+    $(this).val($(this).val().slice(0, 30));
+  });
+
   function capitalizarPalabras(cadena) {
     if (!cadena) return "";
 

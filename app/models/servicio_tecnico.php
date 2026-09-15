@@ -187,6 +187,13 @@ private function consultarProductos($id_servicio)
 }
     private function registrar()
 {
+    if (mb_strlen($this->equipo_descripcion) > 30) {
+        return ["error" => "El modelo/equipo no puede superar 30 caracteres."];
+    }
+    if (mb_strlen($this->falla_inicial) > 50) {
+        return ["error" => "El diagnóstico inicial no puede superar 50 caracteres."];
+    }
+
     $conex = new conexion("sistema");
     try {
         $conex->beginTransaction();
@@ -218,6 +225,20 @@ private function consultarProductos($id_servicio)
 
 private function modificar($productos)
 {
+    if (!preg_match('/^\d{1,6}(\.\d{1,2})?$/', (string)$this->monto_total)) {
+        return ["error" => "El monto no puede superar 6 dígitos enteros."];
+    }
+
+    if (mb_strlen($this->equipo_descripcion) > 30) {
+        return ["error" => "El modelo/equipo no puede superar 30 caracteres."];
+    }
+    if (mb_strlen($this->falla_inicial) > 50) {
+        return ["error" => "La falla inicial no puede superar 50 caracteres."];
+    }
+    if (mb_strlen($this->diagnostico) > 40) {
+        return ["error" => "El diagnóstico técnico no puede superar 40 caracteres."];
+    }
+
     $conex = new conexion("sistema");
     try {
         $conex->beginTransaction();
@@ -259,6 +280,17 @@ private function modificar($productos)
 }
 private function registrarCobro($id_servicio, $monto_final, $diagnostico, $nota_tecnico)
 {
+    if (!preg_match('/^\d{1,6}(\.\d{1,2})?$/', (string)$monto_final)) {
+        return ["error" => "El monto total no puede superar 6 dígitos enteros."];
+    }
+
+    if (mb_strlen($diagnostico) > 40) {
+        return ["error" => "El diagnóstico no puede superar 40 caracteres."];
+    }
+    if (mb_strlen($nota_tecnico) > 30) {
+        return ["error" => "La nota del técnico no puede superar 30 caracteres."];
+    }
+
     $conex = new conexion("sistema");
     $conex->beginTransaction();
     $user = $_SESSION["username"];

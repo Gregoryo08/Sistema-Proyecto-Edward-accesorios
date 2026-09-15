@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label small fw-bold text-muted text-uppercase">Modelo / Equipo</label>
-                            <input type="text" name="equipo" id="reg_equipo" class="form-control" placeholder="Ej: iPhone 13, Laptop HP..." required>
+                            <input type="text" name="equipo" id="reg_equipo" class="form-control" maxlength="30" placeholder="Ej: iPhone 13, Laptop HP..." required>
                             <div class="msg-error"></div>
                         </div>
                         <div class="col-md-6 mb-2">
@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-12 mt-2">
                             <label class="form-label small fw-bold text-muted text-uppercase">Diagnóstico Inicial / Falla</label>
-                            <textarea name="falla" id="reg_falla" class="form-control" rows="3" placeholder="Describa el problema reportado por el cliente..." required></textarea>
+                            <textarea name="falla" id="reg_falla" class="form-control" maxlength="50" placeholder="Describa el problema reportado por el cliente..." required></textarea>
                             <div class="msg-error"></div>
                         </div>
                     </div>
@@ -90,12 +90,12 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Falla Inicial</label>
-                            <textarea name="falla" id="mod_falla" class="form-control" rows="2" required></textarea>
+                            <textarea name="falla" id="mod_falla" class="form-control" maxlength="50" rows="2" required></textarea>
                             <div class="msg-error"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Diagnóstico Técnico</label>
-                            <textarea name="diagnostico" id="mod_diagnostico" class="form-control" rows="3" required></textarea>
+                            <textarea name="diagnostico" id="mod_diagnostico" class="form-control" maxlength="40" rows="3" required></textarea>
                             <div class="msg-error"></div>
                         </div>
                         <div class="col-12">
@@ -117,7 +117,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">Monto Total ($)</label>
-                            <input type="number" name="monto" id="mod_monto" class="form-control" step="0.01" required>
+                            <input type="number" name="monto" id="mod_monto" class="form-control" max="999999.99" step="0.01" required>
                             <div class="msg-error"></div>
                         </div>
                     </div>
@@ -177,19 +177,19 @@
                 
                 <div class="form-group">
                     <label>Monto Total a Cobrar:</label>
-                    <input type="text" id="montoTotalCobro" class="form-control" inputmode="decimal" required>
+                    <input type="text" id="montoTotalCobro" class="form-control" maxlength="9" inputmode="decimal" required>
                     <div class="msg-error"></div>
                 </div>
                 
                 
                 <div class="form-group">
                     <label>Diagnóstico:</label>
-                    <textarea id="diagnostico_cobro" class="form-control" rows="2" required></textarea>
+                    <textarea id="diagnostico_cobro" class="form-control" maxlength="40" rows="2" required></textarea>
                     <div class="msg-error"></div>
                 </div>
                 <div class="form-group">
                     <label>Nota del Técnico:</label>
-                    <textarea id="nota_tecnico_cobro" class="form-control" rows="2" required></textarea>
+                    <textarea id="nota_tecnico_cobro" class="form-control" maxlength="30" rows="2" required></textarea>
                     <div class="msg-error"></div>
                 </div>
             </div>

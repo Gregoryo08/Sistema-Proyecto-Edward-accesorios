@@ -10,7 +10,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="proveedor" class="form-label">Nombre del Proveedor</label>
-                            <input type="text" class="form-control" id="proveedor" name="proveedor" required>
+                            <input type="text" class="form-control" id="proveedor" name="proveedor" maxlength="35" required>
                             <div id="error_proveedor" class="text-danger small" style="display: none;"></div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -20,7 +20,7 @@
                                     <option value="J-">J-</option>
                                     <option value="G-">G-</option>
                                 </select>
-                                <input type="text" class="form-control" id="rif" name="rif" required>
+                                <input type="text" class="form-control" id="rif" name="rif" maxlength="9" required>
                             </div>
                             <div id="error_rif" class="text-danger small" style="display: none;"></div>
                         </div>
@@ -35,19 +35,19 @@
                                     <option value="0412">0412</option>
                                     <option value="0416">0416</option>
                                 </select>
-                                <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" maxlength="7" required>
                             </div>
                             <div id="error_telefono" class="text-danger small" style="display: none;"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="correo" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="correo" name="correo">
+                            <input type="email" class="form-control" id="correo" name="correo" maxlength="45">
                             <div id="error_correo" class="text-danger small" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="ubicacion" class="form-label">Ubicación</label>
-                        <textarea class="form-control" id="ubicacion" name="ubicacion" rows="2"></textarea>
+                        <textarea class="form-control" id="ubicacion" name="ubicacion" rows="2" minlength="5" maxlength="50"></textarea>
                         <div id="error_ubicacion" class="text-danger small" style="display: none;"></div>
                     </div>
                 </div>
@@ -72,12 +72,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="proveedor_modificar" class="form-label">Nombre del Proveedor</label>
-                            <input type="text" class="form-control" id="proveedor_modificar" name="proveedor" required>
+                            <input type="text" class="form-control" id="proveedor_modificar" name="proveedor" maxlength="35" required>
                             <div id="error_proveedor_modificar" class="text-danger small" style="display: none;"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="rif_modificar" class="form-label">Rif</label>
-                            <input type="text" class="form-control" id="rif_modificar" name="rif" readonly>
+                            <input type="text" class="form-control" id="rif_modificar" name="rif" maxlength="9" readonly>
                             <div id="error_rif_modificar" class="text-danger small" style="display: none;"></div>
                         </div>
                     </div>
@@ -91,19 +91,19 @@
                                     <option value="0412">0412</option>
                                     <option value="0416">0416</option>
                                 </select>
-                                <input type="tel" class="form-control" id="telefono_modificar" name="telefono" required>
+                                <input type="tel" class="form-control" id="telefono_modificar" name="telefono" maxlength="7" required>
                             </div>
                             <div id="error_telefono_modificar" class="text-danger small" style="display: none;"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="correo_modificar" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="correo_modificar" name="correo">
+                            <input type="email" class="form-control" id="correo_modificar" name="correo" maxlength="45">
                             <div id="error_correo_modificar" class="text-danger small" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="ubicacion_modificar" class="form-label">Ubicación</label>
-                        <textarea class="form-control" id="ubicacion_modificar" name="ubicacion" rows="2"></textarea>
+                        <textarea class="form-control" id="ubicacion_modificar" name="ubicacion" rows="2" minlength="5" maxlength="50"></textarea>
                         <div id="error_ubicacion_modificar" class="text-danger small" style="display: none;"></div>
                     </div>
                 </div>

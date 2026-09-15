@@ -91,8 +91,11 @@ $(document).ready(function() {
         valor = valor.replace(/[^0-9.]/g, "");
         
         const partes = valor.split(".");
+        partes[0] = partes[0].slice(0, 4);
         if (partes.length > 2) {
             valor = partes[0] + "." + partes.slice(1).join("").slice(0, 2);
+        } else {
+            valor = partes[0] + (partes.length === 2 ? "." + partes[1].slice(0, 2) : "");
         }
         $(this).val(valor);
 
@@ -107,6 +110,7 @@ $(document).ready(function() {
         
         valor = valor.replace(/^0+/g, "");
         valor = valor.replace(/[^0-9]/g, "");
+        valor = valor.slice(0, 4);
         $(this).val(valor);
 
         const regexEnteroPositivo = /^[1-9][0-9]*$/;
@@ -139,13 +143,17 @@ $(document).ready(function() {
             val = val.replace(/^0+/g, "");
             val = val.replace(/[^0-9.]/g, "");
             const partes = val.split(".");
+            partes[0] = partes[0].slice(0, 4);
             if (partes.length > 2) {
                 val = partes[0] + "." + partes.slice(1).join("").slice(0, 2);
+            } else {
+                val = partes[0] + (partes.length === 2 ? "." + partes[1].slice(0, 2) : "");
             }
         } else {
         
             if(val !== "0") val = val.replace(/^0+/g, "");
             val = val.replace(/[^0-9]/g, "");
+            if (val !== "0") val = val.slice(0, 4);
         }
         $(this).val(val);
 

@@ -8,25 +8,25 @@
                 <form id="formRegistroBancos" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
                     <div class="form-group w-100 mb-2">
                         <label for="nombre">Nombre del banco</label>
-                        <input type="text" class="form-control" id="nombre" placeholder="Ingresa el nombre del banco" required>
+                        <input type="text" class="form-control" id="nombre" maxlength="40" placeholder="Ingresa el nombre del banco" required>
                         <div class="invalid-feedback" id="error_nombre"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="numero">Numero de Cuenta</label>
-                        <input type="text" class="form-control" id="numero" placeholder="Ingresa el numero de cuenta" required>
+                        <input type="text" class="form-control" id="numero" maxlength="20" placeholder="Ingresa el numero de cuenta" required>
                         <div class="invalid-feedback" id="error_numero"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="cedula">Cedula / RIF</label>
-                        <input type="text" class="form-control" id="cedula" placeholder="Ingresa la cédula o RIF" required>
+                        <input type="text" class="form-control" id="cedula" maxlength="9" placeholder="Ingresa la cédula o RIF" required>
                         <div class="invalid-feedback" id="error_cedula"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="telefono">Telefono</label>
-                        <input type="text" class="form-control" id="telefono" placeholder="Ingresa el telefono de la cuenta" required>
+                        <input type="text" class="form-control" id="telefono" maxlength="11" placeholder="Ingresa el telefono de la cuenta" required>
                         <div class="invalid-feedback" id="error_telefono"></div>
                     </div>
                 </form>
@@ -51,25 +51,25 @@
 
                     <div class="form-group w-100 mb-2">
                         <label for="nombre_modificar">Nombre del banco</label>
-                        <input type="text" class="form-control" id="nombre_modificar" placeholder="Ingresa el nombre del banco" required>
+                        <input type="text" class="form-control" id="nombre_modificar" maxlength="40" placeholder="Ingresa el nombre del banco" required>
                         <div class="invalid-feedback" id="error_nombre_modificar"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="numero_modificar">Numero de Cuenta</label>
-                        <input type="text" class="form-control" id="numero_modificar" placeholder="Ingresa el numero de cuenta" required>
+                        <input type="text" class="form-control" id="numero_modificar" maxlength="20" placeholder="Ingresa el numero de cuenta" required>
                         <div class="invalid-feedback" id="error_numero_modificar"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="cedula_modificar">Cedula / RIF</label>
-                        <input type="text" class="form-control" id="cedula_modificar" placeholder="Ingresa la cédula o RIF" required>
+                        <input type="text" class="form-control" id="cedula_modificar" maxlength="9" placeholder="Ingresa la cédula o RIF" required>
                         <div class="invalid-feedback" id="error_cedula_modificar"></div>
                     </div>
 
                     <div class="form-group w-100 mb-2">
                         <label for="telefono_modificar">Telefono</label>
-                        <input type="text" class="form-control" id="telefono_modificar" placeholder="Ingresa el telefono de la cuenta" required>
+                        <input type="text" class="form-control" id="telefono_modificar" maxlength="11" placeholder="Ingresa el telefono de la cuenta" required>
                         <div class="invalid-feedback" id="error_telefono_modificar"></div>
                     </div>
                 </form>
