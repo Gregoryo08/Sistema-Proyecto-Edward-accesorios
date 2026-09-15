@@ -26,9 +26,9 @@
 </head>
 <body>
 
-<div class="main-content" style="padding-top: 50px;">
+<div class="main-content" >
     <!-- Título -->
-    <div class="d-flex justify-content-between align-items-center main-title">
+    <div class="d-flex justify-content-between align-items-center main-title" style="padding-top: 50px;">
         <h2 class="fw-bold"><i class="fa-solid fa-globe me-2"></i>Ventas Online</h2>
         <div class="d-flex align-items-center gap-3">
           
