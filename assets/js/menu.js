@@ -141,7 +141,7 @@ $(document).ready(function () {
 
     let timeoutTasa;
 
-    $('.btn-tasa, #tasa-tooltip').on('mouseenter', function () {
+    $('.btn-tasa, #tasa-tooltip').on('click', function () {
         clearTimeout(timeoutTasa);
         $('#tasa-tooltip').stop(true, true).fadeIn(350);
     });
@@ -149,7 +149,7 @@ $(document).ready(function () {
     $('.btn-tasa, #tasa-tooltip').on('mouseleave', function () {
         timeoutTasa = setTimeout(function() {
             $('#tasa-tooltip').stop(true, true).fadeOut(350);
-        }, 600);
+        }, 3000);
     });
 
     $('#modalEditarTasa').appendTo('body');
