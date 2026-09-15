@@ -79,10 +79,10 @@ public function registrarNotificacionTasaNoDisponible()
     }
 }
 
-   public function obtenerTasaActual() {
+public function obtenerTasaActual() {
     try {
         $conexSistema = new Conexion("sistema");
-        $stmt = $conexSistema->prepare("SELECT id, tasa, fecha_actualizacion FROM tasa_cambio ORDER BY id DESC LIMIT 1");
+        $stmt = $conexSistema->prepare("SELECT id, tasa, fecha_actualizacion, fuente FROM tasa_cambio ORDER BY id DESC LIMIT 1");
         $stmt->execute();
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
         unset($conexSistema);

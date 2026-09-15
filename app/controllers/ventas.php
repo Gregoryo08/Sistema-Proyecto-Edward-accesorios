@@ -38,7 +38,7 @@ if (!$cedula) {
 if (!function_exists('obtenerTasaOptimizada')) {
     function obtenerTasaOptimizada(): float
     {
-        $cacheTtl = 3600;
+        $cacheTtl = 1;
 
         $tasa = scrape_dolar::obtenerPrecioDolarBCV();
 
@@ -190,9 +190,9 @@ if ($accion !== null) {
                 $idTasaDB = null;
             } else {
                 $tasaDB = $obj_tasa->obtenerTasaActual();
-                if ($tasaDB && !empty($tasaDB['monto'])) {
-                    $tasa = (float) $tasaDB['monto'];
-                    $fecha = date('d/m/Y', strtotime($tasaDB['fecha']));
+                if ($tasaDB && !empty($tasaDB['tasa'])) {
+                    $tasa = (float) $tasaDB['tasa'];
+                    $fecha = date('d/m/Y', strtotime($tasaDB['fecha_actualizacion']));
                 }
             }
 
@@ -248,9 +248,9 @@ if ($accion !== null) {
                 $datosVenta['tasa_monto'] = $tasaMonto;
             } else {
                 $tasaDB = $obj_tasa->obtenerTasaActual();
-                if ($tasaDB && !empty($tasaDB['monto'])) {
+                if ($tasaDB && !empty($tasaDB['tasa'])) {
                     $datosVenta['id_tasa'] = $tasaDB['id'] ?? null;
-                    $datosVenta['tasa_monto'] = (float)$tasaDB['monto'];
+                    $datosVenta['tasa_monto'] = (float)$tasaDB['tasa'];
                 } else {
                     $datosVenta['id_tasa'] = null;
                     $datosVenta['tasa_monto'] = 0.0;
@@ -271,7 +271,7 @@ if ($accion !== null) {
 $tasaCambioActual = obtenerTasaOptimizada();
 if ($tasaCambioActual <= 0) {
     $tasaDB = $obj_tasa->obtenerTasaActual();
-    $tasaCambioActual = ($tasaDB && !empty($tasaDB['monto'])) ? (float)$tasaDB['monto'] : 0.0;
+    $tasaCambioActual = ($tasaDB && !empty($tasaDB['tasa'])) ? (float)$tasaDB['tasa'] : 0.0;
 }
 
 if ($tasaCambioActual <= 0) {
