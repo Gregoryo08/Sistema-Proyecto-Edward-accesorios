@@ -26,6 +26,9 @@ tr:nth-child(even) td { background: #f5f7fa; }
 </head>
 <body>
 <?php
+$logoPath = dirname(__DIR__, 2) . '/img/logo_pdf.jpg';
+$logoData = is_file($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+
 if (!isset($data_to_pdf)) {
     $data_to_pdf = [];
 }
@@ -54,6 +57,7 @@ if (!empty($fIni) && !empty($fFin)) {
 }
 ?>
 <table class="header"><tr>
+<td style="width: 11%;"><?php if ($logoData): ?><img class="logo" src="data:image/jpeg;base64,<?= $logoData ?>" alt="Logo"> <?php endif; ?></td>
 <td style="width: 64%;"><h1>Reporte de Ventas Online</h1><p class="razon">EGC ACCESORIOS, CA. | RIF J-50318361-6</p><p class="ubicacion">Calle 25 esquina carrera 22, Centro Comercial Cosmos, nivel mesanina, local N° 8, Barquisimeto, Estado Lara.</p></td>
 <td class="meta" style="width: 25%;"><strong>Fecha de emisión</strong><br><?= date('d-m-Y') ?><br><strong>Pedidos de la Tienda Online</strong></td>
 </tr></table>
