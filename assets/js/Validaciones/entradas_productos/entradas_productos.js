@@ -284,7 +284,7 @@ $(document).ready(function () {
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#f39c12',
+            confirmButtonColor: '#2C74B3',
             cancelButtonColor: '#d63031',
             confirmButtonText: 'Sí, guardar',
             cancelButtonText: 'Cancelar'
@@ -323,7 +323,7 @@ $(document).ready(function () {
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#27ae60',
+            confirmButtonColor: '#2C74B3',
             cancelButtonColor: '#d63031',
             confirmButtonText: 'Sí, registrar',
             cancelButtonText: 'Cancelar'
@@ -344,7 +344,7 @@ $(document).ready(function () {
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#e74c3c',
+            confirmButtonColor: '#2C74B3',
             cancelButtonColor: '#636e72',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
