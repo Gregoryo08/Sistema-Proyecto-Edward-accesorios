@@ -3,6 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Pedidos | Edward Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -84,10 +85,19 @@
                             $pedido['estado'], 
                             $pedido['motivo_rechazo'] ?? null
                         );
+                        $etiquetasEstado = [
+                            'pendiente' => 'Pendiente de pago',
+                            'revision'  => 'Pago por aprobar',
+                            'aprobado'  => 'Pago aprobado',
+                            'enviado'   => 'Despacho en ruta',
+                            'entregado' => 'Entregado',
+                            'rechazado' => 'Pago rechazado',
+                            'cancelado' => 'Cancelado'
+                        ];
                         ?>
                         <span class="badge bg-<?= $estadoData['color'] ?> p-2">
                             <i class="fas <?= $estadoData['icono'] ?> me-1"></i>
-                            <?= ucfirst($estadoData['estado']) ?>
+                            <?= $etiquetasEstado[$pedido['estado']] ?? ucfirst($pedido['estado']) ?>
                         </span>
                     </div>
                 </div>
@@ -123,6 +133,14 @@
                        class="btn btn-outline-primary btn-sm mt-2">
                         <i class="fas fa-eye"></i> Ver Detalle
                     </a>
+
+                    <!-- ✅ BOTÓN "PROCESAR PAGO" (SOLO SI NO HA PAGADO) -->
+                    <?php if ($estadoData['mostrar_boton']): ?>
+                        <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>&metodo=<?= urlencode($pedido['metodo_pago'] ?? 'transferencia') ?>" 
+                           class="btn btn-<?= $estadoData['boton_estilo'] ?> btn-sm mt-2">
+                            <i class="fas <?= $estadoData['boton_icono'] ?>"></i> Procesar Pago
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>

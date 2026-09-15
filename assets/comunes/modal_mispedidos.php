@@ -21,7 +21,7 @@
                                     <span><strong>Pedido #<?= $pedido['id_pedido'] ?></strong></span>
                                     <span>Fecha: <?= date('d/m/Y H:i', strtotime($pedido['fecha'])) ?></span>
                                     <?php $estadoData = $pedidoModel->getEstadoData($pedido['estado'], $pedido['motivo_rechazo'] ?? null); ?>
-                                    <span class="badge bg-<?= $estadoData['color'] ?> p-2"><i class="fas <?= $estadoData['icono'] ?> me-1"></i><?= ucfirst($estadoData['estado']) ?></span>
+                                    <span class="badge bg-<?= $estadoData['color'] ?> p-2"><i class="fas <?= $estadoData['icono'] ?> me-1"></i><?= ['pendiente' => 'Pendiente de pago', 'revision' => 'Pago por aprobar', 'aprobado' => 'Pago aprobado', 'enviado' => 'Despacho en ruta', 'entregado' => 'Entregado', 'rechazado' => 'Pago rechazado', 'cancelado' => 'Cancelado'][$pedido['estado']] ?? ucfirst($pedido['estado']) ?></span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -32,6 +32,9 @@
                                     <div class="alert alert-danger mt-2 py-2"><i class="fas fa-exclamation-circle"></i> <strong>Rechazado:</strong> <?= htmlspecialchars($pedido['motivo_rechazo']) ?></div>
                                 <?php endif; ?>
                                 <a href="?pagina=verPedido&id=<?= $pedido['id_pedido'] ?>" class="btn btn-outline-primary btn-sm mt-2"><i class="fas fa-eye"></i> Ver Detalle</a>
+                                <?php if ($estadoData['mostrar_boton']): ?>
+                                    <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>&metodo=<?= urlencode($pedido['metodo_pago'] ?? 'transferencia') ?>" class="btn btn-<?= $estadoData['boton_estilo'] ?> btn-sm mt-2"><i class="fas <?= $estadoData['boton_icono'] ?>"></i> Procesar Pago</a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

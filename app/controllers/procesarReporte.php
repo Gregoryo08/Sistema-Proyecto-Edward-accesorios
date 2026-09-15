@@ -19,18 +19,6 @@ header('Cache-Control: no-cache, must-revalidate');
 
 try {
     // =============================================
-    // 0. VALIDAR CARRITO
-    // =============================================
-    if (empty($_SESSION['carrito']) || count($_SESSION['carrito']) === 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'No hay productos en el carrito. Agrega productos antes de reportar un pago.',
-            'redirect' => '?pagina=web_Catalogo'
-        ]);
-        exit;
-    }
-
-    // =============================================
     // 1. RECIBIR DATOS
     // =============================================
     $id_pedido = intval($_POST['id_pedido'] ?? 0);

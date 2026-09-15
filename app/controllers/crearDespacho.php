@@ -48,6 +48,14 @@ $motorizado_telefono = trim($data['motorizado_telefono'] ?? '');
 $tiempo_estimado = intval($data['tiempo_estimado'] ?? 60);
 
 // =============================================
+// 2.1. VALIDAR TIEMPO ESTIMADO (60 a 120 minutos)
+// =============================================
+if ($tiempo_estimado < 60 || $tiempo_estimado > 120) {
+    echo json_encode(['success' => false, 'message' => 'El tiempo estimado debe estar entre 60 y 120 minutos']);
+    exit;
+}
+
+// =============================================
 // 3. INSTANCIAR MODELOS
 // =============================================
 $envioModel = new EnvioModel();
@@ -61,6 +69,11 @@ if (!$pedido) {
     echo json_encode(['success' => false, 'message' => 'Pedido no encontrado']);
     exit;
 }
+
+// Fijar variables de auditoría para los triggers (usuario que gestiona el despacho)
+$connSistema = \App\Sistema\config\Conexion::getShared('sistema_edward');
+$stmtSesion = $connSistema->prepare("SET @usuario_actual = :u, @modulo = :m");
+$stmtSesion->execute([':u' => $cedula, ':m' => 'Administrar Ventas Online']);
 
 // =============================================
 // 5. CREAR DESPACHO (usando el modelo mejorado)

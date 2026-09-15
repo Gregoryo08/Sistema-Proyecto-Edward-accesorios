@@ -166,7 +166,8 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
                 <option value="tienda">📦 Retiro en Tienda</option>
                 <option value="delivery">🚚 Delivery</option>
             </select>
-            <input type="number" id="tiempo_estimado" class="swal2-input" placeholder="Tiempo estimado (min)" value="60">
+            <div style="text-align:left; margin:4px 0 2px; font-size:.85em; color:#6c757d;">Tiempo estimado de entrega (minutos)</div>
+            <input type="number" id="tiempo_estimado" class="swal2-input" placeholder="60 a 120 minutos" min="60" max="120" step="5" value="60">
         `,
         showCancelButton: true, 
         confirmButtonText: 'Asignar', 
@@ -175,17 +176,21 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
             let nom = document.getElementById('motorizado_nombre').value.trim();
             let tel = document.getElementById('motorizado_telefono').value.trim();
             let tipo = document.getElementById('tipo_despacho').value;
-            let tiempo = document.getElementById('tiempo_estimado').value || 60;
+            let tiempo = parseInt(document.getElementById('tiempo_estimado').value, 10);
             
             if (!nom || !tel) { 
                 Swal.showValidationMessage('Complete todos los datos del motorizado'); 
                 return false; 
             }
+            if (isNaN(tiempo) || tiempo < 60 || tiempo > 120) {
+                Swal.showValidationMessage('El tiempo debe estar entre 60 y 120 minutos');
+                return false;
+            }
             return { 
                 motorizado_nombre: nom, 
                 motorizado_telefono: tel, 
                 tipo_despacho: tipo, 
-                tiempo_estimado: parseInt(tiempo) 
+                tiempo_estimado: tiempo 
             };
         }
     }).then((result) => {
@@ -224,7 +229,7 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
  */
 function actualizarEstadoDespacho(id_pedido, accion) {
     let titulo = accion === 'en_ruta' ? 'Iniciar Ruta' : 
-                 (accion === 'entregado' ? 'Marcar Entregado' : 'Cancelar Despacho');
+                 (accion === 'entregado' ? 'Marcar Entregado' : 'Eliminar Despacho');
     let icono = accion === 'en_ruta' ? 'info' : 
                 (accion === 'entregado' ? 'success' : 'warning');
     

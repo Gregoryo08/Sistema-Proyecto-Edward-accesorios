@@ -3,6 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle del Pedido | Edward Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -68,7 +69,8 @@
                 <h5>Productos</h5>
             </div>
             <div class="card-body">
-                <table class="table table-striped">
+                <div class="table-responsive">
+                    <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Producto</th>
@@ -94,6 +96,7 @@
                         </tr>
                     </tfoot>
                 </table>
+                </div>
             </div>
         </div>
 
@@ -116,7 +119,7 @@
                 <!-- BADGE DE ESTADO -->
                 <span class="badge bg-<?= $estadoData['color'] ?> p-2 mb-3" style="font-size: 1rem;">
                     <i class="fas <?= $estadoData['icono'] ?>"></i> 
-                    <?= ucfirst($estadoData['estado']) ?>
+                    <?= ['pendiente' => 'Pendiente de pago', 'revision' => 'Pago por aprobar', 'aprobado' => 'Pago aprobado', 'enviado' => 'Despacho en ruta', 'entregado' => 'Entregado', 'rechazado' => 'Pago rechazado', 'cancelado' => 'Cancelado'][$pedido['estado']] ?? ucfirst($estadoData['estado']) ?>
                 </span>
 
                 <!-- ALERTA DE ESTADO -->
@@ -128,7 +131,7 @@
 
                 <!-- BOTÓN (SOLO SI APLICA) -->
                 <?php if ($estadoData['mostrar_boton']): ?>
-                    <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>" 
+                    <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>&metodo=<?= urlencode($pedido['metodo_pago'] ?? 'transferencia') ?>" 
                        class="btn btn-<?= $estadoData['boton_estilo'] ?> btn-lg mt-2">
                         <i class="fas <?= $estadoData['boton_icono'] ?>"></i> 
                         <?= $estadoData['texto_boton'] ?>

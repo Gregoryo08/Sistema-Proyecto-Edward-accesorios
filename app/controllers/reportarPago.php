@@ -15,8 +15,15 @@ if (!isset($_SESSION['es_ecommerce']) || $_SESSION['es_ecommerce'] !== true) {
     exit;
 }
 
-// ✅ Validar carrito
-if (empty($_SESSION['carrito'])) {
+// ✅ Pedido válido (permite pagar desde Mis Pedidos incluso con carrito vacío)
+$id_pedido = $_GET['pedido'] ?? 0;
+$metodo = $_GET['metodo'] ?? '';
+
+$pedidoModel = new PedidoModel();
+$pedido = $pedidoModel->obtenerPorIdYCliente($id_pedido, $_SESSION['cliente_cedula'] ?? '');
+
+// ✅ Solo se exige carrito si NO viene de un pedido real del cliente
+if (empty($_SESSION['carrito']) && !$pedido) {
     ?>
     <!DOCTYPE html><html><body>
     <script>
@@ -32,11 +39,12 @@ if (empty($_SESSION['carrito'])) {
     exit;
 }
 
-$id_pedido = $_GET['pedido'] ?? 0;
-$metodo = $_GET['metodo'] ?? 'transferencia';
+// Si no viene el método por URL, usarlo del pedido (para el botón "Procesar pago" de Mis Pedidos)
+if ($metodo === '' && !empty($pedido['metodo_pago'])) {
+    $metodo = $pedido['metodo_pago'];
+}
+$metodo = $metodo === '' ? 'transferencia' : $metodo;
 
-$pedidoModel = new PedidoModel();
-$pedido = $pedidoModel->obtenerPorIdYCliente($id_pedido, $_SESSION['cliente_cedula'] ?? '');
 $total_usd = $pedido['total'] ?? 0;
 
 $tasaModel = new TasaCambioModel();

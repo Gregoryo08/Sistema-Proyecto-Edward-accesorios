@@ -44,53 +44,53 @@ public function registrarNotificacionTasaNoDisponible()
         return false;
     }
 }
-    public function cambiarTasaManual($monto, $cedulaAdmin, $claveAdmin) {
-        if (!is_numeric($monto) || $monto <= 0) {
-            return ["invalido" => "El monto de la tasa debe ser un número válido mayor a cero."];
-        }
-
-        try {
-            $conexSistema = new Conexion("sistema");
-            $conexSistema->beginTransaction();
-
-            $user = $_SESSION["username"] ?? $cedulaAdmin;
-            $modulo = "Administrar Tasa";
-
-            $conexSistema->exec("SET @usuario_actual = '{$user}'");
-            $conexSistema->exec("SET @modulo = '{$modulo}'");
-
-            $stmt = $conexSistema->prepare("INSERT INTO tasa (monto) VALUES (:monto)");
-            $stmt->bindParam(":monto", $monto);
-
-            if (!$stmt->execute()) {
-                $conexSistema->rollBack();
-                return ["error" => "Error al registrar la tasa."];
-            }
-
-            $conexSistema->commit();
-            unset($conexSistema);
-            return true;
-        } catch (Throwable $th) {
-            if (isset($conexSistema)) {
-                $conexSistema->rollBack();
-            }
-            return ["error" => "Error en el servidor al actualizar la tasa."];
-        }
+   public function cambiarTasaManual($monto, $cedulaAdmin, $claveAdmin, $fuente = 'BCV') {
+    if (!is_numeric($monto) || $monto <= 0) {
+        return ["invalido" => "El monto de la tasa debe ser un número válido mayor a cero."];
     }
 
-    public function obtenerTasaActual() {
-        try {
-            $conexSistema = new Conexion("sistema");
-            $stmt = $conexSistema->prepare("SELECT id, monto, fecha FROM tasa ORDER BY id DESC LIMIT 1");
-            $stmt->execute();
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            unset($conexSistema);
-            return $resultado;
-        } catch (Throwable $th) {
-            return false;
-        }
-    }
+    try {
+        $conexSistema = new Conexion("sistema");
+        $conexSistema->beginTransaction();
 
+        $user = $_SESSION["username"] ?? $cedulaAdmin;
+        $modulo = "Administrar Tasa";
+
+        $conexSistema->exec("SET @usuario_actual = '{$user}'");
+        $conexSistema->exec("SET @modulo = '{$modulo}'");
+
+        $stmt = $conexSistema->prepare("INSERT INTO tasa_cambio (tasa, fuente) VALUES (:monto, :fuente)");
+        $stmt->bindParam(":monto", $monto);
+        $stmt->bindParam(":fuente", $fuente);
+
+        if (!$stmt->execute()) {
+            $conexSistema->rollBack();
+            return ["error" => "Error al registrar la tasa."];
+        }
+
+        $conexSistema->commit();
+        unset($conexSistema);
+        return true;
+    } catch (Throwable $th) {
+        if (isset($conexSistema)) {
+            $conexSistema->rollBack();
+        }
+        return ["error" => "Error en el servidor al actualizar la tasa."];
+    }
+}
+
+   public function obtenerTasaActual() {
+    try {
+        $conexSistema = new Conexion("sistema");
+        $stmt = $conexSistema->prepare("SELECT id, tasa, fecha_actualizacion FROM tasa_cambio ORDER BY id DESC LIMIT 1");
+        $stmt->execute();
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        unset($conexSistema);
+        return $resultado;
+    } catch (Throwable $th) {
+        return false;
+    }
+}
     public function getMonto() { return $this->monto; }
     public function setMonto($monto) { $this->monto = $monto; }
 }

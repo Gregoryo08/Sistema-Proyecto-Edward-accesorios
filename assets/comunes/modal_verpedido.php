@@ -38,13 +38,13 @@
                 <div class="card shadow-sm">
                     <div class="card-header bg-<?= $estadoData['color'] ?> text-white"><h5>Estado del Pedido</h5></div>
                     <div class="card-body">
-                        <span class="badge bg-<?= $estadoData['color'] ?> p-2 mb-3" style="font-size: 1rem;"><i class="fas <?= $estadoData['icono'] ?>"></i> <?= ucfirst($estadoData['estado']) ?></span>
+                        <span class="badge bg-<?= $estadoData['color'] ?> p-2 mb-3" style="font-size: 1rem;"><i class="fas <?= $estadoData['icono'] ?>"></i> <?= ['pendiente' => 'Pendiente de pago', 'revision' => 'Pago por aprobar', 'aprobado' => 'Pago aprobado', 'enviado' => 'Despacho en ruta', 'entregado' => 'Entregado', 'rechazado' => 'Pago rechazado', 'cancelado' => 'Cancelado'][$pedido['estado'] ?? ''] ?? ucfirst($estadoData['estado']) ?></span>
                         <div class="alert alert-<?= $estadoData['clase_alerta'] ?> mt-2">
                             <strong><?= $estadoData['mensaje']['titulo'] ?></strong>
                             <p class="mb-0"><?= $estadoData['mensaje']['cuerpo'] ?></p>
                         </div>
                         <?php if ($estadoData['mostrar_boton']): ?>
-                            <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>" class="btn btn-<?= $estadoData['boton_estilo'] ?> btn-lg mt-2"><i class="fas <?= $estadoData['boton_icono'] ?>"></i> <?= $estadoData['texto_boton'] ?></a>
+                            <a href="?pagina=reportarPago&pedido=<?= $pedido['id_pedido'] ?>&metodo=<?= urlencode($pedido['metodo_pago'] ?? 'transferencia') ?>" class="btn btn-<?= $estadoData['boton_estilo'] ?> btn-lg mt-2"><i class="fas <?= $estadoData['boton_icono'] ?>"></i> <?= $estadoData['texto_boton'] ?></a>
                         <?php endif; ?>
                     </div>
                 </div>

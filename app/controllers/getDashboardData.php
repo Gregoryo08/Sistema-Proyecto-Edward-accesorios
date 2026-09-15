@@ -275,9 +275,8 @@ try {
                                         <p class="mb-0 small text-muted"><strong>Entrega estimada:</strong> ' . $entrega_estimada . '</p>
                                     </div>
                                     <div>
-                                        <button class="btn btn-success btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'entregado\')"><i class="fas fa-check-double"></i> Entregado</button>
-                                        ' . ($estado !== 'EN_RUTA' ? '<button class="btn btn-info btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'en_ruta\')"><i class="fas fa-motorcycle"></i> Iniciar Ruta</button>' : '') . '
-                                        <button class="btn btn-danger btn-sm" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'cancelado\')"><i class="fas fa-times"></i> Cancelar</button>
+                                        ' . ($estado === 'EN_RUTA' ? '<button class="btn btn-success btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'entregado\')"><i class="fas fa-check-double"></i> Entregado</button>' : '<button class="btn btn-info btn-sm mb-1" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'en_ruta\')"><i class="fas fa-motorcycle"></i> Iniciar Ruta</button>') . '
+                                        <button class="btn btn-danger btn-sm" onclick="actualizarEstadoDespacho(' . $d['id_pedido'] . ', \'cancelado\')"><i class="fas fa-times"></i> Eliminar</button>
                                     </div>
                                 </div>
                             </div>
