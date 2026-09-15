@@ -10,7 +10,7 @@ class scrape_dolar
     public static function obtenerPrecioDolarBCV()
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "");
+        curl_setopt($ch, CURLOPT_URL, "https://www.bcv.org.ve/");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
