@@ -309,7 +309,7 @@ function registrar() {
     const ingresoBs = ($("#ingreso_bs").val() || "").trim();
     const operadora = ($("#operadora").val() || "").trim();
 
-    if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+    if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,8}$/.test(cedula)) return false;
     if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
     if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
     if (!fecha || !validarFechaNacimientoCliente(fecha)) return false;
@@ -593,7 +593,7 @@ $("#guardarPerfilFinanciero").off("click.validacionPerfil").on("click.validacion
     var cedula = $("#cedulaPerfil").val();
     var ingresosUsd = $("#calc_usd_perfil").text();
 
-    if (!cedula || !/^[VE]-\d{7,9}$/.test(cedula)) {
+    if (!cedula || !/^[VE]-\d{7,8}$/.test(cedula)) {
         alertas("error", "Debe asociar una cédula válida antes de guardar el perfil financiero.", "¡Error!");
         return;
     }
@@ -799,7 +799,7 @@ function modificar() {
     const ingresosMensuales = ($("#ingresosModificar").val() || "").trim();
     const operadora = ($("#operadoraModificar").val() || "").trim();
 
-    if (!cedula || !/^[VE]-?[0-9]{7,9}$/.test(cedula.replace(/\s+/g, ''))) return false;
+    if (!cedula || !/^[VE]-?[0-9]{7,8}$/.test(cedula.replace(/\s+/g, ''))) return false;
     if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
     if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
     if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;

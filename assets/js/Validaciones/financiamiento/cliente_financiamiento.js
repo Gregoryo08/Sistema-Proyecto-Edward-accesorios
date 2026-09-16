@@ -59,16 +59,35 @@ $(document).ready(function () {
     });
 
     $('#monto_pago').on('input', function() {
-        let val = parseFloat($(this).val());
-        if (isNaN(val) || val <= 0) {
-            gestionarEstado('monto_pago', false, 'Monto debe ser mayor a 0');
-            if ($("#monto_bs").length) $("#monto_bs").text('0.00');
+        const entrada = $(this).val();
+        const contieneNegativo = entrada.includes('-');
+        let valor = entrada.replace(/[^0-9.]/g, '');
+        const partes = valor.split('.');
+        valor = partes[0].slice(0, 4);
+        if (partes.length > 1) valor += '.' + partes[1].slice(0, 2);
+        $(this).val(valor);
+
+        let val = parseFloat(valor);
+        const formatoValido = /^\d{1,4}(\.\d{1,2})?$/.test(valor);
+        if (contieneNegativo || !formatoValido || isNaN(val)) {
+            gestionarEstado('monto_pago', false, 'Use solo números, hasta 4 dígitos y 2 decimales');
+                if ($("#monto_bs").length) $("#monto_bs").text('0.00');
+        } else if (val <= 0) {
+            gestionarEstado('monto_pago', false, 'El monto debe ser mayor a 0');
+                if ($("#monto_bs").length) $("#monto_bs").text('0.00');
         } else if (val > montoMaximo) {
             gestionarEstado('monto_pago', false, 'Monto supera la cuota (' + montoMaximo + ')');
             actualizarConversion(val);
         } else {
             gestionarEstado('monto_pago', true);
             actualizarConversion(val);
+        }
+    });
+
+    $('#monto_pago').on('blur', function() {
+        const valor = $(this).val();
+        if (/^\d{1,4}(\.\d{1,2})?$/.test(valor)) {
+            $(this).val(parseFloat(valor).toFixed(2));
         }
     });
 

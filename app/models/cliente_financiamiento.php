@@ -95,8 +95,12 @@ class cliente_financiamiento extends Conexion
 
     private function registrarSolicitudPago($d)
     {
+        $montoTexto = trim((string)($d['monto'] ?? ''));
+        if (!preg_match('/^\d{1,4}(\.\d{1,2})?$/', $montoTexto)) {
+            return ["error" => "El monto debe tener hasta 4 dígitos enteros y 2 decimales."];
+        }
         $this->setIdCuota($d['id_cuota'] ?? 0);
-        $this->setMonto($d['monto'] ?? 0);
+        $this->setMonto((float)$montoTexto);
         $this->setIdMetodo($d['id_metodo'] ?? 0);
         $this->setIdBanco($d['id_banco'] ?? 0);
         $this->setReferencia($d['referencia'] ?? '');

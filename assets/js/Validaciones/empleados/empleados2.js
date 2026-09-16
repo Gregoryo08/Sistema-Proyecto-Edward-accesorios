@@ -134,8 +134,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#prefijo', '#texto_mensaje_cedula');
     }
 
-    if (!cedula || !/^[0-9]{1,9}$/.test(cedula) || cedula.length > 9) {
-      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener máximo 9 dígitos.');
+    if (!cedula || !/^[0-9]{7,8}$/.test(cedula)) {
+      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener entre 7 y 8 dígitos.');
       valido = false;
     } else {
       limpiarValidacionSimple('#cedula', '#texto_mensaje_cedula');
@@ -329,7 +329,7 @@ $(document).ready(function () {
       return false;
     }
 
-    if (event.type === "keypress" && (event.which < 48 || event.which > 57 || this.value.length === 9)) {
+    if (event.type === "keypress" && (event.which < 48 || event.which > 57 || this.value.length === 8)) {
       event.preventDefault();
       mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'Este campo no acepta letras.');
       return false;
@@ -351,8 +351,8 @@ $(document).ready(function () {
       return;
     }
 
-    if (valor.length < 7 || valor.length > 9) {
-      $("#texto_mensaje_cedula").css("display", "block").text("La cédula debe tener entre 7 y 9 dígitos.");
+    if (valor.length < 7 || valor.length > 8) {
+      $("#texto_mensaje_cedula").css("display", "block").text("La cédula debe tener entre 7 y 8 dígitos.");
       return;
     }
 
@@ -369,7 +369,7 @@ $(document).ready(function () {
   });
 
   limitarTexto('#nombre, #apellido, #nombreModificar, #apellidoModificar', /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, 35);
-  limitarLongitud('#cedula, #cedulaModificar', 9);
+  limitarLongitud('#cedula, #cedulaModificar', 8);
   limitarLongitud('#telefono, #telefonoModificar', 7);
   limitarLongitud('#correo, #correoModificar', 45);
   limitarLongitud('#direccion, #direccionModificar', 50);

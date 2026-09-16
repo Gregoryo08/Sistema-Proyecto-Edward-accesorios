@@ -38,11 +38,11 @@ $(document).ready(function () {
   function prepararCedula() {
     const campo = $('#cedula');
 
-    campo.attr({ maxlength: 9, placeholder: '1234567' });
-    campo.val(campo.val().replace(/[^0-9]/g, '').slice(0, 9));
+    campo.attr({ maxlength: 8, placeholder: '1234567' });
+    campo.val(campo.val().replace(/[^0-9]/g, '').slice(0, 8));
 
     campo.off('input.cedula').on('input.cedula', function () {
-      $(this).val($(this).val().replace(/[^0-9]/g, '').slice(0, 9));
+      $(this).val($(this).val().replace(/[^0-9]/g, '').slice(0, 8));
     });
   }
 
@@ -63,8 +63,8 @@ $(document).ready(function () {
     const cedula = obtenerCedula();
     const clave = $('#clave').val();
 
-    if (!/^[VE]-\d{7,9}$/.test(cedula)) {
-      mostrarError('#cedula', '#msg_cedula', 'La cédula debe tener entre 7 y 9 dígitos.');
+    if (!/^[VE]-\d{7,8}$/.test(cedula)) {
+      mostrarError('#cedula', '#msg_cedula', 'La cédula debe tener entre 7 y 8 dígitos.');
       valido = false;
     } else {
       limpiarError('#cedula', '#msg_cedula');

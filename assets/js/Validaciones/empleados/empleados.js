@@ -518,7 +518,7 @@ $(document).ready(function () {
         const fecha = ($("#fecha_nacimiento").val() || "").trim();
         const sexo = ($("#sexo").val() || "").trim();
 
-        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,8}$/.test(cedula)) return false;
         if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
         if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
         if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
@@ -545,7 +545,7 @@ $(document).ready(function () {
         const fecha = (($("#fecha_nacimiento_real").val() || $("#fechaNacimientoModificar").val()) || "").trim();
         const sexo = ($("#sexoModificar").val() || "").trim();
 
-        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,9}$/.test(cedula)) return false;
+        if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,8}$/.test(cedula)) return false;
         if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
         if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
         if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;

@@ -20,7 +20,7 @@
                         <div class="d-flex justify-content-center align-items-center gap-3">
                             <div class="text-primary">
                                 <small class="d-block text-uppercase fw-bold">Dólares</small>
-                                <input type="text" class="form-control form-control-lg text-center fw-bold" id="monto_pago" name="monto" readonly style="width: 150px; border: none; background: transparent; font-size: 1.5rem;">
+                                <input type="text" class="form-control form-control-lg text-center fw-bold" id="monto_pago" name="monto" inputmode="decimal" maxlength="7" readonly style="width: 150px; border: none; background: transparent; font-size: 1.5rem;">
                             </div>
                             <div class="border-start ps-3 text-success">
                                 <small class="d-block text-uppercase fw-bold">Bolívares</small>

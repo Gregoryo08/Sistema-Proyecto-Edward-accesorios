@@ -71,6 +71,9 @@ class Cliente extends Persona
     private function registroCliente()
     {
         $cedula = $this->getCedula();
+        if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $cedula)) {
+            return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
+        }
         if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
             return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
         }
@@ -144,6 +147,9 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
     private function ModificarCliente()
 {
     $cedula = $this->getCedula();
+    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $cedula)) {
+        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
+    }
     if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
         return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
     }

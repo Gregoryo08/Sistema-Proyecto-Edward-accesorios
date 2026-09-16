@@ -165,6 +165,9 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
     
 private function registroEmpleado()
 {
+    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $this->getCedula())) {
+        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
+    }
     if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
         return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
     }
@@ -232,6 +235,9 @@ private function registroEmpleado()
 }
 private function ModificarEmpleado($cedula) 
 {
+    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $this->getCedula())) {
+        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
+    }
     if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
         return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
     }

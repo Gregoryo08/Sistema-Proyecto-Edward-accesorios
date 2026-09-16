@@ -127,7 +127,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     switch ($accion) {
         case 'registrarPago':
             $id_cuota = filter_var($_POST['id_cuota'] ?? 0, FILTER_VALIDATE_INT);
-            $monto = filter_var($_POST['monto'] ?? 0, FILTER_VALIDATE_FLOAT);
+            $montoTexto = trim((string)($_POST['monto'] ?? ''));
+            if (!preg_match('/^\d{1,4}(\.\d{1,2})?$/', $montoTexto)) {
+                echo json_encode(["error" => "El monto debe tener hasta 4 dígitos enteros y 2 decimales."]);
+                exit();
+            }
+            $monto = (float)$montoTexto;
             $id_metodo = filter_var($_POST['id_metodo'] ?? 0, FILTER_VALIDATE_INT);
             $id_banco = filter_var($_POST['id_banco'] ?? 0, FILTER_VALIDATE_INT);
             $referencia = filter_var($_POST['referencia'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);

@@ -88,6 +88,9 @@ class Usuario extends Conexion
             if (!preg_match('/^[VE]-/', $cedulaLimpia)) {
                 $this->cedula_usuario = 'V-' . preg_replace('/^[VEve]-?/', '', $cedulaLimpia);
             }
+            if (!preg_match('/^[VE]-\d{7,8}$/', $this->cedula_usuario)) {
+                return ["success" => false, "error" => "La cédula debe tener entre 7 y 8 dígitos."];
+            }
 
             $conexUser = new Conexion("usuario");
             $stmtExiste = $conexUser->prepare("SELECT COUNT(*) FROM usuarios WHERE cedula_usuario = :c");
@@ -161,6 +164,9 @@ class Usuario extends Conexion
         try {
             if (empty($this->cedula_usuario)) {
                 return ["success" => false, "error" => "Cédula no especificada."];
+            }
+            if (!preg_match('/^[VE]-\d{7,8}$/', $this->cedula_usuario)) {
+                return ["success" => false, "error" => "La cédula debe tener entre 7 y 8 dígitos."];
             }
 
             if (empty($this->id_rol)) {

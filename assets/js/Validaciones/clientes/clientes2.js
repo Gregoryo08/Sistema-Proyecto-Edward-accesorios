@@ -124,8 +124,8 @@ $(document).ready(function () {
 
       if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(tecla)) return true;
 
-      if ((event.type === "keydown" && tecla.length === 1 && !/[0-9]/.test(tecla)) ||
-          (event.type === "keypress" && (codigo < 48 || codigo > 57 || this.value.length >= 9))) {
+        if ((event.type === "keydown" && tecla.length === 1 && !/[0-9]/.test(tecla)) ||
+          (event.type === "keypress" && (codigo < 48 || codigo > 57 || this.value.length >= 8))) {
         event.preventDefault();
         mostrarValidacionSimple(selector, mensajeSelector, 'Este campo no acepta letras.');
         return false;
@@ -161,8 +161,8 @@ $(document).ready(function () {
       limpiarValidacionSimple('#prefijo', '#texto_mensaje_cedula');
     }
 
-    if (!cedula || !/^[0-9]{7,9}$/.test(cedula)) {
-      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener entre 7 y 9 dígitos.');
+    if (!cedula || !/^[0-9]{7,8}$/.test(cedula)) {
+      mostrarValidacionSimple('#cedula', '#texto_mensaje_cedula', 'La cédula debe tener entre 7 y 8 dígitos.');
       valido = false;
     } else if (prefijo) {
       limpiarValidacionSimple('#cedula', '#texto_mensaje_cedula');
@@ -295,7 +295,7 @@ $(document).ready(function () {
 
   limitarTexto('#nombre, #apellido, #nombreModificar, #apellidoModificar', /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, 35);
   limitarTexto('#ocupacion, #ocupacionModificar, #ocupacionPerfil', /[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]/g, 60);
-  limitarLongitud('#cedula', 9);
+  limitarLongitud('#cedula', 8);
   limitarLongitud('#correo, #correoModificar', 45);
   limitarLongitud('#direccion, #direccionModificar', 50);
   limitarLongitud('#telefono, #telefonoModificar', 7);
