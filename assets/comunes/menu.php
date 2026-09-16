@@ -277,9 +277,7 @@
             <?php endif; ?>
 
             <?php if (
-                $obj_usuario->tienePermiso("Administrar Ventas", "listar") ||
-                $obj_usuario->tienePermiso("Administrar Chequeo", "listar")
-            ): ?>
+                $obj_usuario->tienePermiso("Administrar Ventas", "listar")): ?>
                 <li class="dropdown">
                     <a href="#" class="opcion">
                         <i class="fa-solid fa-store"></i>
@@ -290,7 +288,7 @@
                             <li><a href="?pagina=ventas"><i class="bi bi-arrow-return-right"></i> Ventas</a></li>
                         <?php endif; ?>
 
-                        <?php if ($obj_usuario->tienePermiso("Administrar Chequeo", "listar")): ?>
+                        <?php if ($obj_usuario->tienePermiso("Administrar Ventas", "listar")): ?>
                             <li><a href="?pagina=chequeo"><i class="bi bi-arrow-return-right"></i> Ventas Online</a></li>
                         <?php endif; ?>
                     </ul>
