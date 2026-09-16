@@ -64,9 +64,19 @@ $(document).ready(function () {
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
-                { data: "stock_actual",
-                    render: (d) => d <= 3 ? '<span class="badge bg-warning text-capitalize" title="Advertencia poco stock">' + d + '</span>' : '<span class="badge bg-primary text-capitalize">' + d + '</span>'
-                    
+                { data: "stock_minimo", visible: false},
+                { 
+                    data: "stock_actual",
+                    render: function (data, type, row) {
+                        let stockActual = parseInt(data) || 0;
+                        let stockMinimo = parseInt(row.stock_minimo) || 0;
+
+                        if (stockActual <= stockMinimo) {
+                            return '<span class="badge bg-warning text-capitalize" title="Advertencia: Stock bajo o en mínimo">' + stockActual + '</span>';
+                        } else {
+                            return '<span class="badge bg-primary text-capitalize">' + stockActual + '</span>';
+                        }
+                    }
                  },
                 { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2),
                     className: "text-success"
