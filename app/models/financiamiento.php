@@ -107,12 +107,15 @@ private function actualizarSaldosYMorasPrivado()
         $this->commit();
 
         $sql = "SELECT f.*, p.nombre, p.apellido, df.id_productos, pr.nombre_producto, df.estado_equipo,
-                       IFNULL(ut.imei, 'N/A') as imei, IFNULL(ut.almacenamiento, 'N/A') as almacenamiento,
-                       IFNULL(ut.memoria_ram, 'N/A') as memoria_ram,
-                       (SELECT COUNT(DISTINCT numero_cuota) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado') as pagadas,
-                       (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
-                       (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
-                       DATEDIFF((SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1), CURDATE()) as dias_restantes
+                        IFNULL(ut.imei, 'N/A') as imei, IFNULL(ut.almacenamiento, 'N/A') as almacenamiento,
+                        IFNULL(ut.memoria_ram, 'N/A') as memoria_ram,
+                        (SELECT COUNT(DISTINCT numero_cuota) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado') as pagadas,
+                        CASE 
+                            WHEN (SELECT COUNT(*) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente') = 0 THEN 0.00
+                            ELSE GREATEST(0, (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')))
+                        END as saldo_pendiente,
+                        (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
+                        DATEDIFF((SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1), CURDATE()) as dias_restantes
                 FROM financiamientos f
                 INNER JOIN persona p ON f.cedula_persona = p.cedula_persona
                 INNER JOIN detalles_financiamiento df ON f.id_financiamiento = df.id_financiamiento
