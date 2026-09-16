@@ -46,11 +46,14 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-   private function listarHistorialCuotas($id_financiamiento)
+    private function listarHistorialCuotas($id_financiamiento)
     {
         try {
             $conex = new conexion("sistema");
-            $sql = "SELECT c.id_cuota, c.numero_cuota, c.monto_pagado, f.monto_cuota as monto_original, 
+            $sql = "SELECT c.id_cuota, c.numero_cuota, 
+                           c.monto_pagado, 
+                           c.monto_pagado AS monto_abonado, 
+                           f.monto_cuota as monto_original, 
                            c.fecha_vencimiento, c.estado_cuota, c.fecha_pago_realizado, 
                            m.nombre_metodopago, b.nombre_banco
                     FROM cuotas c
@@ -90,7 +93,7 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-private function registrarSolicitudPago($d)
+    private function registrarSolicitudPago($d)
     {
         $this->setIdCuota($d['id_cuota'] ?? 0);
         $this->setMonto($d['monto'] ?? 0);
@@ -114,7 +117,6 @@ private function registrarSolicitudPago($d)
             $this->exec("SET @usuario_actual = '{$user}'");
             $this->exec("SET @modulo = 'Administrar Financiamiento'");
 
-            // Consultar la cuota actual y el valor base del financiamiento
             $stmtInfo = $this->prepare("SELECT c.id_financiamiento, c.numero_cuota, c.fecha_vencimiento, c.monto_pagado,
                 (SELECT monto_cuota FROM financiamientos WHERE id_financiamiento = c.id_financiamiento) as valor_teorico 
                 FROM cuotas c WHERE c.id_cuota = ? AND c.estado_cuota = 'pendiente'");
@@ -130,9 +132,9 @@ private function registrarSolicitudPago($d)
             $numeroCuota = $cuotaActual['numero_cuota'];
             $fechaVencimiento = $cuotaActual['fecha_vencimiento'];
             
-            // Si ya era una cuota restante, su valor pendiente real es el monto_pagado registrado inicialmente como saldo, 
-            // o si está vacio/0, tomamos el valor teórico del financiamiento.
-            $montoPendienteActual = ($cuotaActual['monto_pagado'] > 0) ? $cuotaActual['monto_pagado'] : $cuotaActual['valor_teorico'];
+            $montoPendienteActual = (!empty($cuotaActual['monto_pagado']) && $cuotaActual['monto_pagado'] > 0) 
+                ? $cuotaActual['monto_pagado'] 
+                : $cuotaActual['valor_teorico'];
 
             $stmtVerif = $this->prepare("SELECT id_financiamiento FROM financiamientos WHERE id_financiamiento = ? AND cedula_persona = ?");
             $stmtVerif->execute([$idFinanciamiento, $this->cedula_cliente]);
@@ -142,10 +144,8 @@ private function registrarSolicitudPago($d)
             }
 
             if ($this->monto < $montoPendienteActual) {
-                // CASO 1: Abonó menos de lo que debía de esta cuota específica
                 $saldoRestante = $montoPendienteActual - $this->monto;
 
-                // Actualizamos esta cuota con el monto abonado y la ponemos en revisión
                 $sqlUpdate = "UPDATE cuotas 
                         SET estado_cuota = 'en_revision', 
                             monto_pagado = ?, 
@@ -157,14 +157,12 @@ private function registrarSolicitudPago($d)
                 $stmtUpd = $this->prepare($sqlUpdate);
                 $stmtUpd->execute([$this->monto, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota]);
 
-                // Insertamos una nueva cuota pendiente con el nuevo saldo restante
                 $sqlInsertRestante = "INSERT INTO cuotas (id_financiamiento, numero_cuota, fecha_vencimiento, monto_pagado, estado_cuota) 
                                       VALUES (?, ?, ?, ?, 'pendiente')";
                 $stmtIns = $this->prepare($sqlInsertRestante);
                 $stmtIns->execute([$idFinanciamiento, $numeroCuota, $fechaVencimiento, $saldoRestante]);
 
             } else {
-                // CASO 2: Pagó exacto o de más lo que correspondía a esta cuota pendiente
                 $sqlUpdate = "UPDATE cuotas 
                         SET estado_cuota = 'en_revision', 
                             monto_pagado = ?, 
@@ -177,7 +175,6 @@ private function registrarSolicitudPago($d)
                 $stmtUpd->execute([$montoPendienteActual, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota]);
             }
 
-            // Notificaciones institucionales del sistema...
             $stmtCli = $this->prepare("SELECT p.nombre, p.apellido, p.cedula_persona FROM persona p INNER JOIN financiamientos f ON p.cedula_persona = f.cedula_persona WHERE f.id_financiamiento = ?");
             $stmtCli->execute([$idFinanciamiento]);
             $cli = $stmtCli->fetch(PDO::FETCH_ASSOC);
@@ -226,7 +223,7 @@ private function registrarSolicitudPago($d)
         }
     }
 
-   private function listarBancos()
+    private function listarBancos()
     {
         try {
             $conex = new conexion("sistema");

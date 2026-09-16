@@ -186,62 +186,61 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".btn-historial", function () {
-        const id_financiamiento = $(this).data('id');
-        $.get("?pagina=cliente_financiamiento&ajax=true&x=historial&id_financiamiento=" + id_financiamiento, function (res) {
-            const data = typeof res === 'string' ? JSON.parse(res) : res;
-            let tbody = $("#tablaHistorial tbody");
-            tbody.empty();
+    const id_financiamiento = $(this).data('id');
+    $.get("?pagina=cliente_financiamiento&ajax=true&x=historial&id_financiamiento=" + id_financiamiento, function (res) {
+        const data = typeof res === 'string' ? JSON.parse(res) : res;
+        let tbody = $("#tablaHistorial tbody");
+        tbody.empty();
 
-            let cuotasContador = {};
-            data.forEach(c => {
-                let num = c.numero_cuota;
-                cuotasContador[num] = (cuotasContador[num] || 0) + 1;
-            });
-
-            let cuotasVistas = {};
-            let acumuladoAbonos = {};
-
-            data.forEach((c, index) => {
-                let numCuotaOriginal = c.numero_cuota || (index + 1);
-                let etiquetaCuota = numCuotaOriginal;
-                let montoOriginalNum = parseFloat(c.monto_original || 0);
-
-                let montoCuotaStr = `$${montoOriginalNum.toFixed(2)}`;
-                let montoAbonadoStr = '-';
-
-                if (cuotasContador[numCuotaOriginal] > 1) {
-                    if (!cuotasVistas[numCuotaOriginal]) {
-                        cuotasVistas[numCuotaOriginal] = 1;
-                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                        let montoPagadoNum = parseFloat(c.monto_pagado || 0);
-                        acumuladoAbonos[numCuotaOriginal] = montoPagadoNum;
-                        montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
-                    } else {
-                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                        let abonadoPrevio = acumuladoAbonos[numCuotaOriginal] || 0;
-                        let restanteNum = Math.max(0, montoOriginalNum - abonadoPrevio);
-                        montoCuotaStr = `$${restanteNum.toFixed(2)}`;
-                        montoAbonadoStr = '-';
-                    }
-                } else {
-                    if (c.estado_cuota === 'pagado' || c.estado_cuota === 'en_revision') {
-                        montoAbonadoStr = 'Pago Completo';
-                    }
-                }
-
-                tbody.append(`<tr>
-                    <td>${etiquetaCuota}</td>
-                    <td>${c.fecha_vencimiento}</td>
-                    <td>${montoCuotaStr}</td>
-                    <td>${montoAbonadoStr}</td>
-                    <td>${c.estado_cuota}</td>
-                    <td>${c.fecha_pago_realizado || '-'}</td>
-                    <td>${c.nombre_metodopago ? c.nombre_metodopago + ' / ' + (c.nombre_banco || 'N/A') : 'N/A'}</td>
-                </tr>`);
-            });
-            new bootstrap.Modal(document.getElementById('modalHistorialCuotas')).show();
+        let saldosPendientes = {};
+        data.forEach(c => {
+            let num = c.numero_cuota;
+            if (saldosPendientes[num] === undefined) {
+                saldosPendientes[num] = parseFloat(c.monto_original || 0);
+            }
         });
+
+        let conteoFilas = {};
+
+        data.forEach((c, index) => {
+            let numCuotaOriginal = c.numero_cuota || (index + 1);
+            conteoFilas[numCuotaOriginal] = (conteoFilas[numCuotaOriginal] || 0) + 1;
+
+            let montoPagadoNum = parseFloat(c.monto_pagado || 0);
+            let saldoActual = saldosPendientes[numCuotaOriginal];
+
+            let etiquetaCuota = numCuotaOriginal;
+            let montoCuotaStr = `$${saldoActual.toFixed(2)}`;
+            let montoAbonadoStr = '-';
+
+            if (c.estado_cuota === 'pendiente') {
+                etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
+                montoAbonadoStr = '-';
+            } else {
+                if (conteoFilas[numCuotaOriginal] === 1) {
+                    etiquetaCuota = `${numCuotaOriginal} (Abono)`;
+                } else {
+                    etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                }
+                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
+                montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
+            }
+
+            tbody.append(`<tr>
+                <td>${etiquetaCuota}</td>
+                <td>${c.fecha_vencimiento}</td>
+                <td>${montoCuotaStr}</td>
+                <td>${montoAbonadoStr}</td>
+                <td>${c.estado_cuota}</td>
+                <td>${c.fecha_pago_realizado || '-'}</td>
+                <td>${c.nombre_metodopago ? c.nombre_metodopago + ' / ' + (c.nombre_banco || 'N/A') : 'N/A'}</td>
+            </tr>`);
+        });
+        new bootstrap.Modal(document.getElementById('modalHistorialCuotas')).show();
     });
+});
 
     $("#btn_confirmar_pago").click(function () {
         if ($(this).prop('disabled')) return;

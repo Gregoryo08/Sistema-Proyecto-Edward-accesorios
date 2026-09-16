@@ -293,15 +293,19 @@ $(document).on("click", ".btn-seguimiento", function () {
         let html = "";
         
         let montoGeneralFila = parseFloat(fila?.monto_cuota || fila?.monto || 80);
-        let cuotasContador = {};
-
+        let saldosPendientes = {};
         data.forEach(c => {
+            const estado = (c.estado_cuota || "").toLowerCase();
+            if (estado === 'rechazado') return;
+            
             let num = c.numero_cuota;
-            cuotasContador[num] = (cuotasContador[num] || 0) + 1;
+            if (saldosPendientes[num] === undefined) {
+                let baseVal = parseFloat(c.monto_cuota || c.monto || c.monto_original || 0);
+                saldosPendientes[num] = baseVal > 0 ? baseVal : montoGeneralFila;
+            }
         });
 
-        let cuotasVistas = {};
-        let acumuladoAbonos = {};
+        let conteoFilas = {};
 
         data.forEach((c, index) => {
             const estado = (c.estado_cuota || "").toLowerCase();
@@ -327,38 +331,35 @@ $(document).on("click", ".btn-seguimiento", function () {
             }
 
             let numCuotaOriginal = c.numero_cuota || (index + 1);
-            let etiquetaCuota = numCuotaOriginal;
-            let montoOriginalNum = parseFloat(c.monto_cuota || c.monto || c.monto_original || 0);
-            if (montoOriginalNum <= 0) {
-                montoOriginalNum = montoGeneralFila;
-            }
+            conteoFilas[numCuotaOriginal] = (conteoFilas[numCuotaOriginal] || 0) + 1;
 
-            let montoCuotaStr = `$${montoOriginalNum.toFixed(2)}`;
+            let saldoActual = saldosPendientes[numCuotaOriginal] || montoGeneralFila;
+            let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
+
+            let etiquetaCuota = numCuotaOriginal;
+            let montoCuotaStr = `$${saldoActual.toFixed(2)}`;
             let montoAbonadoStr = '-';
 
-            if (cuotasContador[numCuotaOriginal] > 1) {
-                if (!cuotasVistas[numCuotaOriginal]) {
-                    cuotasVistas[numCuotaOriginal] = 1;
+            if (estado === 'pendiente') {
+                etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
+                montoAbonadoStr = '-';
+            } else {
+                if (conteoFilas[numCuotaOriginal] === 1) {
                     etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                    let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
-                    acumuladoAbonos[numCuotaOriginal] = montoPagadoNum;
-                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
                 } else {
                     etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                    let abonadoPrevio = acumuladoAbonos[numCuotaOriginal] || 0;
-                    let restanteNum = Math.max(0, montoOriginalNum - abonadoPrevio);
-                    montoCuotaStr = `$${restanteNum.toFixed(2)}`;
-                    montoAbonadoStr = '-';
                 }
-            } else {
-                if (estado === 'pagado' || estado === 'en_revision') {
-                    let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
-                    if (montoPagadoNum > 0 && montoPagadoNum < montoOriginalNum) {
-                        montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
-                    } else {
-                        montoAbonadoStr = 'Pago Completo';
-                    }
+                
+                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
+
+                if (montoPagadoNum >= saldoActual) {
+                    montoAbonadoStr = 'Pago Completo';
+                } else {
+                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
                 }
+
+                saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
             }
 
             html += `<tr>
