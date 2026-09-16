@@ -73,8 +73,7 @@ $(document).ready(function () {
                 return;
             }
 
-            const opciones = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            const hoy = new Date().toLocaleDateString('sv-SE', opciones);
+            const hoy = new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit' });
             
             const ventasDelDia = data.filter(function (venta) {
                 let fechaVenta = venta.fecha_venta ? venta.fecha_venta.split(' ')[0] : '';
