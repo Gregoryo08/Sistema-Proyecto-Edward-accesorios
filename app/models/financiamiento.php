@@ -58,12 +58,12 @@ private function actualizarSaldosYMorasPrivado()
         $this->beginTransaction();
 
         $sqlMoraPendientes = "SELECT df.id_financiamiento 
-                              FROM cuotas c
-                              JOIN detalles_financiamiento df ON c.id_financiamiento = df.id_financiamiento
-                              WHERE c.estado_cuota = 'pendiente' 
-                              AND c.fecha_vencimiento < CURDATE() 
-                              AND df.estado_equipo != 'bloqueado'
-                              GROUP BY df.id_financiamiento";
+                             FROM cuotas c
+                             JOIN detalles_financiamiento df ON c.id_financiamiento = df.id_financiamiento
+                             WHERE c.estado_cuota = 'pendiente' 
+                             AND c.fecha_vencimiento < CURDATE() 
+                             AND df.estado_equipo != 'bloqueado'
+                             GROUP BY df.id_financiamiento";
         
         $stmtPendientes = $this->query($sqlMoraPendientes);
         $afectados = $stmtPendientes->fetchAll(PDO::FETCH_ASSOC);
@@ -109,7 +109,7 @@ private function actualizarSaldosYMorasPrivado()
         $sql = "SELECT f.*, p.nombre, p.apellido, df.id_productos, pr.nombre_producto, df.estado_equipo,
                        IFNULL(ut.imei, 'N/A') as imei, IFNULL(ut.almacenamiento, 'N/A') as almacenamiento,
                        IFNULL(ut.memoria_ram, 'N/A') as memoria_ram,
-                       (SELECT COUNT(*) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado') as pagadas,
+                       (SELECT COUNT(DISTINCT numero_cuota) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado') as pagadas,
                        (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
                        (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
                        DATEDIFF((SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1), CURDATE()) as dias_restantes
@@ -134,30 +134,68 @@ private function actualizarSaldosYMorasPrivado()
 private function gestionarEstadoPago($id_cuota, $nuevo_estado)
 {
     try {
-        $conex = new conexion("sistema");
-        $conex->beginTransaction(); 
+        $this->beginTransaction(); 
 
-         $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar Financiamiento'");
+        $user = $_SESSION["username"] ?? 'Sistema';
+        $this->exec("SET @usuario_actual = '{$user}'");
+        $this->exec("SET @modulo = 'Administrar Financiamiento'");
 
-        
-        $stmtId = $conex->prepare("SELECT id_financiamiento FROM cuotas WHERE id_cuota = ?");
+        $stmtId = $this->prepare("SELECT id_financiamiento, numero_cuota, monto_pagado, estado_cuota FROM cuotas WHERE id_cuota = ?");
         $stmtId->execute([$id_cuota]);
-        $id_finan = $stmtId->fetchColumn();
+        $cuotaInfo = $stmtId->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$cuotaInfo) {
+           throw new \Exception("Cuota no encontrada.");
+        }
 
-        $sql = "UPDATE cuotas SET estado_cuota = :estado, fecha_pago_realizado = NOW() WHERE id_cuota = :id";
-        $stmt = $conex->prepare($sql);
-        $res = $stmt->execute([':estado' => $nuevo_estado, ':id' => $id_cuota]);
+        $id_finan = $cuotaInfo['id_financiamiento'];
+        $num_cuota = $cuotaInfo['numero_cuota'];
+        $montoRechazado = $cuotaInfo['monto_pagado'];
 
-        if ($res && $nuevo_estado === 'pagado') {
-            $this->verificarCierreFinanciamiento($id_finan, $conex);
+        if ($nuevo_estado === 'pendiente') {
+            
+            
+            $stmtPrin = $this->prepare("SELECT id_cuota, monto_pagado FROM cuotas WHERE id_financiamiento = ? AND numero_cuota = ? AND estado_cuota = 'pendiente' ORDER BY id_cuota ASC LIMIT 1");
+            $stmtPrin->execute([$id_finan, $num_cuota]);
+            $cuotaPendiente = $stmtPrin->fetch(PDO::FETCH_ASSOC);
+
+            if ($cuotaPendiente) {
+                
+                $nuevoMontoPendiente = $cuotaPendiente['monto_pagado'] + $montoRechazado;
+                
+                $this->prepare("UPDATE cuotas SET monto_pagado = ? WHERE id_cuota = ?")
+                     ->execute([$nuevoMontoPendiente, $cuotaPendiente['id_cuota']]);
+
+                
+                $this->prepare("DELETE FROM cuotas WHERE id_cuota = ?")->execute([$id_cuota]);
+
+            } else {
+                
+                $sql = "UPDATE cuotas SET 
+                            estado_cuota = 'pendiente', 
+                            id_metodopago = NULL, 
+                            id_banco = NULL, 
+                            referencia = NULL, 
+                            fecha_pago_realizado = NULL 
+                        WHERE id_cuota = ?";
+                $this->prepare($sql)->execute([$id_cuota]);
+            }
+
+        } else {
+            // Si se está aprobando ('pagado') u otro estado normal
+            $sql = "UPDATE cuotas SET estado_cuota = :estado, fecha_pago_realizado = NOW() WHERE id_cuota = :id";
+            $stmt = $this->prepare($sql);
+            $res = $stmt->execute([':estado' => $nuevo_estado, ':id' => $id_cuota]);
+        }
+
+        if ($nuevo_estado === 'pagado') {
+            $this->verificarCierreFinanciamiento($id_finan, $this);
         }
         
-        $conex->commit();
-        return $res ? ["success" => true] : ["error" => "Error al actualizar"];
-    } catch (PDOException $e) {
-        if (isset($conex)) $conex->rollBack();
+        $this->commit();
+        return ["success" => true];
+    } catch (\Exception $e) {
+        if ($this->inTransaction()) $this->rollBack();
         return ["error" => $e->getMessage()];
     }
 }
@@ -373,57 +411,7 @@ private function modificarCompleto($datos)
     }
 }
 
-private function registrarPago($id_cuota, $monto, $id_metodo)
-{
-    if (empty($id_cuota) || empty($monto) || empty($id_metodo)) {
-        return ["error" => "Datos Incompletos"];
-    }
 
-    if (!is_numeric($monto) || $monto <= 0) {
-        return ["error" => "El monto debe ser un valor numérico positivo"];
-    }
-
-    try {
-        $conex = new conexion("sistema");
-        $conex->beginTransaction();
-        
-        $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar Financiamiento'");
-
-        $stmt = $conex->prepare("UPDATE cuotas SET monto_pagado = ?, fecha_pago_realizado = NOW(), estado_cuota = 'pagado', id_metodopago = ? WHERE id_cuota = ?");
-        
-        if ($stmt->execute([$monto, $id_metodo, $id_cuota])) {
-            $stmt_info = $conex->prepare("SELECT id_financiamiento FROM cuotas WHERE id_cuota = ?");
-            $stmt_info->execute([$id_cuota]);
-            $result = $stmt_info->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$result) {
-                $conex->rollBack();
-                return ["error" => "Cuota no encontrada"];
-            }
-
-            $id_finan = $result['id_financiamiento'];
-
-            $stmt_check = $conex->prepare("SELECT COUNT(*) as pendientes FROM cuotas WHERE id_financiamiento = ? AND estado_cuota = 'pendiente'");
-            $stmt_check->execute([$id_finan]);
-            
-            if ($stmt_check->fetch(PDO::FETCH_ASSOC)['pendientes'] == 0) {
-                $conex->prepare("UPDATE financiamientos SET estado_financiamiento = 'finalizado' WHERE id_financiamiento = ?")->execute([$id_finan]);
-                $conex->prepare("UPDATE detalles_financiamiento SET estado_equipo = 'activo' WHERE id_financiamiento = ?")->execute([$id_finan]);
-            }
-            
-            $conex->commit();
-            return ["success" => true];
-        }
-        
-        $conex->rollBack();
-        return ["error" => "Error al procesar pago"];
-    } catch (PDOException $e) { 
-        if(isset($conex)) $conex->rollBack(); 
-        return ["error" => $e->getMessage()]; 
-    }
-}
 
 public function obtenerCedulaPorCuota($id_cuota)
 {
@@ -591,19 +579,21 @@ public function listarBancos()
         return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC); 
     }
 
-    public function consultarCuotas() { 
-        $stmt = $this->prepare("SELECT 
-                    c.*, 
-                    m.nombre_metodopago, 
-                    b.nombre_banco 
-                FROM cuotas c 
-                LEFT JOIN metodo_pago m ON c.id_metodopago = m.id_metodopago 
-                LEFT JOIN bancos b ON c.id_banco = b.id_banco 
-                WHERE c.id_financiamiento = ? 
-                ORDER BY c.numero_cuota ASC"); 
-        $stmt->execute([$this->getId_financiamiento()]); 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC); 
-    }
+   public function consultarCuotas() { 
+    $stmt = $this->prepare("SELECT 
+                c.*, 
+                m.nombre_metodopago, 
+                b.nombre_banco 
+            FROM cuotas c 
+            LEFT JOIN metodo_pago m ON c.id_metodopago = m.id_metodopago 
+            LEFT JOIN bancos b ON c.id_banco = b.id_banco 
+            WHERE c.id_financiamiento = ? 
+            ORDER BY c.numero_cuota ASC, c.id_cuota ASC"); 
+    $stmt->execute([$this->getId_financiamiento()]); 
+    return $stmt->fetchAll(PDO::FETCH_ASSOC); 
+}
+
+
 
 public function getId_financiamiento() { return $this->id_financiamiento; }
 

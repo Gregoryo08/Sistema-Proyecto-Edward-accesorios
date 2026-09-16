@@ -108,8 +108,8 @@ $(document).ready(function () {
                     if (btnAnular) acciones.push(btnAnular);
 
                     return `<div class="btn-group" role="group">
-                                ${acciones.join('')}
-                            </div>`;
+                            ${acciones.join('')}
+                        </div>`;
                 }
             }
         ],
@@ -224,7 +224,10 @@ $.get("?pagina=financiamiento&ajax=true&x=clientes", function (res) {
 
     $.get("?pagina=financiamiento&ajax=true&x=bancos", function (res) {
         const bancos = typeof res === 'string' ? JSON.parse(res) : res;
-        let select = $("#id_banco");
+        let select = $("#id_banco_pago");
+        if (select.length === 0) {
+            select = $("#id_banco");
+        }
         select.empty().append('<option value="" selected disabled>Seleccione banco...</option>');
         bancos.forEach(b => select.append(`<option value="${b.id_banco}">${b.nombre_banco}</option>`));
     });
@@ -286,35 +289,85 @@ $(document).on("click", ".btn-seguimiento", function () {
     cargarCatalogos();
     
     $.post("?pagina=financiamiento", { accion: "consultarCuotas", id: id }, function (res) {
-        const cuotas = typeof res === 'string' ? JSON.parse(res) : res;
+        const data = typeof res === 'string' ? JSON.parse(res) : res;
         let html = "";
         
-        cuotas.forEach(c => {
+        let montoGeneralFila = parseFloat(fila?.monto_cuota || fila?.monto || 80);
+        let cuotasContador = {};
+
+        data.forEach(c => {
+            let num = c.numero_cuota;
+            cuotasContador[num] = (cuotasContador[num] || 0) + 1;
+        });
+
+        let cuotasVistas = {};
+        let acumuladoAbonos = {};
+
+        data.forEach((c, index) => {
             const estado = (c.estado_cuota || "").toLowerCase();
+            
+            if (estado === 'rechazado') return;
+
             let badge = estado === 'pagado' ? 'success' : (estado === 'en_revision' ? 'danger' : 'warning');
             let acciones = '';
             
-            
-             if (estado === 'en_revision') {
+            if (estado === 'en_revision') {
                 acciones = `
                     <button class="btn btn-sm btn-success me-1" onclick="gestionarPago(${c.id_cuota}, 'aprobarPago')">Aprobar</button>
                     <button class="btn btn-sm btn-danger" onclick="gestionarPago(${c.id_cuota}, 'negarPago')">Negar</button>
                 `;
             }
 
-            let detallePago = (estado === 'pagado' || estado === 'en_revision') ?
-                `<small>
-                    <b>${c.nombre_metodopago || 'N/A'}</b>
-                    ${c.nombre_banco ? '<br>' + c.nombre_banco : ''}
-                    ${c.referencia ? '<br><span class="text-muted">Ref: ' + c.referencia + '</span>' : ''}
-                </small>` : '-';
+            let bancoMetodo = '-';
+            if (c.nombre_metodopago || c.nombre_banco) {
+                bancoMetodo = `${c.nombre_metodopago || ''}${c.nombre_metodopago && c.nombre_banco ? ' / ' : ''}${c.nombre_banco || ''}`;
+                if (c.referencia) {
+                    bancoMetodo += ` <small class="text-muted">(Ref: ${c.referencia})</small>`;
+                }
+            }
+
+            let numCuotaOriginal = c.numero_cuota || (index + 1);
+            let etiquetaCuota = numCuotaOriginal;
+            let montoOriginalNum = parseFloat(c.monto_cuota || c.monto || c.monto_original || 0);
+            if (montoOriginalNum <= 0) {
+                montoOriginalNum = montoGeneralFila;
+            }
+
+            let montoCuotaStr = `$${montoOriginalNum.toFixed(2)}`;
+            let montoAbonadoStr = '-';
+
+            if (cuotasContador[numCuotaOriginal] > 1) {
+                if (!cuotasVistas[numCuotaOriginal]) {
+                    cuotasVistas[numCuotaOriginal] = 1;
+                    etiquetaCuota = `${numCuotaOriginal} (Abono)`;
+                    let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
+                    acumuladoAbonos[numCuotaOriginal] = montoPagadoNum;
+                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                } else {
+                    etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                    let abonadoPrevio = acumuladoAbonos[numCuotaOriginal] || 0;
+                    let restanteNum = Math.max(0, montoOriginalNum - abonadoPrevio);
+                    montoCuotaStr = `$${restanteNum.toFixed(2)}`;
+                    montoAbonadoStr = '-';
+                }
+            } else {
+                if (estado === 'pagado' || estado === 'en_revision') {
+                    let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
+                    if (montoPagadoNum > 0 && montoPagadoNum < montoOriginalNum) {
+                        montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                    } else {
+                        montoAbonadoStr = 'Pago Completo';
+                    }
+                }
+            }
 
             html += `<tr>
-                <td>${c.numero_cuota}</td>
-                <td>${c.fecha_vencimiento}</td>
-                <td>$${parseFloat(c.monto_pagado || 0).toFixed(2)}</td>
-                <td><span class="badge bg-${badge}">${estado.toUpperCase()}</span></td>
-                <td>${detallePago}</td>
+                <td>${etiquetaCuota}</td>
+                <td>${c.fecha_vencimiento || '-'}</td>
+                <td>${montoCuotaStr}</td>
+                <td>${montoAbonadoStr}</td>
+                <td><span class="badge bg-${badge}">${estado}</span></td>
+                <td>${bancoMetodo}</td>
                 <td>${c.fecha_pago_realizado || '-'}</td>
                 <td>${acciones}</td>
             </tr>`;
@@ -391,7 +444,7 @@ window.gestionarPago = function(id_cuota, accion) {
     });
 
    function procesarPeticion(datos, modalId) {
-    if (modalId !== "ninguno") {
+    if (modalId !== "ninguno" && modalId !== "#modalRegistrarPago") {
         const form = $(modalId + " form");
         let esValido = true;
         let mensajeError = "";

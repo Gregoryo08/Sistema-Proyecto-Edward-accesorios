@@ -99,7 +99,6 @@
 
 
 
-
 <div class="modal fade" id="modalSeguimientoPagos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -114,7 +113,8 @@
                             <tr class="text-muted small text-uppercase">
                                 <th>Nro</th>
                                 <th>Vencimiento</th>
-                                <th>Monto</th>
+                                <th>Monto Cuota</th>
+                                <th>Monto Abonado</th>
                                 <th>Estado</th>
                                 <th>Método / Banco</th>
                                 <th>Fecha de Pago</th>
@@ -133,7 +133,7 @@
     </div>
 </div>
 
-<<div class="modal fade" id="modalModificarFinanciamiento" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalModificarFinanciamiento" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-5">
             <div class="modal-header border-0 p-4 pb-0">

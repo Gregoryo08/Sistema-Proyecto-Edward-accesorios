@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let permisos = { listar: false, registrar_pago: false };
     let tasaCambio = 0;
+    let montoMaximo = 0;
     const modalPago = new bootstrap.Modal(document.getElementById('modal_pagar_cuota'));
 
     $('#btn_confirmar_pago').prop('disabled', true);
@@ -34,7 +35,7 @@ $(document).ready(function () {
     }
 
     function verificarFormulario() {
-        const campos = ['id_banco_pago', 'referencia', 'fecha_pago'];
+        const campos = ['monto_pago', 'id_banco_pago', 'referencia', 'fecha_pago'];
         let esValido = true;
         campos.forEach(id => {
             if (!$('#' + id).hasClass('is-valid')) esValido = false;
@@ -55,6 +56,20 @@ $(document).ready(function () {
 
     $('#referencia').on('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    $('#monto_pago').on('input', function() {
+        let val = parseFloat($(this).val());
+        if (isNaN(val) || val <= 0) {
+            gestionarEstado('monto_pago', false, 'Monto debe ser mayor a 0');
+            if ($("#monto_bs").length) $("#monto_bs").text('0.00');
+        } else if (val > montoMaximo) {
+            gestionarEstado('monto_pago', false, 'Monto supera la cuota (' + montoMaximo + ')');
+            actualizarConversion(val);
+        } else {
+            gestionarEstado('monto_pago', true);
+            actualizarConversion(val);
+        }
     });
 
     function inicializarTabla() {
@@ -91,7 +106,8 @@ $(document).ready(function () {
                     render: function (data, type, row) {
                         let botones = "";
                         if (permisos.registrar_pago && parseFloat(row.saldo_pendiente) > 0) {
-                            botones = `<button class="btn btn-primary btn-sm btn-pagar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Pagar</button>`;
+                            botones += `<button class="btn btn-primary btn-sm btn-pagar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Pagar</button>`;
+                            botones += ` <button class="btn btn-warning btn-sm btn-abonar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Abonar</button>`;
                         }
                         botones += ` <button class="btn btn-info btn-sm btn-historial" data-id="${row.id_financiamiento}">Historial</button>`;
                         return botones;
@@ -101,11 +117,21 @@ $(document).ready(function () {
         });
     }
 
-    $(document).on("click", ".btn-pagar", function () {
-        const d = $(this).data();
+    function abrirModalPago(d, esAbono) {
         $("#id_cuota_pago").val(d.id);
-        $("#monto_pago").val(d.monto);
-        actualizarConversion(d.monto);
+        montoMaximo = parseFloat(d.monto);
+        
+        if (esAbono) {
+            $(".modal-title").text("Registrar Abono");
+            $("#monto_pago").val('').prop('readonly', false).removeClass('is-valid is-invalid');
+            if ($("#monto_bs").length) $("#monto_bs").text('0.00');
+            gestionarEstado('monto_pago', false, 'Ingrese el monto a abonar');
+        } else {
+            $(".modal-title").text("Registrar Pago Completo");
+            $("#monto_pago").val(d.monto).prop('readonly', true);
+            gestionarEstado('monto_pago', true);
+            actualizarConversion(d.monto);
+        }
 
         $.get("?pagina=cliente_financiamiento&ajax=true&x=bancos", function (res) {
             const bancos = typeof res === 'string' ? JSON.parse(res) : res;
@@ -119,6 +145,14 @@ $(document).ready(function () {
             $("#fecha_pago").attr('max', hoy);
             modalPago.show();
         });
+    }
+
+    $(document).on("click", ".btn-pagar", function () {
+        abrirModalPago($(this).data(), false);
+    });
+
+    $(document).on("click", ".btn-abonar", function () {
+        abrirModalPago($(this).data(), true);
     });
 
     $('[data-bs-dismiss="modal"]').on('click', function() {
@@ -157,15 +191,52 @@ $(document).ready(function () {
             const data = typeof res === 'string' ? JSON.parse(res) : res;
             let tbody = $("#tablaHistorial tbody");
             tbody.empty();
+
+            let cuotasContador = {};
+            data.forEach(c => {
+                let num = c.numero_cuota;
+                cuotasContador[num] = (cuotasContador[num] || 0) + 1;
+            });
+
+            let cuotasVistas = {};
+            let acumuladoAbonos = {};
+
             data.forEach((c, index) => {
+                let numCuotaOriginal = c.numero_cuota || (index + 1);
+                let etiquetaCuota = numCuotaOriginal;
+                let montoOriginalNum = parseFloat(c.monto_original || 0);
+
+                let montoCuotaStr = `$${montoOriginalNum.toFixed(2)}`;
+                let montoAbonadoStr = '-';
+
+                if (cuotasContador[numCuotaOriginal] > 1) {
+                    if (!cuotasVistas[numCuotaOriginal]) {
+                        cuotasVistas[numCuotaOriginal] = 1;
+                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
+                        let montoPagadoNum = parseFloat(c.monto_pagado || 0);
+                        acumuladoAbonos[numCuotaOriginal] = montoPagadoNum;
+                        montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                    } else {
+                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                        let abonadoPrevio = acumuladoAbonos[numCuotaOriginal] || 0;
+                        let restanteNum = Math.max(0, montoOriginalNum - abonadoPrevio);
+                        montoCuotaStr = `$${restanteNum.toFixed(2)}`;
+                        montoAbonadoStr = '-';
+                    }
+                } else {
+                    if (c.estado_cuota === 'pagado' || c.estado_cuota === 'en_revision') {
+                        montoAbonadoStr = 'Pago Completo';
+                    }
+                }
+
                 tbody.append(`<tr>
-                    <td>${index + 1}</td>
+                    <td>${etiquetaCuota}</td>
                     <td>${c.fecha_vencimiento}</td>
+                    <td>${montoCuotaStr}</td>
+                    <td>${montoAbonadoStr}</td>
                     <td>${c.estado_cuota}</td>
-                    <td>${c.monto_pagado || '0.00'}</td>
                     <td>${c.fecha_pago_realizado || '-'}</td>
-                    <td>${c.nombre_metodopago || 'N/A'}</td>
-                    <td>${c.nombre_banco || 'N/A'}</td>
+                    <td>${c.nombre_metodopago ? c.nombre_metodopago + ' / ' + (c.nombre_banco || 'N/A') : 'N/A'}</td>
                 </tr>`);
             });
             new bootstrap.Modal(document.getElementById('modalHistorialCuotas')).show();

@@ -53,7 +53,7 @@
 
 
 <div class="modal fade" id="modalHistorialCuotas" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Historial de Cuotas</h5>
@@ -66,8 +66,9 @@
                             <tr>
                                 <th>N°</th>
                                 <th>Vencimiento</th>
+                                <th>Monto Cuota</th>
+                                <th>Monto Abonado</th>
                                 <th>Estado</th>
-                                <th>Monto Pagado</th>
                                 <th>Fecha Pago</th>
                                 <th>Banco/Método</th>
                             </tr>

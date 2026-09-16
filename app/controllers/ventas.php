@@ -38,7 +38,7 @@ if (!$cedula) {
 if (!function_exists('obtenerTasaOptimizada')) {
     function obtenerTasaOptimizada(): float
     {
-        $cacheTtl = 1;
+        $cacheTtl = 3600;
 
         $tasa = scrape_dolar::obtenerPrecioDolarBCV();
 
