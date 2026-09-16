@@ -22,7 +22,20 @@ class bancos extends pagos
         parent::__construct();
     }
 
-    public function registrar_banco()
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'registrar': return $this->registrar_banco();
+            case 'consultar': return $this->consultarBanco();
+            case 'validar': return $this->validar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar($datos['tipo'] ?? null);
+            case 'consultarDisponibles': return $this->consultarDisponibles();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function registrar_banco()
     {
         $nombre = $this->getNombre_banco();
         $numero = $this->getNumero_cuenta();
@@ -114,7 +127,7 @@ class bancos extends pagos
         return $resultados;
     }
 
-    public function consultarBanco()
+    private function consultarBanco()
     {
         $id = $this->getCedula_cuenta();
 
@@ -142,7 +155,7 @@ class bancos extends pagos
         return $resultado;
     }
 
-    public function validar()
+    private function validar()
     {
         $cedula = $this->getCedula_cuenta();
         $nombre = $this->getNombre_banco();
@@ -164,7 +177,7 @@ class bancos extends pagos
         return $resultado["conteo"];
     }
 
-    public function consultarDisponibles()
+    private function consultarDisponibles()
     {
         $conex = new conexion("sistema");
         
@@ -175,7 +188,7 @@ class bancos extends pagos
         return $query;
     }
 
-    public function modificar()
+    private function modificar()
     {
         $nombre = $this->getNombre_banco();
         $numero = $this->getNumero_cuenta();
@@ -248,7 +261,7 @@ class bancos extends pagos
         }
     }
 
-    public function eliminar($tipo)
+    private function eliminar($tipo)
     {
         $id_banco = $this->getId_banco();
 

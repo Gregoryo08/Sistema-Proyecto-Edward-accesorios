@@ -64,7 +64,7 @@
                                     <option value="0414">0414</option>
                                     <option value="0424">0424</option>
                                 </select>
-                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" required>
+                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" maxlength="7" required>
                             </div>
                             <p id="texto_mensaje_telefono" class="text-danger small mt-1"></p>
                         </div>

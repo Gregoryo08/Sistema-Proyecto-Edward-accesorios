@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     if ($_POST['accion'] === 'consulta') {
         $obj_perfil = new Empleados();
         $obj_perfil->setCedula($cedula);
-        $datos = $obj_perfil->obtenerDatosUsuario();
+        $datos = $obj_perfil->procesarSolicitud('obtenerDatosUsuario');
         
         if (!$datos || empty($datos)) {
             $datos = [
@@ -62,7 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         $obj_perfil->setCargo((int)$_POST['cargo']);
         $obj_perfil->setEdad(trim($_POST['fecha_nacimiento']));
         
-        $respuesta = $obj_perfil->ModificarEmpleado(trim($_POST['cedula']));
+        $respuesta = $obj_perfil->procesarSolicitud('modificar', [
+            'cedula' => trim($_POST['cedula'])
+        ]);
         
         procesarRespuesta($respuesta, "Datos modificados exitosamente.");
     }

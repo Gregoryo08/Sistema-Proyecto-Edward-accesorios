@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     
     $obj_cargos = new cargos();
     $obj_cargos->setNombre_cargo($nombre);
-    $respuesta = $obj_cargos->validar();
+    $respuesta = $obj_cargos->procesarSolicitud('validar');
 
     if(is_array($respuesta)){
         unset($obj_cargos);
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_cargos = new cargos();
     $obj_cargos->setNombre_cargo($nombre);
-    $respuesta = $obj_cargos->registrar();
+    $respuesta = $obj_cargos->procesarSolicitud('registrar');
 
     if (isset($respuesta["error"])) {
         unset($obj_cargos);
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_cargos = new cargos();
     $obj_cargos->setId_cargo($id);
     $obj_cargos->setNombre_cargo($nombre);
-    $respuesta = $obj_cargos->modificar();
+    $respuesta = $obj_cargos->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"])) {
         unset($obj_cargos);
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_cargos = new cargos();
     $obj_cargos->setId_cargo($id);
-    $respuesta = $obj_cargos->eliminar();
+    $respuesta = $obj_cargos->procesarSolicitud('eliminar');
 
     if (isset($respuesta["error"])) {
         unset($obj_cargos);

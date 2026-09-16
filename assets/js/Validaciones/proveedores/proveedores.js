@@ -181,7 +181,7 @@ $(document).ready(function () {
                 } else if (res.invalido) {
                     showSweetAlert("invalido", res.invalido);
                 } else {
-                    showSweetAlert("invalido", res.error || "Error");
+                    mostrarAlertaDuplicado(res.error || "Error");
                 }
             },
             error: function(xhr, status, error) {
@@ -213,5 +213,19 @@ $(document).ready(function () {
             invalido: { title: "Atención", text: message, icon: "warning" }
         };
         return commonSwalMixin.fire(simple[action]);
+    }
+
+    function mostrarAlertaDuplicado(message) {
+        if (/Rif ya está registrado/i.test(message)) {
+            return Swal.fire({
+                title: "Ups!",
+                text: message,
+                icon: "error",
+                color: "#545454",
+                background: "#ffffff",
+                confirmButtonColor: "#7066e0"
+            });
+        }
+        return showSweetAlert("invalido", message);
     }
 });

@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     if ($accion === 'validarC') {
         $cedula_v = $_POST['cedula'];
         $obj_usuario->setCedula($cedula_v);
-        $resultado = $obj_usuario->validarSeguridad(); 
+        $resultado = $obj_usuario->procesarSolicitud('validarSeguridad');
         echo json_encode(["data" => $resultado]);
         exit();
     }
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         $codigo_v = $_POST['seguridad'];
         $obj_usuario->setCedula($cedula_v);
         $obj_usuario->setCodigo($codigo_v);
-        $resultado = $obj_usuario->validarSeguridad();
+        $resultado = $obj_usuario->procesarSolicitud('validarSeguridad');
         echo json_encode(["data" => $resultado]);
         exit();
     }
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         $obj_usuario->setCedula($cedula_m);
         $obj_usuario->setClave($clave_m);
         
-        $respuesta = $obj_usuario->cambiarClave();
+        $respuesta = $obj_usuario->procesarSolicitud('cambiarClave');
         
         if ($respuesta === true) {
             echo json_encode(["success" => true]);

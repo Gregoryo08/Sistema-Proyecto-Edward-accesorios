@@ -74,7 +74,7 @@
                                     <option value="0424">0424</option>
                                     <option value="0426">0426</option>
                                 </select>
-                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="Número">
+                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="Número" maxlength="7">
                             </div>
                             <p class="mensaje" id="texto_mensaje_telefono"></p>
                         </div>
@@ -95,7 +95,6 @@
     </div>
 </div>
 
-<!-- Modal para modificar datos de empleados -->
 
 <div class="modal fade" id="modalModificar" tabindex="-1" role="dialog" aria-labelledby="modalModificarLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

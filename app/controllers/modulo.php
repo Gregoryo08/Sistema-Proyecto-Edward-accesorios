@@ -16,14 +16,6 @@ if (!(isset($cedula) && isset($rol))) {
 
 $obj_usuario = new usuarios();
 
-//---------------------------------------------------------------------
-
-//$obj_notificacion = new Notificacion();
-//$obj_notificacion->generarNotificacionesStockBajo();
-
-//--------------------------------------------------------------------------------------------
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
     $obj_modulo = new modulo();
     $modulos = $obj_modulo->listar();
@@ -41,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_modulo = new modulo();
     $obj_modulo->setNombre_modulo($nombre);
-    $respuesta = $obj_modulo->registrar();
+    $respuesta = $obj_modulo->procesarSolicitud('registrar');
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);
@@ -74,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_modulo = new modulo();
     $obj_modulo->setId_modulo($id);
     $obj_modulo->setNombre_modulo($nombre);
-    $respuesta = $obj_modulo->modificar();
+    $respuesta = $obj_modulo->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);
@@ -105,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_modulo = new modulo();
     $obj_modulo->setId_modulo($id);
-    $respuesta = $obj_modulo->eliminar();
+    $respuesta = $obj_modulo->procesarSolicitud('eliminar');
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);

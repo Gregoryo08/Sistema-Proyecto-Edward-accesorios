@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $id_turno = isset($_POST["id"]) ? (int) trim($_POST["id"]) : 0;
     $obj_turno = new Turno();
     $obj_turno->setId_turno($id_turno);
-    $turnos = $obj_turno->consultar();
+    $turnos = $obj_turno->procesarSolicitud('consultar');
     if (isset($turnos["error"])) {
         echo json_encode(["error" => $turnos["error"]]);
         exit();
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
         exit();
     }
     $obj_turno = new Turno();
-    $respuesta = $obj_turno->obtenerTurno($fecha);
+    $respuesta = $obj_turno->procesarSolicitud('obtenerTurno', ['fecha' => $fecha]);
     unset($obj_turno);
     echo json_encode(['existe' => (isset($respuesta['conteo']) && $respuesta['conteo'] > 0)]);
     exit();
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_turno->setHora_salida($hora_salida);
     $obj_turno->setObs($list_obs);
     error_log("Cédulas recibidas: " . $cedula_persona);
-    $respuesta = $obj_turno->registrar();
+    $respuesta = $obj_turno->procesarSolicitud('registrar');
     
     if (isset($respuesta["error"]) || isset($respuesta["incompleto"]) || isset($respuesta["invalido"])) {
         echo json_encode($respuesta);
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_turno->setHora_salida($h_salida);
     $obj_turno->setObs($observaciones);
 
-    $respuesta = $obj_turno->modificar();
+    $respuesta = $obj_turno->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"]) || isset($respuesta["incompleto"]) || isset($respuesta["invalido"])) {
         echo json_encode($respuesta);
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $id_turno = isset($_POST["id"]) ? (int) trim($_POST["id"]) : 0;
     $obj_turno = new Turno();
     $obj_turno->setId_turno($id_turno);
-    $respuesta = $obj_turno->eliminar();
+    $respuesta = $obj_turno->procesarSolicitud('eliminar');
     if (isset($respuesta["error"]) || isset($respuesta["incompleto"]) || isset($respuesta["invalido"])) {
         echo json_encode($respuesta);
         exit();

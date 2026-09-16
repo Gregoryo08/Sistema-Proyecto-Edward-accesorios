@@ -18,8 +18,21 @@ class Usuarios extends Empleados {
     {
         parent::__construct();
     }
+
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'validarSeguridad': return $this->validarSeguridad();
+            case 'validarPermisos': return $this->validarPermisos($datos['rol'] ?? null);
+            case 'crearPerfil': return $this->crearPerfil();
+            case 'cambiarClave': return $this->cambiarClave();
+            case 'cambiarEstatus': return $this->cambiarEstatus();
+            case 'consultarSuspendido': return $this->consultarSuspendido();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
     
-    public function validarSeguridad()
+    private function validarSeguridad()
     {
         $cedula = $this->getCedula();
         $conexUser = Conexion::getShared("usuario")->getConexion();
@@ -86,7 +99,7 @@ class Usuarios extends Empleados {
         }
     }
 
-    public function validarPermisos($rol)
+    private function validarPermisos($rol)
     {
         $conexUser = new Conexion("usuario");
         $sql = "SELECT rp.id_rol, r.descripcion_rol, m.id_modulo, m.nombre_modulo, a.nombre_accion 
@@ -103,7 +116,7 @@ class Usuarios extends Empleados {
         return $resultado;
     }
 
-    public function crearPerfil()
+    private function crearPerfil()
     {
         $usuario = $this->getCedula();
         $clave = $this->getClave();
@@ -157,7 +170,7 @@ class Usuarios extends Empleados {
         }
     }
 
-    public function cambiarClave()
+    private function cambiarClave()
     {
         $cedula = $this->getCedula();
         $clave = $this->getClave();
@@ -191,7 +204,7 @@ class Usuarios extends Empleados {
         }
     }
     
-    public function cambiarEstatus()
+    private function cambiarEstatus()
     {
         $cedula = $this->getCedula();
         $estatus = $this->getEstatus();
@@ -239,7 +252,7 @@ class Usuarios extends Empleados {
         }
     }
 
-    public function consultarSuspendido()
+    private function consultarSuspendido()
     {
         try {
             $conex = new Conexion("sistema");

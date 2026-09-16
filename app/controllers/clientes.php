@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cedula = $_POST['cedula'];
     $cliente = new Cliente();
     $cliente->setCedula($cedula); 
-    $question = $cliente->validarCedula();
+    $question = $cliente->procesarSolicitud('validarCedula');
 
     if(isset($question['error'])){
         echo json_encode(["error" => $question['error']]);
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cedula = $_POST['id'];
     $cliente = new Cliente();
     $cliente->setCedula($cedula); 
-    $respuesta = $cliente->consultarCliente();
+    $respuesta = $cliente->procesarSolicitud('consultar');
 
     if(isset($respuesta["error"])){
         echo json_encode(["error" => $respuesta["error"]]);
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'No especificado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? 'No especificado'));
 
-    $respuesta = $cliente->registroCliente();
+    $respuesta = $cliente->procesarSolicitud('registrar');
 
     if($respuesta === true){
         echo json_encode(["success" => "Cliente registrado exitosamente."]);
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'Empleado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? ''));
 
-    $respuesta = $cliente->registrarPerfilFinanciero();
+    $respuesta = $cliente->procesarSolicitud('registrarPerfil');
 
     if($respuesta === true){
         echo json_encode(["success" => "Perfil financiero registrado exitosamente."]);
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'No especificado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? 'No especificado'));
 
-    $respuesta = $cliente->ModificarCliente(); 
+    $respuesta = $cliente->procesarSolicitud('modificar'); 
 
     if($respuesta === true){
         echo json_encode(["success" => "Cliente modificado exitosamente."]);
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
     $cliente = new Cliente();
     $cliente->setCedula($_POST['id']); 
-    $respuesta = $cliente->eliminarClientes($_POST['estado']);
+    $respuesta = $cliente->procesarSolicitud('eliminar', ['estado' => $_POST['estado']]);
 
     if ($respuesta === true) {
         echo json_encode(["success" => "Estado del cliente actualizado exitosamente."]);

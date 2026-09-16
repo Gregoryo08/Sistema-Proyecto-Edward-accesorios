@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $metodo->setCuenta($tipoCuenta); 
     $metodo->setEstado($estado);
-    $respuesta = $metodo->registrar(); 
+    $respuesta = $metodo->procesarSolicitud('registrar'); 
 
     if (isset($respuesta["invalido"])) {
         unset($metodo);
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     
     $metodo->setCuenta($tipoCuenta);
     $metodo->setEstado($estado);
-    $respuesta = $metodo->modificar();
+    $respuesta = $metodo->procesarSolicitud('modificar');
 
     if (isset($respuesta["invalido"])) {
         unset($metodo);
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
         exit();
     }
 
-    $respuesta = $metodo->eliminar();
+    $respuesta = $metodo->procesarSolicitud('eliminar');
 
     if (isset($respuesta['invalido'])) {
         unset($metodo);

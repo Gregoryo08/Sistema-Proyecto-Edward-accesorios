@@ -298,7 +298,7 @@ $(document).ready(function () {
   limitarLongitud('#cedula', 9);
   limitarLongitud('#correo, #correoModificar', 45);
   limitarLongitud('#direccion, #direccionModificar', 50);
-  limitarLongitud('#telefono, #telefonoModificar', 11);
+  limitarLongitud('#telefono, #telefonoModificar', 7);
   limitarLongitud('#carga_familiar, #carga_familiarModificar, #carga_familiarPerfil', 2);
   limitarNumeroDecimal('#ingreso_bs, #ingreso_bs_perfil, #ingresosModificar', 12);
 
@@ -450,7 +450,7 @@ $(document).ready(function () {
   bloquearLetrasEnNumeros('#telefonoModificar', '#texto_mensaje_telefono_modificar');
   bloquearLetrasEnNumeros('#carga_familiarModificar', '#texto_mensaje_carga_familiar_modificar');
   bloquearLetrasEnNumeros('#ingresosModificar', '#texto_mensaje_ingresos_modificar', true);
-  limitarLongitud('#telefonoModificar', 11);
+  limitarLongitud('#telefonoModificar', 7);
   limitarLongitud('#carga_familiarModificar', 2);
   limitarNumeroDecimal('#ingresosModificar', 12);
 

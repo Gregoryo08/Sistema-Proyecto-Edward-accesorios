@@ -13,15 +13,6 @@ if (!(isset($cedula) && isset($rol))) {
 
 $obj_usuario = new usuarios();
 
-
-//---------------------------------------------------------------------
-
-//$obj_notificacion = new Notificacion();
-//$obj_notificacion->generarNotificacionesStockBajo();
-
-//--------------------------------------------------------------------------------------------
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
     $obj_categoria = new categoria();
     $categorias = $obj_categoria->listar();
@@ -36,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_categoria = new categoria();
     $obj_categoria->setNombre_categoria($nombre);
-    $respuesta = $obj_categoria->registrar();
+    $respuesta = $obj_categoria->procesarSolicitud('registrar');
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);
@@ -66,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_categoria = new categoria();
     $obj_categoria->setId_categoria($id);
     $obj_categoria->setNombre_categoria($nombre);
-    $respuesta = $obj_categoria->modificar();
+    $respuesta = $obj_categoria->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);
@@ -94,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_categoria = new categoria();
     $obj_categoria->setId_categoria($id);
-    $respuesta = $obj_categoria->eliminar();
+    $respuesta = $obj_categoria->procesarSolicitud('eliminar');
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);

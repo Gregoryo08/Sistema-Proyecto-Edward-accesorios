@@ -17,7 +17,16 @@ class modulo extends conexion{
         
     }
 
-
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'listar': return $this->listar();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
 
     public function listar()
     {
@@ -35,7 +44,7 @@ class modulo extends conexion{
 
 
 
-    public function registrar()
+    private function registrar()
     {
         $conex = new conexion("usuario");
         
@@ -84,7 +93,7 @@ class modulo extends conexion{
 
 
 
-    public function modificar()
+    private function modificar()
     {
 
         $id = $this->getId_modulo();
@@ -162,7 +171,7 @@ class modulo extends conexion{
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $conex = new conexion("usuario");
 

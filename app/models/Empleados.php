@@ -14,7 +14,20 @@ class Empleados extends Persona
         parent::__construct();
     }
 
-    public function validarCedula()
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'validarCedula': return $this->validarCedula();
+            case 'obtenerDatosUsuario': return $this->obtenerDatosUsuario();
+            case 'consultar': return $this->consultar();
+            case 'registrar': return $this->registroEmpleado();
+            case 'modificar': return $this->ModificarEmpleado($datos['cedula'] ?? null);
+            case 'eliminar': return $this->eliminarEmpleado();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function validarCedula()
     {
         $cedula = $this->getCedula();
         $conex = new Conexion("sistema");
@@ -89,7 +102,7 @@ public function listarEmpleados()
 }
 
 
-public function obtenerDatosUsuario()
+private function obtenerDatosUsuario()
 {
     $cedula = $this->getCedula();
     if (empty($cedula)) {
@@ -120,7 +133,7 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
 }
 
 
-    public function consultar()
+    private function consultar()
     {
         $cedula = $this->getCedula();
         if (empty($cedula)) {
@@ -150,8 +163,19 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
 
    
     
-public function registroEmpleado()
+private function registroEmpleado()
 {
+    if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
+        return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
+    }
+
+    $conexExiste = new Conexion("sistema");
+    $stmtExiste = $conexExiste->prepare("SELECT COUNT(*) FROM persona WHERE cedula_persona = :cedula");
+    $stmtExiste->execute([":cedula" => $this->getCedula()]);
+    if ((int) $stmtExiste->fetchColumn() > 0) {
+        return ["error" => "Esta cédula ya está registrada."];
+    }
+
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
@@ -200,11 +224,18 @@ public function registroEmpleado()
             unset($conex);
         }
     
+        if ((int) $e->getCode() === 23000) {
+            return ["error" => "Esta cédula ya está registrada."];
+        }
         return ["error" => "Error en BD: " . $e->getMessage()];
     }
 }
-public function ModificarEmpleado($cedula) 
+private function ModificarEmpleado($cedula) 
 {
+    if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
+        return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
+    }
+
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
@@ -254,7 +285,7 @@ public function ModificarEmpleado($cedula)
     }
 }
 
-    public function eliminarEmpleado()
+    private function eliminarEmpleado()
     {
         try {
             $conex = new Conexion("sistema");

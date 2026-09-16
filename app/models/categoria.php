@@ -16,6 +16,16 @@ class categoria extends conexion{
         parent::__construct();
     }
 
+    public function procesarSolicitud($accion)
+    {
+        switch ($accion) {
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
     public function listar() {
         
         $conex = new conexion(); 
@@ -28,7 +38,7 @@ class categoria extends conexion{
         return $array;
     }
 
-    public function registrar() {
+    private function registrar() {
         $conex = new conexion();
         
         $nombre = $this->getNombre_categoria();
@@ -67,7 +77,7 @@ class categoria extends conexion{
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
         $id = $this->getId_categoria();
         $nombre = $this->getNombre_categoria();
@@ -138,7 +148,7 @@ class categoria extends conexion{
         }
     }
 
-    public function eliminar() {
+    private function eliminar() {
         $conex = new conexion("sistema");
         $id = $this->getId_categoria();
 

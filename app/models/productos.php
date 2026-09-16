@@ -27,7 +27,33 @@ class productos extends Conexion
         parent::__construct();
     }
 
-    public function existeNombre($nombre, $id = null)
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'existeNombre':
+                return $this->existeNombre($datos['nombre'] ?? null, $datos['id'] ?? null);
+            case 'registrar':
+                return $this->registrar();
+            case 'modificar':
+                return $this->modificar();
+            case 'eliminar':
+                return $this->eliminar();
+            case 'autoAsociarImagenes':
+                return $this->autoAsociarImagenes();
+            case 'actualizarImagen':
+                return $this->actualizarImagen($datos['id'], $datos['imagen']);
+            case 'obtenerImagen':
+                return $this->obtenerImagen($datos['id']);
+            case 'renombrarImagen':
+                return $this->renombrarImagen($datos['id'], $datos['nombre']);
+            case 'eliminarImagen':
+                return $this->eliminarImagen($datos['id']);
+            default:
+                return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function existeNombre($nombre, $id = null)
     {
         $conex = new Conexion("sistema");
         $sql = "SELECT COUNT(*) FROM productos WHERE nombre_producto = :n";
@@ -43,7 +69,7 @@ class productos extends Conexion
         return $stmt->fetchColumn() > 0;
     }
 
-    public function registrar()
+    private function registrar()
     {
         try {
             $conex = new Conexion("sistema");
@@ -98,7 +124,7 @@ class productos extends Conexion
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
         try {
             $conex = new Conexion("sistema");
@@ -169,7 +195,7 @@ class productos extends Conexion
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $id = $this->getId_producto();
         try {
@@ -245,7 +271,7 @@ class productos extends Conexion
     public function getImagen_principal() { return $this->imagen_principal; }
     public function setImagen_principal($img) { $this->imagen_principal = $img; }
 
-    public function actualizarImagen($id, $imagen)
+    private function actualizarImagen($id, $imagen)
     {
         try {
             $conex = new Conexion("sistema");
@@ -261,7 +287,7 @@ class productos extends Conexion
         }
     }
 
-    public function obtenerImagen($id)
+    private function obtenerImagen($id)
     {
         try {
             $conex = new Conexion("sistema");
@@ -277,7 +303,7 @@ class productos extends Conexion
         }
     }
 
-    public function renombrarImagen($id, $nuevoNombre)
+    private function renombrarImagen($id, $nuevoNombre)
     {
         try {
             $conex = new Conexion("sistema");
@@ -328,7 +354,7 @@ class productos extends Conexion
         }
     }
 
-    public function eliminarImagen($id)
+    private function eliminarImagen($id)
     {
         try {
             $conex = new Conexion("sistema");
@@ -356,7 +382,7 @@ class productos extends Conexion
         }
     }
 
-    public function autoAsociarImagenes()
+    private function autoAsociarImagenes()
     {
         $directorio = __DIR__ . '/../../assets/img/productos/';
         $resultados = ['asociadas' => 0, 'renombradas' => 0, 'sin_match' => [], 'ya_tenian' => 0];

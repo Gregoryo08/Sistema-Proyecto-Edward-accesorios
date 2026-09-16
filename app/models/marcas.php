@@ -15,8 +15,18 @@ class marcas extends Conexion
         parent::__construct();
     }
 
-    
-    public function existeNombre($nombre, $id = null)
+    public function procesarSolicitud($accion)
+    {
+        switch ($accion) {
+            case 'consultar': return $this->consultarMarca();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function existeNombre($nombre, $id = null)
     {
         $conex = new conexion("sistema");
         
@@ -33,7 +43,7 @@ class marcas extends Conexion
         return $stmt->fetchColumn() > 0;
     }
 
-    public function registrar()
+    private function registrar()
     {
         $nombre = $this->getNombre_marca();
 
@@ -74,7 +84,7 @@ class marcas extends Conexion
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
         $nombre = $this->getNombre_marca();
         $id = $this->getId_marca();
@@ -121,7 +131,7 @@ class marcas extends Conexion
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function consultarMarca()
+    private function consultarMarca()
     {
         $id = $this->getId_marca();
         $conex = new conexion("sistema");
@@ -135,7 +145,7 @@ class marcas extends Conexion
         return $query;
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $id = $this->getId_marca();
         try {

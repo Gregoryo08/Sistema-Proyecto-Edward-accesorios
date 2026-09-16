@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
     } else if ($_GET['x'] === "marcas") {
         echo json_encode($objeto->listarMarcas());
     } else if ($_GET['x'] === "autoAsociarImagenes") {
-        $res = $objeto->autoAsociarImagenes();
+        $res = $objeto->procesarSolicitud('autoAsociarImagenes');
         echo json_encode($res);
     }
     exit();
@@ -134,7 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
         $objeto->setImagen_principal($imagen_nombre);
 
-        if ($objeto->existeNombre($objeto->getNombre_producto(), $objeto->getId_producto())) {
+        $existeNombre = $objeto->procesarSolicitud('existeNombre', [
+            'nombre' => $objeto->getNombre_producto(),
+            'id' => $objeto->getId_producto()
+        ]);
+        if ($existeNombre) {
             if ($imagen_nombre && $imagen_nombre !== 'default.jpg' && isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
                 $directorio = __DIR__ . '/../../assets/img/productos/';
                 @unlink($directorio . $imagen_nombre);
@@ -143,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             exit();
         }
 
-        $res = ($isModificar) ? $objeto->modificar() : $objeto->registrar();
+        $res = $objeto->procesarSolicitud($isModificar ? 'modificar' : 'registrar');
         
         if ($res === true) {
             $stock_actual = (int)$_POST['stock_actual'];
@@ -170,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
     if ($_POST['accion'] === 'eliminarProducto') {
         $objeto->setId_producto((int)$_POST["id"]);
-        $res = $objeto->eliminar();
+        $res = $objeto->procesarSolicitud('eliminar');
         if ($res === true) {
             echo json_encode(["success" => "Eliminado"]);
         } else {

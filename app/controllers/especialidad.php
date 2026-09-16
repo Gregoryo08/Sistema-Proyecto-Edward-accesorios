@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $nombre = trim($_POST["nombre"]);
     $obj_especialidad = new especialidad();
     $obj_especialidad->setNombre_especialidad($nombre);
-    $respuesta = $obj_especialidad->registrar();
+    $respuesta = $obj_especialidad->procesarSolicitud('registrar');
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_especialidad = new especialidad();
     $obj_especialidad->setId_especialidad($id);
     $obj_especialidad->setNombre_especialidad($nombre);
-    $respuesta = $obj_especialidad->modificar();
+    $respuesta = $obj_especialidad->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $id = (int) $_POST["id"];
     $obj_especialidad = new especialidad();
     $obj_especialidad->setId_especialidad($id);
-    $respuesta = $obj_especialidad->eliminar();
+    $respuesta = $obj_especialidad->procesarSolicitud('eliminar');
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);

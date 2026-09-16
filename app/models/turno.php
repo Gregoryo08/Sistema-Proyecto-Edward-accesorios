@@ -22,7 +22,19 @@ class Turno extends Conexion
         parent::__construct();
     }
 
-    public function obtenerTurno($fecha_turno)
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'obtenerTurno': return $this->obtenerTurno($datos['fecha'] ?? null);
+            case 'consultar': return $this->consultar();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function obtenerTurno($fecha_turno)
     {
         $stmt = $this->prepare("SELECT COUNT(*) as conteo FROM turnos WHERE fecha_turno = :f");
         $stmt->bindParam(":f", $fecha_turno);
@@ -57,7 +69,7 @@ class Turno extends Conexion
         return $resultado;
     }
 
-    public function consultar()
+    private function consultar()
 {
     $id = $this->getId_turno();
     if (empty($id)) {
@@ -110,7 +122,7 @@ class Turno extends Conexion
 
 
 
-   public function registrar()
+    private function registrar()
 {
     $cedulas_empleados_raw = $this->getCedula_persona();
     $fecha_turno = $this->getFecha_turno();
@@ -218,7 +230,7 @@ class Turno extends Conexion
 
 
 
-public function modificar()
+private function modificar()
 {
     $id_turno = $this->getId_turno();
     $cedulas_empleados_raw = $this->getCedula_persona();
@@ -342,7 +354,7 @@ public function modificar()
     }
 }
 
-   public function eliminar()
+    private function eliminar()
 {
     $id = $this->getId_turno();
     if (empty($id)) {

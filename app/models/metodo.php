@@ -20,7 +20,18 @@ class metodo extends Conexion
         parent::__construct();
     }
 
-    public function existeNombreMetodoPago($nombre, $id_excluir = null)
+    public function procesarSolicitud($accion)
+    {
+        switch ($accion) {
+            case 'consultar': return $this->consultar();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function existeNombreMetodoPago($nombre, $id_excluir = null)
     {
         try {
             $sql = "SELECT COUNT(*) FROM metodo_pago WHERE nombre_metodopago = :nombre";
@@ -53,7 +64,7 @@ class metodo extends Conexion
         }
     }
 
-    public function consultar()
+    private function consultar()
     {
         $id = $this->getIdMetodoPago();
 
@@ -82,7 +93,7 @@ class metodo extends Conexion
         }
     }
 
-    public function registrar()
+    private function registrar()
     {
         if ($this->getNombreMetodoPago() === null || $this->getMoneda() === null || $this->getMensaje() !== null) {
             if ($this->getNombreMetodoPago() === null && $this->getMensaje() === null) {
@@ -133,7 +144,7 @@ class metodo extends Conexion
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
         if ($this->getIdMetodoPago() === null || $this->getNombreMetodoPago() === null || $this->getMoneda() === null || $this->getMensaje() !== null) {
             if ($this->getIdMetodoPago() === null && $this->getMensaje() === null) {
@@ -198,7 +209,7 @@ class metodo extends Conexion
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $id = $this->getIdMetodoPago();
 

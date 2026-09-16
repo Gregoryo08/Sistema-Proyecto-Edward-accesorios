@@ -226,7 +226,7 @@ function registrar() {
                         $("#clientestabla").DataTable().ajax.reload();
 
                     } else if (res.error) {
-                        alertas("error", res.error, "¡Ups!");
+                      mostrarAlertaDuplicado(res.error);
                     } else if (res.incompleto) {
                         alertas("errorC", "¡Hay datos incompletos!", "Lo Siento!");
                         resaltarErrores(res.input, "incompleto");
@@ -316,7 +316,7 @@ function registrar() {
     if (!sexo) return false;
     if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
     if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
-    if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+    if (!telefono || !/^[0-9]{6,7}$/.test(telefono)) return false;
     if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
     if (!tipoResidencia || !estadoCivil || !profesion) return false;
     if (cargaFamiliar === "" || isNaN(cargaFamiliar) || Number(cargaFamiliar) < 0 || Number(cargaFamiliar) > 20) return false;
@@ -467,7 +467,7 @@ $(document).on("click", ".btn-cambiar-estado", function () {
                             $("#clientestabla").DataTable().ajax.reload();
                             alertas("success");
                         } else if (res.error) {
-                            alertas("error", res.error, "Ups!");
+                          mostrarAlertaDuplicado(res.error);
                         }
                     },
                     error: function () {
@@ -804,7 +804,7 @@ function modificar() {
     if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
     if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
     if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
-    if (!telefono || !/^[0-9]{7,11}$/.test(telefono)) return false;
+    if (!telefono || !/^[0-9]{6,7}$/.test(telefono)) return false;
     if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
     if (!sexo) return false;
     if (!tipoResidencia || !estadoCivil || !profesion) return false;
@@ -819,6 +819,21 @@ function modificar() {
   
 
   //--------------------------------------------------------------------------------------------
+  function mostrarAlertaDuplicado(texto) {
+    if (/cédula ya está registrada/i.test(texto)) {
+      Swal.fire({
+        title: "Ups!",
+        text: texto,
+        icon: "error",
+        color: "#545454",
+        background: "#ffffff",
+        confirmButtonColor: "#7066e0"
+      });
+      return;
+    }
+    alertas("error", texto, "¡Ups!");
+  }
+
   function alertas(accion, texto, titulo, funcion, dato) {
     if (accion == "errorC") {
       Swal.fire({

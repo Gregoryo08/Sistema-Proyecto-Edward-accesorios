@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $id = (int) trim($_POST["id"]);
     $objeto_marcas = new marcas();
     $objeto_marcas->setId_marca($id);
-    $resultado = $objeto_marcas->consultarMarca();
+    $resultado = $objeto_marcas->procesarSolicitud('consultar');
     echo json_encode($resultado);
     exit();
 }
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $nombre = trim($_POST['nombre']);
     $objeto_marcas = new marcas();
     $objeto_marcas->setNombre_marca($nombre);
-    $respuesta = $objeto_marcas->registrar();
+    $respuesta = $objeto_marcas->procesarSolicitud('registrar');
     
     procesarRespuesta($respuesta, "Marca registrada exitosamente.");
 }
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $objeto_marcas->setNombre_marca($nombre);
     $objeto_marcas->setId_marca($id);
     
-    $respuesta = $objeto_marcas->modificar();
+    $respuesta = $objeto_marcas->procesarSolicitud('modificar');
     
     procesarRespuesta($respuesta, "Marca modificada exitosamente.");
 }
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $objeto_marcas = new marcas();
     $objeto_marcas->setId_marca($id);
     
-    $respuesta = $objeto_marcas->eliminar();
+    $respuesta = $objeto_marcas->procesarSolicitud('eliminar');
     
     procesarRespuesta($respuesta, "Marca eliminada exitosamente.");
 }

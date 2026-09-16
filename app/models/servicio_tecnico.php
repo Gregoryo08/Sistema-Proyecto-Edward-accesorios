@@ -203,13 +203,11 @@ private function consultarProductos($id_servicio)
         $conex->exec("SET @usuario_actual = '{$user}'");
         $conex->exec("SET @modulo = '{$modulo}'");
 
-        // 1. Insertar en tabla principal
         $stmt = $conex->prepare("INSERT INTO servicio_tecnico (cedula_persona, equipo_descripcion, falla_inicial, estado) VALUES (:cedula, :equipo, :falla, 'Pendiente')");
         $stmt->execute([":cedula" => $this->cedula_persona, ":equipo" => $this->equipo_descripcion, ":falla" => $this->falla_inicial]);
         
         $id_servicio = $conex->lastInsertId();
 
-        // 2. Insertar en detalles con la especialidad
         $stmtDetalle = $conex->prepare("INSERT INTO detalles_servicio_tecnico (id_servicio, id_especialidad) VALUES (:id_servicio, :id_especial)");
         $stmtDetalle->execute([":id_servicio" => $id_servicio, ":id_especial" => $this->id_especialidad]);
 

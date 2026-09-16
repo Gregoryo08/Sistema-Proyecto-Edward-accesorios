@@ -67,12 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
         case 'validarC':
             $empleado->setCedula($_POST['cedula']);
-            echo json_encode(["data" => $empleado->validarCedula()]);
+            echo json_encode(["data" => $empleado->procesarSolicitud('validarCedula')]);
             break;
 
         case 'consultar':
             $empleado->setCedula($_POST['cedula']);
-            echo json_encode($empleado->consultar());
+            echo json_encode($empleado->procesarSolicitud('consultar'));
             break;
 
         case 'registrar':
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $empleado->setSexo(trim($_POST['sexo'] ?? ''));
             $empleado->setDireccion(trim($_POST['direccion'] ?? ''));
 
-            procesarRespuesta($empleado->registroEmpleado(), "Empleado registrado exitosamente.");
+            procesarRespuesta($empleado->procesarSolicitud('registrar'), "Empleado registrado exitosamente.");
             break;
 
         case 'modificar':
@@ -108,13 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $empleado->setSexo(trim($_POST['sexo'] ?? ''));
             $empleado->setDireccion(trim($_POST['direccion'] ?? ''));
             
-            procesarRespuesta($empleado->ModificarEmpleado(trim($_POST["cedula_vieja"])), "Empleado modificado exitosamente.");
+            procesarRespuesta($empleado->procesarSolicitud('modificar', [
+                'cedula' => trim($_POST["cedula_vieja"])
+            ]), "Empleado modificado exitosamente.");
             break;
 
         case 'eliminar':
             $empleado->setCedula($_POST['id']);
             $empleado->setEstado($_POST['estado']);
-            procesarRespuesta($empleado->eliminarEmpleado(), "Empleado eliminado exitosamente.");
+            procesarRespuesta($empleado->procesarSolicitud('eliminar'), "Empleado eliminado exitosamente.");
             break;
     }
     exit();

@@ -18,7 +18,18 @@ class proveedores extends Conexion
         parent::__construct();
     }
 
-    public function existeRif($rif, $id = null)
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'existeRif': return $this->existeRif($datos['rif'] ?? null, $datos['id'] ?? null);
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
+    private function existeRif($rif, $id = null)
     {
         $conex = new Conexion("sistema");
         $sql = "SELECT COUNT(*) FROM proveedores WHERE rif_proveedor = :rif";
@@ -34,7 +45,7 @@ class proveedores extends Conexion
         return $stmt->fetchColumn() > 0;
     }
 
-    public function registrar()
+    private function registrar()
     {
 
         if (empty($this->rif_proveedor)) {
@@ -70,7 +81,7 @@ class proveedores extends Conexion
         }
 
         if ($this->existeRif($this->rif_proveedor)) {
-            return ["error" => "Ya existe un proveedor con este Rif."];
+            return ["error" => "Este Rif ya está registrado."];
         }
 
         try {
@@ -98,11 +109,14 @@ class proveedores extends Conexion
             return true;
         } catch (PDOException $e) {
             if (isset($conex)) $conex->rollBack();
+            if ((int) $e->getCode() === 23000) {
+                return ["error" => "Este Rif ya está registrado."];
+            }
             return ["error" => "Error al registrar el proveedor."];
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
 
         if (empty($this->rif_proveedor)) {
@@ -170,7 +184,7 @@ class proveedores extends Conexion
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         if (empty($this->rif_proveedor)) {
             return ["error" => "El Rif del proveedor es obligatorio."];

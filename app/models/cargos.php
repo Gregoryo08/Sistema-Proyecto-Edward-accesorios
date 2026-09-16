@@ -10,6 +10,17 @@ class cargos extends conexion {
     private $id_cargo;
     private $nombre_cargo;
 
+    public function procesarSolicitud($accion)
+    {
+        switch ($accion) {
+            case 'validar': return $this->validar();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
     public function listar()
     {
         $conex = new conexion("sistema");
@@ -20,7 +31,7 @@ class cargos extends conexion {
         return $array;
     }
 
-    public function validar()
+    private function validar()
     {
         $nombre = $this->getNombre_cargo();
         $conex = new conexion("sistema");
@@ -37,7 +48,7 @@ class cargos extends conexion {
         return $resultado["conteo"];
     }
 
-    public function registrar()
+    private function registrar()
     {
         $nombre = $this->getNombre_cargo();
 
@@ -75,7 +86,7 @@ class cargos extends conexion {
         }
     }
 
-    public function modificar()
+    private function modificar()
     {
         $id = $this->getId_cargo();
         $nombre = $this->getNombre_cargo();
@@ -121,7 +132,7 @@ class cargos extends conexion {
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $id = $this->getId_cargo();
 

@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\bancos;
 
@@ -44,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_bancos = new bancos();
     $obj_bancos->setCedula_cuenta($cedula);
-    $registros = $obj_bancos->consultarBanco();
+    $registros = $obj_bancos->procesarSolicitud('consultar');
 
     echo json_encode($registros);
     exit();
@@ -57,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_bancos = new bancos();
     $obj_bancos->setCedula_cuenta($cedula);
     $obj_bancos->setNombre_banco($nombre);
-    $registros = $obj_bancos->validar();
+    $registros = $obj_bancos->procesarSolicitud('validar');
 
     echo json_encode($registros);
     exit();
@@ -75,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_bancos->setTelefono($telefono);
     $obj_bancos->setCedula_cuenta($cedula);
 
-    $respuesta = $obj_bancos->registrar_banco();
+    $respuesta = $obj_bancos->procesarSolicitud('registrar');
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);
@@ -108,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_bancos->setCedula_cuenta($cedula);
     $obj_bancos->setId_banco($id_banco);
     $obj_bancos->setTelefono($telefono);
-    $respuesta = $obj_bancos->modificar();
+    $respuesta = $obj_bancos->procesarSolicitud('modificar');
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);
@@ -137,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_bancos = new bancos();
     $obj_bancos->setId_banco($id_banco);
-    $respuesta = $obj_bancos->eliminar($tipo);
+    $respuesta = $obj_bancos->procesarSolicitud('eliminar', ['tipo' => $tipo]);
 
     if (isset($respuesta["error"])) {
         echo json_encode(["error" => $respuesta["error"]]);

@@ -50,15 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($accion === "validarRol") {
         $obj_roles = new roles();
         $obj_roles->setNombre_rol(trim($data_form_ajax["nombre"]));
-        echo json_encode($obj_roles->validarRol());
+        echo json_encode($obj_roles->procesarSolicitud('validar'));
         exit();
     }
 
     if ($accion === "consultarPermisos") {
         $obj_roles = new roles();
         $obj_roles->setId_rol($data_form_ajax["id_rol"]);
-        $respuesta = $obj_roles->consultarPermisos();
-        echo json_encode($respuesta);
+        echo json_encode($obj_roles->procesarSolicitud('consultarPermisos'));
         exit();
     }
 
@@ -70,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $obj_roles = new roles();
         $obj_roles->setNombre_rol($data_form_ajax["nombre"]);
         $obj_roles->setPermisos($data_form_ajax["permisos"]);
-        $respuesta = $obj_roles->registrar();
+        $respuesta = $obj_roles->procesarSolicitud('registrar');
         echo json_encode(isset($respuesta["success"]) ? $respuesta : ["success" => "Rol Registrado con Éxito!"]);
         exit();
     }
@@ -83,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $obj_roles = new roles();
         $obj_roles->setId_rol((int)($data_form_ajax["id"] ?? 0));
         $obj_roles->setPermisos($data_form_ajax["permisos"]);
-        $respuesta = $obj_roles->modificar(); 
+        $respuesta = $obj_roles->procesarSolicitud('modificar'); 
 
         if (isset($respuesta["error"]) || isset($respuesta["incompleto"]) || isset($respuesta["invalido"])) {
             echo json_encode($respuesta);
@@ -100,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $obj_roles = new roles();
         $obj_roles->setId_rol((int)$data_form_ajax["id"]);
-        echo json_encode($obj_roles->eliminar());
+        echo json_encode($obj_roles->procesarSolicitud('eliminar'));
         exit();
     }
 }

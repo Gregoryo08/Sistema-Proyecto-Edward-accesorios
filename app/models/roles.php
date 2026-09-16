@@ -16,6 +16,19 @@ class roles extends conexion{
         parent::__construct();
     }
 
+    public function procesarSolicitud($accion, $datos = [])
+    {
+        switch ($accion) {
+            case 'listar': return $this->listar();
+            case 'validar': return $this->validarRol();
+            case 'consultarPermisos': return $this->consultarPermisos();
+            case 'registrar': return $this->registrar();
+            case 'modificar': return $this->modificar();
+            case 'eliminar': return $this->eliminar();
+            default: return ["error" => "Acción no reconocida"];
+        }
+    }
+
     public function listar()
     {
         $conex = new conexion("usuario");
@@ -28,7 +41,7 @@ class roles extends conexion{
         return $array;
     }
 
-    public function validarRol()
+    private function validarRol()
     {
         $nombre = $this->getNombre_rol();
         $conex = new conexion("usuario");
@@ -46,7 +59,7 @@ class roles extends conexion{
         return $respuesta;
     }
 
-    public function consultarPermisos()
+    private function consultarPermisos()
     {
         $id_rol = $this->getId_rol();
 
@@ -76,7 +89,7 @@ class roles extends conexion{
         return $array;
     }
 
-    public function registrar()
+    private function registrar()
     {
         $nombre = $this->getNombre_rol();
         $permisos = $this->getPermisos();
@@ -141,7 +154,7 @@ class roles extends conexion{
         }
     }
 
-    public function registrarPermisos($id_rol, $permiso, $conex)
+    private function registrarPermisos($id_rol, $permiso, $conex)
     {
         $id_modulo = $permiso["id_modulo"];
         
@@ -179,7 +192,7 @@ class roles extends conexion{
         return true;
     }
 
-    public function modificar()
+    private function modificar()
     {
         $id_rol = $this->getId_rol();
         $nombre = $this->getNombre_rol();
@@ -252,7 +265,7 @@ class roles extends conexion{
         }
     }
 
-    public function eliminar()
+    private function eliminar()
     {
         $id_rol = $this->getId_rol();
 
