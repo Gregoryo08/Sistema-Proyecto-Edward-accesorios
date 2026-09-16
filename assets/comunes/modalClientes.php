@@ -63,6 +63,7 @@
                                     <option value="0426">0426</option>
                                     <option value="0414">0414</option>
                                     <option value="0424">0424</option>
+                                    <option value="0422">0422</option>
                                 </select>
                                 <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" maxlength="7" required>
                             </div>
@@ -117,7 +118,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-muted text-uppercase">Tasa BCV</label>
-                            <input type="text" id="tasa_bcv" class="form-control bg-light border-light-subtle" value="60.00">
+                            <input type="text" id="tasa_bcv" class="form-control bg-light border-light-subtle"  readonly>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label small fw-bold text-info text-uppercase">Ingreso Mensual (Bolívares)</label>

@@ -1,8 +1,13 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\Cliente;
-use App\Sistema\models\TasaCambioModel;
+use App\Sistema\models\scrape_dolar;
+use App\Sistema\models\TasaModel;
 
 $cedula_session = $_SESSION['username'] ?? null;
 $rol = $_SESSION["rol"] ?? null;
@@ -14,20 +19,63 @@ if (!(isset($cedula_session) && isset($rol))) {
 
 $obj_usuario = new Usuarios();
 $modulo_actual = "Administrar Clientes";
+$obj_tasa = new TasaModel();
 
 if (!$obj_usuario->tienePermiso($modulo_actual, "listar")) {
     header("Location: ?pagina=principal");
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['obtener_tasa'])) {
-    $tasaModel = new TasaCambioModel();
-    $tasa = $tasaModel->obtener();
-    if (is_numeric($tasa) && $tasa > 0) {
-        echo json_encode(["tasa" => (float) $tasa]);
-    } else {
-        echo json_encode(["error" => "No se pudo obtener la tasa"]);
+if (!function_exists('obtenerTasaOptimizada')) {
+    function obtenerTasaOptimizada(): float
+    {
+        $cacheTtl = 3600;
+
+        $tasa = scrape_dolar::obtenerPrecioDolarBCV();
+
+        if ($tasa !== null && $tasa > 0) {
+            $_SESSION['tasa_bcv'] = $tasa;
+            $_SESSION['tasa_bcv_time'] = time();
+            return (float) $tasa;
+        }
+
+        if (
+            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
+            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
+        ) {
+            return (float) $_SESSION['tasa_bcv'];
+        }
+
+        return 0.0;
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['obtener_tasa'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $tasa = obtenerTasaOptimizada();
+    $fecha = date('d/m/Y');
+
+    if ($tasa > 0) {
+        $idTasaDB = null;
+    } else {
+        $tasaDB = $obj_tasa->obtenerTasaActual();
+        if ($tasaDB && !empty($tasaDB['tasa'])) {
+            $tasa = (float) $tasaDB['tasa'];
+            $fecha = date('d/m/Y', strtotime($tasaDB['fecha_actualizacion']));
+        }
+    }
+
+    if ($tasa <= 0) {
+        $obj_tasa->registrarNotificacionTasaNoDisponible();
+    }
+
+    echo json_encode([
+        "success" => $tasa > 0,
+        "tasa" => $tasa,
+        "fecha" => $fecha,
+        "mensaje" => $tasa > 0 ? "Tasa obtenida con éxito" : "No se pudo obtener la tasa de cambio"
+    ]);
     exit();
 }
 
@@ -174,6 +222,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
+$tasaCambioActual = obtenerTasaOptimizada();
+if ($tasaCambioActual <= 0) {
+    $tasaDB = $obj_tasa->obtenerTasaActual();
+    $tasaCambioActual = ($tasaDB && !empty($tasaDB['tasa'])) ? (float)$tasaDB['tasa'] : 0.0;
+}
+
+if ($tasaCambioActual <= 0) {
+    $obj_tasa->registrarNotificacionTasaNoDisponible();
+}
 
 $vista = 'app/views/clientes.php';
 

@@ -140,7 +140,13 @@ private function gestionarEstadoPago($id_cuota, $nuevo_estado)
         $this->exec("SET @usuario_actual = '{$user}'");
         $this->exec("SET @modulo = 'Administrar Financiamiento'");
 
-        $stmtId = $this->prepare("SELECT id_financiamiento, numero_cuota, monto_pagado, estado_cuota FROM cuotas WHERE id_cuota = ?");
+        $stmtId = $this->prepare("
+            SELECT c.id_financiamiento, c.numero_cuota, c.monto_pagado, c.estado_cuota, 
+                   c.fecha_vencimiento, c.fecha_pago_realizado, f.cedula_persona, f.monto_cuota 
+            FROM cuotas c
+            JOIN financiamientos f ON c.id_financiamiento = f.id_financiamiento
+            WHERE c.id_cuota = ?
+        ");
         $stmtId->execute([$id_cuota]);
         $cuotaInfo = $stmtId->fetch(PDO::FETCH_ASSOC);
         
@@ -151,26 +157,21 @@ private function gestionarEstadoPago($id_cuota, $nuevo_estado)
         $id_finan = $cuotaInfo['id_financiamiento'];
         $num_cuota = $cuotaInfo['numero_cuota'];
         $montoRechazado = $cuotaInfo['monto_pagado'];
+        $cedulaPersona = $cuotaInfo['cedula_persona'];
+        $fechaVencimiento = $cuotaInfo['fecha_vencimiento'];
+        $montoCuotaTotal = floatval($cuotaInfo['monto_cuota'] ?? 80);
 
         if ($nuevo_estado === 'pendiente') {
-            
-            
             $stmtPrin = $this->prepare("SELECT id_cuota, monto_pagado FROM cuotas WHERE id_financiamiento = ? AND numero_cuota = ? AND estado_cuota = 'pendiente' ORDER BY id_cuota ASC LIMIT 1");
             $stmtPrin->execute([$id_finan, $num_cuota]);
             $cuotaPendiente = $stmtPrin->fetch(PDO::FETCH_ASSOC);
 
             if ($cuotaPendiente) {
-                
                 $nuevoMontoPendiente = $cuotaPendiente['monto_pagado'] + $montoRechazado;
-                
                 $this->prepare("UPDATE cuotas SET monto_pagado = ? WHERE id_cuota = ?")
                      ->execute([$nuevoMontoPendiente, $cuotaPendiente['id_cuota']]);
-
-                
                 $this->prepare("DELETE FROM cuotas WHERE id_cuota = ?")->execute([$id_cuota]);
-
             } else {
-                
                 $sql = "UPDATE cuotas SET 
                             estado_cuota = 'pendiente', 
                             id_metodopago = NULL, 
@@ -181,15 +182,33 @@ private function gestionarEstadoPago($id_cuota, $nuevo_estado)
                 $this->prepare($sql)->execute([$id_cuota]);
             }
 
+            $this->actualizarScoreCredito($cedulaPersona, -1);
+
         } else {
-            // Si se está aprobando ('pagado') u otro estado normal
             $sql = "UPDATE cuotas SET estado_cuota = :estado, fecha_pago_realizado = NOW() WHERE id_cuota = :id";
             $stmt = $this->prepare($sql);
-            $res = $stmt->execute([':estado' => $nuevo_estado, ':id' => $id_cuota]);
-        }
+            $stmt->execute([':estado' => $nuevo_estado, ':id' => $id_cuota]);
 
-        if ($nuevo_estado === 'pagado') {
-            $this->verificarCierreFinanciamiento($id_finan, $this);
+            if ($nuevo_estado === 'pagado') {
+                $stmtSuma = $this->prepare("SELECT SUM(monto_pagado) as total_pagado FROM cuotas WHERE id_financiamiento = ? AND numero_cuota = ? AND estado_cuota = 'pagado'");
+                $stmtSuma->execute([$id_finan, $num_cuota]);
+                $resSuma = $stmtSuma->fetch(PDO::FETCH_ASSOC);
+                $totalPagadoHastaAhora = floatval($resSuma['total_pagado'] ?? 0);
+
+                $totalAnterior = $totalPagadoHastaAhora - floatval($cuotaInfo['monto_pagado']);
+
+                if ($totalAnterior < $montoCuotaTotal && $totalPagadoHastaAhora >= $montoCuotaTotal) {
+                    $fechaActual = date('Y-m-d');
+                    
+                    if ($fechaActual <= $fechaVencimiento) {
+                        $this->actualizarScoreCredito($cedulaPersona, 1);
+                    } else {
+                        $this->actualizarScoreCredito($cedulaPersona, -1);
+                    }
+                }
+
+                $this->verificarCierreFinanciamiento($id_finan, $this);
+            }
         }
         
         $this->commit();
@@ -197,6 +216,27 @@ private function gestionarEstadoPago($id_cuota, $nuevo_estado)
     } catch (\Exception $e) {
         if ($this->inTransaction()) $this->rollBack();
         return ["error" => $e->getMessage()];
+    }
+}
+
+private function actualizarScoreCredito($cedula, $cambio)
+{
+    $stmt = $this->prepare("SELECT score_credito FROM perfiles_financiamiento WHERE cedula_persona = ?");
+    $stmt->execute([$cedula]);
+    $perfil = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($perfil) {
+        $nuevoScore = (int)$perfil['score_credito'] + $cambio;
+
+        if ($nuevoScore > 10) {
+            $nuevoScore = 10;
+        }
+        if ($nuevoScore < 0) {
+            $nuevoScore = 0;
+        }
+
+        $updateStmt = $this->prepare("UPDATE perfiles_financiamiento SET score_credito = ? WHERE cedula_persona = ?");
+        $updateStmt->execute([$nuevoScore, $cedula]);
     }
 }
 

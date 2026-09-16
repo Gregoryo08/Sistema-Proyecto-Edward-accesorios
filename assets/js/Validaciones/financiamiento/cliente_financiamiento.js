@@ -204,7 +204,7 @@ $(document).ready(function () {
         else gestionarEstado(id, false, config.error);
     });
 
-    $(document).on("click", ".btn-historial", function () {
+$(document).on("click", ".btn-historial", function () {
     const id_financiamiento = $(this).data('id');
     $.get("?pagina=cliente_financiamiento&ajax=true&x=historial&id_financiamiento=" + id_financiamiento, function (res) {
         const data = typeof res === 'string' ? JSON.parse(res) : res;
@@ -215,7 +215,7 @@ $(document).ready(function () {
         data.forEach(c => {
             let num = c.numero_cuota;
             if (saldosPendientes[num] === undefined) {
-                saldosPendientes[num] = parseFloat(c.monto_original || 0);
+                saldosPendientes[num] = parseFloat(c.monto_original || c.monto_cuota || c.monto || 80);
             }
         });
 
@@ -226,7 +226,7 @@ $(document).ready(function () {
             conteoFilas[numCuotaOriginal] = (conteoFilas[numCuotaOriginal] || 0) + 1;
 
             let montoPagadoNum = parseFloat(c.monto_pagado || 0);
-            let saldoActual = saldosPendientes[numCuotaOriginal];
+            let saldoActual = saldosPendientes[numCuotaOriginal] || 80;
 
             let etiquetaCuota = numCuotaOriginal;
             let montoCuotaStr = `$${saldoActual.toFixed(2)}`;
@@ -237,13 +237,20 @@ $(document).ready(function () {
                 montoCuotaStr = `$${saldoActual.toFixed(2)}`;
                 montoAbonadoStr = '-';
             } else {
-                if (conteoFilas[numCuotaOriginal] === 1) {
-                    etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                } else {
-                    etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                }
                 montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-                montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+
+                if (montoPagadoNum >= saldoActual) {
+                    montoAbonadoStr = 'Pago Completo';
+                    etiquetaCuota = `${numCuotaOriginal} (Completo)`;
+                } else {
+                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                    if (conteoFilas[numCuotaOriginal] === 1) {
+                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
+                    } else {
+                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                    }
+                }
+
                 saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
             }
 

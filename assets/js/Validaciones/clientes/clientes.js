@@ -18,7 +18,26 @@ $(document).ready(function () {
 
         cargarTablaClientes();
     });
+    
 
+
+
+  
+$.ajax({
+    type: "GET",
+    url: "?pagina=clientes&obtener_tasa=true",
+    success: function (response) {
+     
+        var res = typeof response === "object" ? response : JSON.parse(response);
+        
+        
+        if (res.success && res.tasa > 0) {
+            $("#tasa_bcv").val(res.tasa.toString().replace(',', '.'));
+        } else {
+            $("#tasa_bcv").val("0.00");
+        }
+    }
+});
     function cargarTablaClientes() {
         $("#clientestabla").DataTable({
             destroy: true,

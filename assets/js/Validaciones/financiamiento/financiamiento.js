@@ -345,18 +345,18 @@ $(document).on("click", ".btn-seguimiento", function () {
                 montoCuotaStr = `$${saldoActual.toFixed(2)}`;
                 montoAbonadoStr = '-';
             } else {
-                if (conteoFilas[numCuotaOriginal] === 1) {
-                    etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                } else {
-                    etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                }
-                
                 montoCuotaStr = `$${saldoActual.toFixed(2)}`;
 
                 if (montoPagadoNum >= saldoActual) {
                     montoAbonadoStr = 'Pago Completo';
+                    etiquetaCuota = `${numCuotaOriginal} (Completo)`;
                 } else {
                     montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
+                    if (conteoFilas[numCuotaOriginal] === 1) {
+                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
+                    } else {
+                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
+                    }
                 }
 
                 saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
@@ -378,7 +378,6 @@ $(document).on("click", ".btn-seguimiento", function () {
         new bootstrap.Modal('#modalSeguimientoPagos').show();
     });
 });
-
 window.gestionarPago = function(id_cuota, accion) {
     $.post("?pagina=financiamiento", { accion: accion, id_cuota: id_cuota }, function(res) {
         if (res.success) {

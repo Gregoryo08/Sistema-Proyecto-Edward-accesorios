@@ -163,8 +163,10 @@ $(document).ready(function () {
                 if (data && data.tasa && data.tasa > 0) {
                     let valorTasa = parseFloat(data.tasa).toFixed(2);
                     $('#tasa-valor').text(`${valorTasa} Bs.`);
-                    if (data.fecha_actualizacion) {
-                        $('#tasa-fecha').text(data.fecha_actualizacion);
+                    
+                    
+                    if (data.fecha) {
+                        $('#tasa-fecha').text(data.fecha);
                     } else {
                         let hoy = new Date().toLocaleDateString('es-VE');
                         $('#tasa-fecha').text(hoy);
