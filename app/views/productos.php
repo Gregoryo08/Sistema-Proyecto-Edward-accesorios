@@ -20,7 +20,9 @@
                             <th>Producto</th>
                             <th>Marca</th>
                             <th>Categoría</th>
-                            <th>Stock Actual</th> <th>Precio Detal</th>
+                            <th style="display: none;">Stock minimo</th>
+                            <th>Stock Actual</th> 
+                            <th>Precio Detal</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
