@@ -408,7 +408,7 @@
                                     $ <span id="calc_usd_perfil" class="ms-1">0.00</span>
                                 </span>
                             </div>
-                            <input type="hidden" id="ingresos_mensuales" name="ingresos_mensuales" value="0">
+                            <input type="hidden" id="ingresos_mensuales" name="ingresos_mensuales" >
                             <p id="texto_mensaje_ingresos_perfil" class="text-danger small mt-1"></p>
                         </div>
                     </div>

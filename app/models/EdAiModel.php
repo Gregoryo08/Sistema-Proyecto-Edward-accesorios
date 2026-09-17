@@ -5,21 +5,17 @@ namespace App\Sistema\models;
 use App\Sistema\config\Conexion;
 use PDO;
 
-/**
- * ED-AI: asistente virtual basado en base de conocimientos (FAQ/reglas) local.
- * - responde de forma determinista según contexto (intranet o ecommerce)
- * - controla el numero maximo de usuarios de chat simultaneos por contexto
- */
+
 class EdAiModel
 {
     const MAX_SIMULTANEOS = 50;
-    const EXPIRA_MIN = 5; // minutos sin actividad para liberar el "slot"
+    const EXPIRA_MIN = 5; 
 
     private $conexionUsuario;
 
     public function __construct()
     {
-        // Conexión a BD usuario (sistema_edward_usuario) para el control de sesiones activas.
+        
         try {
             $this->conexionUsuario = Conexion::getShared('usuario')->getConexion();
         } catch (\Exception $e) {
@@ -27,14 +23,7 @@ class EdAiModel
         }
     }
 
-    /**
-     * Base de conocimiento (intranet). Cada regla: [claves => respuesta].
-     * Las claves se alinean con los NOMBRES DE MODULOS del menu lateral para
-     * que el alcance sea coherente. Como el puntaje es la suma de longitudes
-     * de las claves coincidentes, los nombres de modulo mas largos/especificos
-     * (ej: "servicio tecnico", "ventas online", "pago de cuotas") ganan sobre
-     * los genericos ("ventas", "financiamiento").
-     */
+   
     private function conocimientoIntranet(): array
     {
         return [
@@ -67,9 +56,7 @@ class EdAiModel
         ];
     }
 
-    /**
-     * Base de conocimiento (e-commerce / portal externo).
-     */
+    
     private function conocimientoEcommerce(): array
     {
         return [
@@ -88,9 +75,7 @@ class EdAiModel
         ];
     }
 
-    /**
-     * Responde una pregunta segun el contexto. Devuelve string.
-     */
+    
     public function responder(string $pregunta, string $contexto = 'intranet'): string
     {
         $contexto = ($contexto === 'ecommerce') ? 'ecommerce' : 'intranet';
@@ -109,7 +94,7 @@ class EdAiModel
             $score = 0;
             foreach ($claves as $clave) {
                 if (mb_strpos($pregunta, mb_strtolower($clave)) !== false) {
-                    // ponderar: claves mas largas pesan mas (mas especificas)
+                    
                     $score += mb_strlen($clave);
                 }
             }
@@ -130,9 +115,7 @@ class EdAiModel
             " Tambien puedes escribir 'ayuda'.";
     }
 
-    // ============================================================
-    //  CONTROL DE USUARIOS SIMULTANEOS
-    // ============================================================
+    
 
     private function _limpiarCaducados(): void
     {
@@ -145,12 +128,7 @@ class EdAiModel
         }
     }
 
-    /**
-     * Registra/renueva el "slot" de chat del usuario actual.
-     * @param string $token identificar unico del cliente/instancia
-     * @param string $contexto intranet|ecommerce
-     * @return array ['ok'=>bool, 'lleno'=>bool, 'activos'=>int]
-     */
+   
     public function registrarActivo(string $token, string $usuarioId, string $contexto = 'intranet'): array
     {
         $contexto = ($contexto === 'ecommerce') ? 'ecommerce' : 'intranet';

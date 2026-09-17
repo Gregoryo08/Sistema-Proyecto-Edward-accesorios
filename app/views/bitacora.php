@@ -6,7 +6,7 @@
 
 <main class="main m-4" id="main">
     <section id="hero" class="hero section" style="height: auto;">
-        <h2 class="text-center mb-4">Consultar Bitácora</h2>
+        <h2 class="text-center mb-4">Administrar Bitácora</h2>
 
         <div class="card mb-4 shadow-sm">
             <div class="card-body">

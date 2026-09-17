@@ -147,15 +147,18 @@ $.ajax({
     });
   });
 
-  $(document).on("input", "#ingreso_bs, #tasa_bcv", function () {
-    var bsVal = $("#ingreso_bs").val().toString().replace(',', '.');
-    var tasaVal = $("#tasa_bcv").val().toString().replace(',', '.');
-    var bs = parseFloat(bsVal) || 0;
-    var tasa = parseFloat(tasaVal) || 1;
-    var usd = (bs / tasa).toFixed(2);
-    $("#calc_usd").text(usd);
+
+
+$(document).on("input", "#ingreso_bs_perfil", function () {
+    var bs = parseFloat($(this).val().toString().replace(',', '.')) || 0;
+    var tasa = parseFloat($("#tasa_bcv_perfil").val()) || 1;
+    
+  
+    var usd = tasa > 0 ? (bs / tasa).toFixed(2) : "0.00";
+
+    $("#calc_usd_perfil").text(usd);
     $("#ingresos_mensuales").val(usd); 
-  });
+});
 
   $("#guardarCliente").off("click.validacionCliente").on("click.validacionCliente", function () {
     if (validarDatos()) {
@@ -584,14 +587,21 @@ $(document).on("click", ".btn-agregarPerfil", function () {
     $("#cedulaPerfil").val(id);
     $("#cedulaPerfilVisual").val(id);
 
+    $("#ingreso_bs_perfil").val("");
+    $("#calc_usd_perfil").text("0.00");
+    $("#ingresos_mensuales").val("");
+
     $.ajax({
         type: "GET",
         url: "",
         data: { obtener_tasa: true },
-        success: function (response) {
-            var res = JSON.parse(response);
-            if (res.tasa) {
+        dataType: "json",
+        success: function (res) {
+            if (res && res.tasa) {
                 $("#tasa_bcv_perfil").val(res.tasa.toString().replace(',', '.'));
+                if (typeof calcularDolaresPerfil === "function") {
+                    calcularDolaresPerfil();
+                }
             }
         }
     });
