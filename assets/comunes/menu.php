@@ -242,23 +242,14 @@
                 </li>
             <?php endif; ?>
 
-            <?php if (
-                $obj_usuario->tienePermiso("Administrar financiamiento", "listar") ||
-                $obj_usuario->tienePermiso("Administrar Pago De Cuotas", "listar")
-            ): ?>
-                <li class="dropdown">
-                    <a href="#" class="opcion">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span class="textoOption">Financiamiento</span>
-                    </a>
-                    <ul class="listOptionSlice">
-                        <?php if ($obj_usuario->tienePermiso("Administrar Financiamiento", "listar")): ?>
-                            <li><a href="?pagina=financiamiento"><i class="bi bi-arrow-return-right"></i> Financiamiento</a></li>
-                        <?php endif; ?>
-
-                    </ul>
-                </li>
-            <?php endif; ?>
+           <?php if ($obj_usuario->tienePermiso("Administrar financiamiento", "listar")): ?>
+    <li>
+        <a href="?pagina=financiamiento" class="opcion">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <span class="textoOption">Financiamiento</span>
+        </a>
+    </li>
+<?php endif; ?>
 
             <?php if (
                 $obj_usuario->tienePermiso("Administrar Servicio Tecnico", "listar")
