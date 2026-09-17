@@ -6,7 +6,7 @@ require_once('assets/comunes/modal_pagocuotas.php');
 <main class="main mt-4" id="main">
     <section id="hero" class="hero section" style="height: auto;">
         <div class="container">
-            <h2 class="text-center mb-4">Mis Financiamientos</h2>
+            <h2 class="text-center mb-4">Administrar Pago De Cuotas</h2>
 
             <div class="table-responsive">
                 <div class="table-container">

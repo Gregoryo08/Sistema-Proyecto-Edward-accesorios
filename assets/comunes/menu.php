@@ -251,21 +251,14 @@
     </li>
 <?php endif; ?>
 
-            <?php if (
-                $obj_usuario->tienePermiso("Administrar Servicio Tecnico", "listar")
-            ): ?>
-                <li class="dropdown">
-                    <a href="#" class="opcion">
-                        <i class="fa-solid fa-handshake"></i>
-                        <span class="textoOption">Servicio Técnico</span>
-                    </a>
-                    <ul class="listOptionSlice">
-                        <?php if ($obj_usuario->tienePermiso("Administrar Servicio Tecnico", "listar")): ?>
-                            <li><a href="?pagina=servicio_tecnico"><i class="bi bi-arrow-return-right"></i>Servicio Tecnico</a></li>
-                        <?php endif; ?>
-                    </ul>
-                </li>
-            <?php endif; ?>
+            <?php if ($obj_usuario->tienePermiso("Administrar Servicio Tecnico", "listar")): ?>
+    <li>
+        <a href="?pagina=servicio_tecnico" class="opcion">
+            <i class="fa-solid fa-handshake"></i>
+            <span class="textoOption">Servicio Técnico</span>
+        </a>
+    </li>
+<?php endif; ?>
 
             <?php if (
                 $obj_usuario->tienePermiso("Administrar Ventas", "listar")): ?>
