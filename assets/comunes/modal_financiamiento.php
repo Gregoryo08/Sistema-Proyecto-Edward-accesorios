@@ -103,7 +103,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 p-4">
-                <h3 class="fw-black mb-0 text-white">Seguimiento de Cuotas</h3>
+                <h3 class="fw-black mb-0">Seguimiento de Cuotas</h3>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 pt-0">

@@ -313,12 +313,14 @@ $(document).on("click", ".btn-seguimiento", function () {
             if (estado === 'rechazado') return;
 
             let badge = estado === 'pagado' ? 'success' : (estado === 'en_revision' ? 'danger' : 'warning');
-            let acciones = '';
+            let acciones = `<div class="btn-group" role="group">`;
             
             if (estado === 'en_revision') {
                 acciones = `
-                    <button class="btn btn-sm btn-success me-1" onclick="gestionarPago(${c.id_cuota}, 'aprobarPago')">Aprobar</button>
-                    <button class="btn btn-sm btn-danger" onclick="gestionarPago(${c.id_cuota}, 'negarPago')">Negar</button>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-success me-1" title="Aprobar pago" onclick="gestionarPago(${c.id_cuota}, 'aprobarPago')"><i class="bi bi-check-circle"></i></button>
+                        <button class="btn btn-sm btn-danger" title="Denegar pago" onclick="gestionarPago(${c.id_cuota}, 'negarPago')"><i class="bi bi-x-circle"></i></button>
+                    </div>
                 `;
             }
 
