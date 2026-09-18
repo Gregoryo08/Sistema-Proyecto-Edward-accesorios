@@ -113,7 +113,7 @@
                         <span class="d-none d-sm-inline">Perfil</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><button class="dropdown-item" id="boton-ayuda">Ayuda</button></li>
+                      
                         <li><a class="dropdown-item text-danger" href="?pagina=salida">Cerrar Sesión</a></li>
                     </ul>
                 </div>
