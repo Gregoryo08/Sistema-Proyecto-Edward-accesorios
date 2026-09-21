@@ -32,17 +32,31 @@ $(document).ready(function () {
                 return;
             }
             
-            if (data.resultado === "exito") {
-                const urlDescarga = `?pagina=baseDatos_1&accion=descargar_backup&archivo=${encodeURIComponent(data.archivo)}`;
-                
+            if (data.resultado === "exito" && Array.isArray(data.archivos)) {
+                let enlacesHTML = "";
+
+                data.archivos.forEach(function (archivo, index) {
+                    const urlDescarga = `?pagina=baseDatos_1&accion=descargar_backup&archivo=${encodeURIComponent(archivo)}`;
+                    enlacesHTML += `<a href="${urlDescarga}" class="btn btn-sm btn-success" style="cursor: pointer; margin-left: 5px; margin-top: 5px; color: white;" download="${archivo}">Descargar ${archivo}</a> `;
+
+                    setTimeout(function () {
+                        const a = document.createElement("a");
+                        a.href = urlDescarga;
+                        a.download = archivo;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }, index * 500);
+                });
+
                 mensajeBackupDiv.innerHTML = `
                     <div class="alert alert-success">
-                        Backup generado correctamente. 
-                        <a id="btnDescargar" href="${urlDescarga}" class="btn btn-sm btn-success" style="cursor: pointer; margin-left: 10px; color: white;" download="${data.archivo}">Descargar archivo</a>
+                        Backups generados correctamente. <br>
+                        ${enlacesHTML}
                     </div>`;
 
             } else {
-                mensajeBackupDiv.innerHTML = `<div class="alert alert-danger">${data.mensaje}</div>`;
+                mensajeBackupDiv.innerHTML = `<div class="alert alert-danger">${data.mensaje || "Error al realizar el respaldo."}</div>`;
             }
         } catch (error) {
             console.error(error);

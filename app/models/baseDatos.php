@@ -8,7 +8,7 @@ use \mysqli;
 class basedatos extends Conexion
 {
     private $db_config;
-    private $nombreArchivoGenerado;
+    private $nombreArchivoGenerado = [];
 
     public function __construct()
     {
@@ -19,46 +19,56 @@ class basedatos extends Conexion
     public function realizarBackup()
     {
         try {
-            $fecha = date('Y-m-d_H-i-s');
-            $carpeta = __DIR__ . '/../../databases/Respaldos/';
+            $fecha = date('Y-m-d_H-i-s');$carpeta = __DIR__ . '/../../databases/Respaldos/';
             if (!is_dir($carpeta)) {
                 mkdir($carpeta, 0755, true);
             }
 
-            $dbname = $this->db_config['dbname1'];
-            $this->nombreArchivoGenerado = $dbname . '_' . $fecha . '.sql';
-            $rutaCompleta = $carpeta . $this->nombreArchivoGenerado;
+            $databases = [
+                $this->db_config['dbname1'] ?? 'sistema_edward',$this->db_config['dbname2'] ?? 'sistema_edward_usuario'
+            ];
 
-            $pdo = new PDO("mysql:host={$this->db_config['host']};dbname={$dbname};charset=utf8mb4", $this->db_config['username'], $this->db_config['password']);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $archivosGenerados = [];
 
-            $sql = "SET FOREIGN_KEY_CHECKS=0;\n\n";
-            $tablas = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-
-            foreach ($tablas as $tabla) {
-                $sql .= "DROP TABLE IF EXISTS `$tabla`;\n";
-                $create = $pdo->query("SHOW CREATE TABLE `$tabla`")->fetch(PDO::FETCH_ASSOC);
-                $sql .= $create['Create Table'] . ";\n\n";
-
-                $datos = $pdo->query("SELECT * FROM `$tabla`")->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($datos as $fila) {
-                    $valores = array_map(function($v) use ($pdo) {
-                        return $v === null ? 'NULL' : $pdo->quote($v);
-                    }, $fila);
-                    $sql .= "INSERT INTO `$tabla` VALUES (" . implode(", ", $valores) . ");\n";
+            foreach ($databases as$dbname) {
+                if (empty($dbname)) {
+                    continue;
                 }
-                $sql .= "\n\n";
-            }
-            $sql .= "SET FOREIGN_KEY_CHECKS=1;";
 
-            if (file_put_contents($rutaCompleta, $sql)) {
-                return [
-                    'resultado' => 'exito',
-                    'mensaje' => 'Backup generado correctamente.',
-                    'archivo' => $this->nombreArchivoGenerado
-                ];
+                $nombreArchivo =$dbname . '_' . $fecha . '.sql';$rutaCompleta = $carpeta .$nombreArchivo;
+
+                $pdo = new PDO("mysql:host={$this->db_config['host']};dbname={$dbname};charset=utf8mb4", $this->db_config['username'], $this->db_config['password']);$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                $sql = "SET FOREIGN_KEY_CHECKS=0;\n\n";
+                $tablas =$pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+
+                foreach ($tablas as $tabla) {$sql .= "DROP TABLE IF EXISTS `$tabla`;\n";
+                    $create =$pdo->query("SHOW CREATE TABLE `$tabla`")->fetch(PDO::FETCH_ASSOC);
+                    $sql .=$create['Create Table'] . ";\n\n";
+
+                    $datos =$pdo->query("SELECT * FROM `$tabla`")->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($datos as $fila) {$valores = array_map(function($v) use ($pdo) {
+                            return $v === null ? 'NULL' : $pdo->quote($v);
+                        }, $fila);$sql .= "INSERT INTO `$tabla` VALUES (" . implode(", ", $valores) . ");\n";
+                    }
+                    $sql .= "\n\n";
+                }
+                $sql .= "SET FOREIGN_KEY_CHECKS=1;";
+
+                if (file_put_contents($rutaCompleta,$sql)) {
+                    $archivosGenerados[] =$nombreArchivo;
+                } else {
+                    return ['resultado' => 'error', 'mensaje' => "Error al escribir el archivo para $dbname."];
+                }
             }
-            return ['resultado' => 'error', 'mensaje' => 'Error al escribir el archivo en el disco.'];
+
+            $this->nombreArchivoGenerado =$archivosGenerados;
+
+            return [
+                'resultado' => 'exito',
+                'mensaje' => 'Backups generados correctamente.',
+                'archivos' => $archivosGenerados
+            ];
         } catch (\Exception $e) {
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
