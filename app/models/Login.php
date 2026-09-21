@@ -259,34 +259,5 @@ class login
         }
     }
 
-    public function registrarIntentoFail($ip) {
-        try {
-            $conex = Conexion::getShared('usuario')->getConexion();
-            $stmt = $conex->prepare("INSERT INTO intentos_fallidos (ip) VALUES (?)");
-            $stmt->execute([$ip]);
-        } catch (\Exception $e) {
-            
-        }
-    }
-
-    public function verificarBloqueoIP($ip) {
-        try {
-            $conex = Conexion::getShared('usuario')->getConexion();
-            $stmt = $conex->prepare("SELECT COUNT(*) FROM intentos_fallidos WHERE ip = ? AND fecha > (NOW() - INTERVAL 15 MINUTE)");
-            $stmt->execute([$ip]);
-            return (int)$stmt->fetchColumn();
-        } catch (\Exception $e) {
-            return 0;
-        }
-    }
-
-    public function limpiarIntentos($ip) {
-        try {
-            $conex = Conexion::getShared('usuario')->getConexion();
-            $stmt = $conex->prepare("DELETE FROM intentos_fallidos WHERE ip = ?");
-            $stmt->execute([$ip]);
-        } catch (\Exception $e) {
-            
-        }
-    }
+    
 }
