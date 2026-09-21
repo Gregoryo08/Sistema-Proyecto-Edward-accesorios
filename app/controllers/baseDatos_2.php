@@ -49,35 +49,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     if ($_POST['accion'] === 'restaurar_bd') {
         header('Content-Type: application/json');
 
-        if (isset($_FILES['backup']) && $_FILES['backup']['error'] === UPLOAD_ERR_OK) {
-            $archivoTmp = $_FILES['backup']['tmp_name'];
-            $nombreArchivo = $_FILES['backup']['name'];
-            $extension = pathinfo($nombreArchivo, PATHINFO_EXTENSION);
+        if (isset($_FILES['backup'])) {
+            $files = $_FILES['backup'];
+            $fileList = [];
 
-            if (strtolower($extension) === 'sql') {
-                $carpetaDestino = __DIR__ . '/../databases/Restauraciones/';
-                if (!is_dir($carpetaDestino)) {
-                    mkdir($carpetaDestino, 0755, true);
+            if (is_array($files['name'])) {
+                for ($i = 0; $i < count($files['name']); $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                        $fileList[] = [
+                            'tmp_name' => $files['tmp_name'][$i],
+                            'name' => $files['name'][$i]
+                        ];
+                    }
+                }
+            } else {
+                if ($files['error'] === UPLOAD_ERR_OK) {
+                    $fileList[] = [
+                        'tmp_name' => $files['tmp_name'],
+                        'name' => $files['name']
+                    ];
+                }
+            }
+
+            if (empty($fileList)) {
+                echo json_encode(['resultado' => 'error', 'mensaje' => 'No se seleccionó ningún archivo o ocurrió un error al subir.']);
+                exit();
+            }
+
+            $carpetaDestino = __DIR__ . '/../databases/Restauraciones/';
+            if (!is_dir($carpetaDestino)) {
+                mkdir($carpetaDestino, 0755, true);
+            }
+
+            $mensajesExito = [];
+            $mensajesError = [];
+
+            foreach ($fileList as $file) {
+                $nombreArchivo = $file['name'];
+                $extension = pathinfo($nombreArchivo, PATHINFO_EXTENSION);
+
+                if (strtolower($extension) !== 'sql') {
+                    $mensajesError[] = "El archivo '$nombreArchivo' no es un archivo .sql válido.";
+                    continue;
                 }
 
                 $rutaDestino = $carpetaDestino . time() . '_' . basename($nombreArchivo);
 
-                if (move_uploaded_file($archivoTmp, $rutaDestino)) {
-                    $resultado = $obj_respaldo->restaurarBaseDatos($rutaDestino);
+                if (move_uploaded_file($file['tmp_name'], $rutaDestino)) {
+                    $resultado = $obj_respaldo->restaurarBaseDatos($rutaDestino, $nombreArchivo);
 
                     if (isset($resultado['success'])) {
-                        echo json_encode(['resultado' => 'exito', 'mensaje' => $resultado['success']]);
+                        $mensajesExito[] = $resultado['success'];
                     } else {
-                        echo json_encode(['resultado' => 'error', 'mensaje' => $resultado['error'] ?? 'Error desconocido al restaurar la base de datos.']);
+                        $mensajesError[] = $resultado['error'] ?? "Error al restaurar '$nombreArchivo'.";
                     }
                 } else {
-                    echo json_encode(['resultado' => 'error', 'mensaje' => 'Error al mover el archivo subido.']);
+                    $mensajesError[] = "Error al mover '$nombreArchivo'.";
                 }
+            }
+
+            if (!empty($mensajesError)) {
+                $msg = implode(" | ", $mensajesError);
+                if (!empty($mensajesExito)) {
+                    $msg .= " (Parcial: " . implode(" | ", $mensajesExito) . ")";
+                }
+                echo json_encode(['resultado' => 'error', 'mensaje' => $msg]);
             } else {
-                echo json_encode(['resultado' => 'error', 'mensaje' => 'Por favor, seleccione un archivo con extensión .sql válido.']);
+                echo json_encode(['resultado' => 'exito', 'mensaje' => implode("<br>", $mensajesExito)]);
             }
         } else {
-            echo json_encode(['resultado' => 'error', 'mensaje' => 'No se ha seleccionado ningún archivo o ocurrió un error en la subida.']);
+            echo json_encode(['resultado' => 'error', 'mensaje' => 'No se ha seleccionado ningún archivo.']);
         }
         exit();
     }

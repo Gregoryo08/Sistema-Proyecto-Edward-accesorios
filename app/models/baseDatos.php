@@ -79,41 +79,48 @@ class basedatos extends Conexion
         return $this->nombreArchivoGenerado;
     }
 
-    public function restaurarBaseDatos($ruta_sql)
-    {
-        if (!file_exists($ruta_sql)) {
-            return ["error" => "Archivo no encontrado."];
-        }
-        
-        $contenido = file_get_contents($ruta_sql);
-        
-        if (strpos(trim($contenido), '<!DOCTYPE') !== false || strpos(trim($contenido), '<html') !== false) {
-            return ["error" => "El archivo seleccionado no es un respaldo SQL válido."];
-        }
+   public function restaurarBaseDatos($ruta_sql, $nombreOriginal = '')
+{
+    if (!file_exists($ruta_sql)) {
+        return ["error" => "Archivo no encontrado."];
+    }
 
-        $mysqli = new mysqli($this->db_config['host'], $this->db_config['username'], $this->db_config['password'], $this->db_config['dbname1']);
-        
-        if ($mysqli->connect_error) {
-            return ["error" => "Error de conexión: " . $mysqli->connect_error];
-        }
+    $contenido = file_get_contents($ruta_sql);
 
-        $mysqli->query("SET FOREIGN_KEY_CHECKS=0;");
-        
-        if ($mysqli->multi_query($contenido)) {
-            do { 
-                if ($result = $mysqli->store_result()) {
-                    $result->free();
-                }
-            } while ($mysqli->more_results() && $mysqli->next_result());
-        } else {
-            $error = $mysqli->error;
-            $mysqli->query("SET FOREIGN_KEY_CHECKS=1;");
-            $mysqli->close();
-            return ["error" => "Error en la consulta SQL: " . $error];
-        }
+    if (strpos(trim($contenido), '<!DOCTYPE') !== false || strpos(trim($contenido), '<html') !== false) {
+        return ["error" => "El archivo seleccionado no es un respaldo SQL válido."];
+    }
 
+    $targetDb = $this->db_config['dbname1'];
+    $db2 = $this->db_config['dbname2'] ?? '';
+
+    if (!empty($db2) && (strpos($nombreOriginal, $db2) !== false || strpos(basename($ruta_sql), $db2) !== false)) {
+        $targetDb = $db2;
+    }
+
+    $mysqli = @new mysqli($this->db_config['host'], $this->db_config['username'], $this->db_config['password'], $targetDb);
+
+    if ($mysqli->connect_error) {
+        return ["error" => "Error de conexión a la base de datos '$targetDb': " . $mysqli->connect_error];
+    }
+
+    $mysqli->query("SET FOREIGN_KEY_CHECKS=0;");
+
+    if ($mysqli->multi_query($contenido)) {
+        do {
+            if ($result = $mysqli->store_result()) {
+                $result->free();
+            }
+        } while ($mysqli->more_results() && $mysqli->next_result());
+    } else {
+        $error = $mysqli->error;
         $mysqli->query("SET FOREIGN_KEY_CHECKS=1;");
         $mysqli->close();
-        return ["success" => "Restauración completada."];
+        return ["error" => "Error en la base de datos '$targetDb': " . $error];
     }
+
+    $mysqli->query("SET FOREIGN_KEY_CHECKS=1;");
+    $mysqli->close();
+    return ["success" => "Restauración completada para '$targetDb'."];
+}
 }
