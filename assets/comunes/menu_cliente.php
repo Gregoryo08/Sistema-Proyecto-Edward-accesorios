@@ -15,14 +15,14 @@
     <link rel="stylesheet" href="assets/Library/DataTables/datatables.min.css">
     <link rel="stylesheet" href="assets/Library/SweetAlerts/sweetalert2.min.css">
     <link rel="stylesheet" href="assets/Library/Select2/dist/css/select2.min.css">
-    <!-- <link rel="stylesheet" href="assets/Library/Toastr/toastr.min.css"> -->
+   
     <link rel="stylesheet" href="assets/css/main.css">
     <script src="assets/Library/JQuery/jquery-3.7.0.min.js"></script>
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/Library/SweetAlerts/sweetalert2.all.js"></script>
     <script src="assets/Library/Select2/dist/js/select2.min.js"></script>
     <script src="assets/Library/DataTables/datatables.min.js"></script>
-    <!-- <script src="assets/Library/Toastr/toastr.min.js"></script> -->
+    
     <link rel="stylesheet" href="assets/css/preloader.css">
     <link rel="stylesheet" href="assets/css/menu.css">
     <link rel="stylesheet" href="assets/css/perfil.css">
@@ -32,8 +32,8 @@
 
    <header id="header" class="header d-flex">
     <div class="container_fluid position-relative d-flex align-items-center w-100">
-        <a href="?pagina=principal_cliente" class="logo d-flex align-items-center me-auto">
-            <!-- <img src="/src/assets/img/icono.ico" alt="Edward Accesorios" style="width: 40px; height: 40px; margin-right: 10px;"> -->
+        <a href="?pagina=home" class="logo d-flex align-items-center me-auto">
+         <img src="/src/assets/img/icono.ico" alt="Edward Accesorios" style="width: 40px; height: 40px; margin-right: 10px;"> 
             <h1 class="sitename">Edward Accesorios</h1>
         </a>
         

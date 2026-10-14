@@ -89,7 +89,7 @@ $(document).ready(function () {
                         `<button class="btn btn-primary btn-sm btn-seguimiento" data-id="${row.id_financiamiento}"><i class="bi bi-list-check"></i></button>` : '';
 
                     let btnModificar = permisos.modificar ? 
-                        `<button class="btn btn-outline-primary btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
+                        `<button class="btn btn-outline-warning btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
 
                     let btnBloqueo = permisos.modificar ? 
                         `<button class="btn btn-outline-${row.estado_equipo === 'activo' ? 'danger' : 'success'} btn-sm btn-cambiar-estado" data-id="${row.id_financiamiento}" data-estado="${row.estado_equipo === 'activo' ? 'bloqueado' : 'activo'}" title="${row.estado_equipo === 'activo' ? 'Bloquear' : 'Desbloquear'}"><i class="bi ${row.estado_equipo === 'activo' ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i></button>` : '';

@@ -3,8 +3,8 @@
         <div class="modal-content border-0 shadow-lg rounded-5">
             <div class="modal-header border-0 p-4 pb-0">
                 <div>
-                    <h3 class="fw-black mb-0" >Nuevo Financiamiento</h3>
-                    <p >Vincula un cliente a un dispositivo y configura el plan de pago</p>
+                    <h3 class="fw-black mb-0">Nuevo Financiamiento</h3>
+                    <p class="text-muted small mb-0">Vincula un cliente a un dispositivo y configura el plan de pago</p>
                 </div>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -97,14 +97,12 @@
     </div>
 </div>
 
-
-
 <div class="modal fade" id="modalSeguimientoPagos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 p-4">
                 <h3 class="fw-black mb-0">Seguimiento de Cuotas</h3>
-                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 pt-0">
                 <div class="table-responsive">
@@ -116,7 +114,7 @@
                                 <th>Monto Cuota</th>
                                 <th>Monto Abonado</th>
                                 <th>Estado</th>
-                                <th>Método / Banco</th>
+                                <th>Método</th>
                                 <th>Fecha de Pago</th>
                                 <th>Acción</th>
                             </tr>
@@ -138,7 +136,7 @@
         <div class="modal-content border-0 shadow-lg rounded-5">
             <div class="modal-header border-0 p-4 pb-0">
                 <div>
-                    <h3 class="fw-black mb-0" style="color: #1a1a1a;">Modificar Financiamiento</h3>
+                    <h3 class="fw-black mb-0">Modificar Financiamiento</h3>
                     <p class="text-muted small">Actualiza los datos del plan de pago y el equipo</p>
                 </div>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -198,75 +196,52 @@
             </div>
         </div>
     </div>
-    </div>
+</div>
 
+<style>
+.form-select.is-valid {
+    border-color: #198754 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 2.25rem center !important;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+}
 
+.is-valid {
+    border-color: #198754 !important;
+}
 
+.msg-success {
+    display: none;
+    color: #198754;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
 
+.select2-container--valid .select2-selection--single {
+    border-color: #198754 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 2.25rem center !important;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+}
 
+.msg-error {
+    display: none;
+    color: #dc3545 !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 5px;
+    height: 1rem;
+    visibility: visible !important;
+}
 
+.is-invalid+.select2-container .select2-selection {
+    border-color: #dc3545 !important;
+}
 
-
-
-
-
-
-
-
-
-
-    <style>
-        .form-select.is-valid {
-            border-color: #198754 !important;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 2.25rem center !important;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
-        }
-
-        /* Estilos para el estado de éxito */
-        .is-valid {
-            border-color: #198754 !important;
-        }
-
-        .msg-success {
-            display: none;
-            color: #198754;
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-
-
-        /* Estilo para el contenedor de Select2 cuando es válido */
-        .select2-container--valid .select2-selection--single {
-            border-color: #198754 !important;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 2.25rem center !important;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
-        }
-
-
-
-        .msg-error {
-            display: none;
-            color: #dc3545 !important;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-top: 5px;
-            height: 1rem;
-            /* Fuerza altura */
-            visibility: visible !important;
-        }
-
-        /* Para componentes tipo Select2 */
-        .is-invalid+.select2-container .select2-selection {
-            border-color: #dc3545 !important;
-        }
-
-        .is-valid+.select2-container .select2-selection {
-            border-color: #198754 !important;
-        }
-    </style>
+.is-valid+.select2-container .select2-selection {
+    border-color: #198754 !important;
+}
+</style>

@@ -59,7 +59,7 @@
                                 <span><?php echo htmlspecialchars($nombreCliente); ?></span>
                                 <i class="fas fa-chevron-down custom-arrow"></i>
                             </button>
-                            <div class="custom-dropdown-menu">
+                            <div class="custom-dropdown-menu" style="background-color: black;">
                                 <a href="?pagina=principal_cliente" class="custom-dropdown-item custom-cuotas">
                                     <i class="fas fa-wallet"></i> Mis Cuotas
                                 </a>
@@ -94,7 +94,7 @@
     <script src="assets/js/ecommerce/carritoModal.js"></script>
 
     <div class="edai-chat" id="edaiChat" data-contexto="ecommerce">
-        <div id="edaiWindow" class="edai-window">
+        <div id="edaiWindow" class="edai-window" style="background-color: black;"> 
             <div class="edai-header">
                 <img src="assets/avatar.jpg" alt="Ed-AI" class="edai-avatar">
                 <div class="edai-header-info">
