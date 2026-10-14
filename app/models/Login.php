@@ -54,6 +54,22 @@ class login
         return $edad >= 18;
     }
 
+    public function verificarBloqueoIP($ip) {
+        return $_SESSION['intentos_ip_' . md5($ip)] ?? 0;
+    }
+
+    public function limpiarIntentos($ip) {
+        unset($_SESSION['intentos_ip_' . md5($ip)]);
+    }
+
+    public function registrarIntentoFail($ip) {
+        $key = 'intentos_ip_' . md5($ip);
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = 0;
+        }
+        $_SESSION[$key]++;
+    }
+
     public function activarClave($datos)
     {
         try {
@@ -189,7 +205,7 @@ class login
         }
     }
 
-    private function procesarLogin($usuario, $clave)
+  private function procesarLogin($usuario, $clave)
     {
         try {
             $conexUser = Conexion::getShared('usuario')->getConexion();
@@ -211,6 +227,7 @@ class login
                 return ["idle" => "Comuniquese con el administrador para desbloquear su cuenta!"];
             }
 
+            
             $sqlRol = "SELECT DISTINCT u.cedula_usuario, r.idRol, r.descripcion_rol 
                        FROM usuarios as u 
                        INNER JOIN roles as r ON u.id_rol = r.idRol 
@@ -223,6 +240,25 @@ class login
 
             if (!$datos) {
                 return ["error" => "Error al obtener permisos del rol."];
+            }
+
+          
+            try {
+                $conexGeneral = Conexion::getShared('sistema')->getConexion();
+                $stmtPersona = $conexGeneral->prepare("SELECT nombre, apellido FROM persona WHERE cedula_persona = ?");
+                $stmtPersona->execute([$resultado['cedula_usuario']]);
+                $persona = $stmtPersona->fetch(PDO::FETCH_ASSOC);
+                
+                if ($persona) {
+                    $datos['nombre'] = $persona['nombre'] ?? '';
+                    $datos['apellido'] = $persona['apellido'] ?? '';
+                } else {
+                    $datos['nombre'] = '';
+                    $datos['apellido'] = '';
+                }
+            } catch (\Exception $ex) {
+                $datos['nombre'] = '';
+                $datos['apellido'] = '';
             }
 
             return ["success" => $datos];

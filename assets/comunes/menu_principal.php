@@ -1,6 +1,16 @@
 <?php
-  $mostrarOpcionesCliente = $mostrarOpcionesCliente ?? false;
-  $nombreCliente = $nombreCliente ?? '';
+  if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+  }
+
+  $rol = $_SESSION['rol'] ?? $_SESSION['idRol'] ?? $_SESSION['id_rol'] ?? null;
+  $esEmpleado = ($rol !== null && (string)$rol !== '6');
+
+  $usuarioLogueado = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
+  $mostrarOpcionesCliente = !empty($usuarioLogueado);
+  
+
+  $nombreCliente = $_SESSION['cliente_nombre'] ?? 'Usuario';
 ?>
 
 <!DOCTYPE html>
@@ -26,16 +36,17 @@
             <div class="nav-container" id="nav-menu">
                 <ul class="nav-links">
                     <li><a href="?pagina=home">Inicio</a></li>
-                    <li><a href="#financiados">Financiados</a></li>
+                    <li><a href="?pagina=home#financiados">Financiados</a></li>
                     <li><a href="?pagina=web_Catalogo">Catálogo</a></li>
-                    <li><a href="#servicio">Soporte Técnico</a></li>
-                    <li><a href="#ubicacion">Ubicación</a></li>
-                    <li><a href="?pagina=iniciarsesion" class="btn-sistema">Mi Sistema</a></li>
+                    <li><a href="?pagina=home#servicio">Soporte Técnico</a></li>
+                    <li><a href="?pagina=home#ubicacion">Ubicación</a></li>
+                    
+                    <?php if ($esEmpleado): ?>
+                        <li><a href="?pagina=iniciarsesion" class="btn-sistema">Mi Sistema</a></li>
+                    <?php endif; ?>
                 </ul>
 
                 <div class="user-actions">
-                   
-
                     <a href="?pagina=carrito" id="verCarrito" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
                         <span id="cartCount" class="cart-badge">0</span>
@@ -53,14 +64,14 @@
                                     <i class="fas fa-wallet"></i> Mis Cuotas
                                 </a>
                                 <div class="custom-dropdown-divider"></div>
-                                <a href="?pagina=cerrarSesionCliente" class="custom-dropdown-item custom-logout">
+                                <a href="?pagina=salida" class="custom-dropdown-item custom-logout">
                                     <i class="fas fa-sign-out-alt"></i> Salir
                                 </a>
                             </div>
                         </div>
                     <?php else: ?>
                         <div class="auth-buttons">
-                            <a href="?pagina=loginEcommerce&destino=web_Catalogo" class="btn-auth">
+                            <a href="?pagina=iniciarSesion&destino=web_Catalogo" class="btn-auth">
                                 <i class="fas fa-user"></i> Login
                             </a>
                             <a href="?pagina=loginEcommerce&destino=web_Catalogo&register=1" class="btn-auth btn-register">
@@ -107,8 +118,6 @@
     </div>
 
     <style>
-
-
 .cart-icon {
     position: relative;
     width: 40px;
@@ -159,7 +168,6 @@
     color: #ffffff !important;
 }
 
-/* Corrección del menú desplegable del usuario */
 .custom-user-dropdown {
     position: relative;
     display: inline-block;
@@ -277,7 +285,7 @@
 .detail-box { background-color: var(--bg-card) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
 .detail-box p { color: var(--text-muted) !important; }
 .footer { background-color: var(--bg-main) !important; color: var(--text-muted) !important; border-top: 1px solid var(--border-color) !important; }
-</style>
+    </style>
 
     <script>
 $(document).ready(function() {

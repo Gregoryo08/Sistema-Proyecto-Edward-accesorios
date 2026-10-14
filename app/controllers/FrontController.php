@@ -18,9 +18,7 @@ class FrontController {
         $controllerName = str_replace(['.', '/'], '', $route);
         $controllerFile = __DIR__ . "/../controllers/{$controllerName}.php";
 
-        // ============================================================
-        // RUTAS DEL E-COMMERCE (públicas, requieren sesión de tienda)
-        // ============================================================
+    
         $paginas_ecommerce = [
             // === AUTH ===
             'loginTiendaController', 'logintiendacontroller', 'loginTienda', 'login_tienda',
@@ -43,50 +41,39 @@ class FrontController {
             // === CATÁLOGO ===
             'catalogo', 'web_catalogo', 'web_Catalogo',
             
-            // === PANEL CAJERA ===
+            
             'cajeraPanel', 'getDashboardData', 'procesarVerificacion',
             'crearDespacho', 'gestionarDespacho', 'getEstadisticasGraficos',
             
-            // === RECUPERACIÓN ===
+         
             'recuperacion_tienda', 'recuperacion',
             
-            // === TASA DE CAMBIO ===
+         
             'tasaCambio',
             'tasaEcommerce',
 
-            // === CERRAR SESIÓN ===
+           
             'cerrarSesionCliente',
         ];
 
-        // Mapa de rutas pagina= a clases controladoras OOP
+      
         $paginaControllerMap = [
-            'loginTiendaController' => 'LoginTiendaController',
-            'logintiendacontroller' => 'LoginTiendaController',
-            'loginTienda'           => 'LoginTiendaController',
-            'login_tienda'          => 'LoginTiendaController',
             'registroTiendaController' => 'RegistroTiendaController',
-            'registroTienda'        => 'RegistroTiendaController',
-            'registro_tienda'       => 'RegistroTiendaController',
-            'registroEcommerce'     => 'RegistroTiendaController',
-            'Loginecommerce'        => 'LoginTiendaController',
-            'loginEcommerce'        => 'LoginTiendaController',
-            'misPedidos'            => 'MisPedidosController',
-            'verPedido'             => 'VerPedidoController',
-            'tasaCambio'            => 'TasaCambioController',
-            'tasaEcommerce'         => 'TasaEcommerceController',
-            'carrito'               => 'CarritoController',
-            'verificarSesion'       => 'CarritoController',
-            'guardarDestino'        => 'CarritoController',
-            'cerrarSesionCliente'   => 'LoginTiendaController',
+            'registroTienda'           => 'RegistroTiendaController',
+            'registro_tienda'          => 'RegistroTiendaController',
+            'registroEcommerce'        => 'RegistroTiendaController',
+            'misPedidos'               => 'MisPedidosController',
+            'verPedido'                => 'VerPedidoController',
+            'tasaCambio'               => 'TasaCambioController',
+            'tasaEcommerce'            => 'TasaEcommerceController',
+            'carrito'                  => 'CarritoController',
+            'verificarSesion'          => 'CarritoController',
+            'guardarDestino'           => 'CarritoController',
         ];
 
-        // ============================================================
-        // PROCESAMIENTO DE RUTAS
-        // ============================================================
-
-        // 1. Si es ruta del e-commerce
+      
         if (in_array($route, $paginas_ecommerce)) {
-            // Intentar cargar como clase controladora OOP via paginaControllerMap
+            
             $className = $paginaControllerMap[$route] ?? null;
             if ($className) {
                 $fullClass = "App\\Sistema\\Controllers\\$className";
@@ -105,7 +92,7 @@ class FrontController {
                     exit;
                 }
             }
-            // Fallback: cargar como archivo procedural
+            
             if (file_exists($controllerFile)) {
                 require_once $controllerFile;
                 exit;
@@ -115,7 +102,6 @@ class FrontController {
             exit;
         }
 
-        // 2. Rutas públicas de la intranet (sin autenticación)
         $paginas_publicas = [
             'iniciarSesion',
             'api_productos',
@@ -129,8 +115,7 @@ class FrontController {
             exit;
         }
 
-        // 3. Rutas de la intranet (cargar directamente, los controladores manejan su propia auth)
-        // Si la ruta apunta a un controlador OOP sin mapeo, NO incluirlo en silencio (evita páginas en blanco)
+        
         $classGuess = "App\\Sistema\\Controllers\\" . ucfirst($controllerName);
         if (class_exists($classGuess)) {
             header("HTTP/1.0 404 Not Found");

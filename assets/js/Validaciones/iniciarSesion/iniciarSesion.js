@@ -1,6 +1,11 @@
 $(document).ready(function() {
     let conteo = 1;
 
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const paginaActual = urlParams.get('pagina') || 'loginEcommerce';
+    const destinoUrl = urlParams.get('destino') || 'web_Catalogo';
+
     function validarCampos() {
         const user = $('#login').val().trim();
         const pass = $('#Contraseña').val().trim();
@@ -43,7 +48,7 @@ $(document).ready(function() {
 
     $("#loginForm").on("submit", function (e) {
         e.preventDefault();
-        const $btn = $('#acceder');
+        const $btn =$('#acceder');
         $btn.text('Iniciando sesión...').prop('disabled', true);
 
         let recaptchaResponse = $(this).find('[name="g-recaptcha-response"]').val() || "";
@@ -65,22 +70,23 @@ $(document).ready(function() {
             "clave": $("#Contraseña").val(),
             "intento": conteo,
             "accion": "logearse",
-            "g-recaptcha-response": recaptchaResponse
+            "g-recaptcha-response": recaptchaResponse,
+            "destino": destinoUrl // Enviamos el destino de forma dinámica
         };
 
         $.ajax({
             type: "POST",
-            url: "index.php?pagina=iniciarsesion",
+            url: "index.php?pagina=" + paginaActual, // Apunta a la página actual (loginEcommerce)
             data: datos,
             dataType: "json",
             success: function (res) {
-                if (res.data) {
+                if (res.data || res.redirect) {
                     mensajeBienvenido();
                     setTimeout(() => {
-                        window.location.href = res.data;
+                        window.location.href = res.data || res.redirect;
                     }, 1500);
                 } else {
-                    let texto = res.notFound || res.password || res.disabled || res.incorrect || res.recaptcha || "Credenciales incorrectas";
+                    let texto = res.notFound || res.password || res.disabled || res.incorrect || res.recaptcha || res.message || "Credenciales incorrectas";
                     let tipo = res.notFound ? "notFound" : "error";
                     
                     if (res.new_intento) {
@@ -107,22 +113,13 @@ $(document).ready(function() {
         });
     });
 
-    const $cedula = $('#cedula');
-    const $btnValidar = $('#btnValidarCedula');
-    const $formRegistro = $('#formRegistro');
+    const $cedula =$('#cedula');
+    const $btnValidar =$('#btnValidarCedula');
+    const $formRegistro =$('#formRegistro');
     
-    $formRegistro.find('.input-box').not('.cedula-group .input-box').hide();
-    $formRegistro.find('button[type="submit"]').hide();
+    $formRegistro.find('.input-box').not('.cedula-group .input-box').hide();$formRegistro.find('button[type="submit"]').hide();
 
     let esActivacion = false;
-
-    function reiniciarFormularioRegistro() {
-        $cedula.prop('readOnly', false);
-        $btnValidar.prop('disabled', false).text('Validar');
-        $formRegistro.find('.input-box').not('.cedula-group .input-box').hide();
-        $formRegistro.find('button[type="submit"]').hide();
-        $formRegistro[0].reset();
-    }
 
     $btnValidar.on('click', function() {
         const cedulaVal = $cedula.val().trim();
@@ -136,7 +133,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '?pagina=iniciarSesion',
+            url: 'index.php?pagina=' + paginaActual,
             type: 'POST',
             data: { accion: 'consultarCedula', cedula: cedulaVal },
             dataType: 'json',
@@ -148,9 +145,7 @@ $(document).ready(function() {
                         text: response.msj,
                         confirmButtonText: 'Ir al Login'
                     }).then(() => {
-                      
-                           window.location.reload();
-                       
+                        window.location.reload();
                     });
                 } else if (response.status === 'SOLICITAR_TELEFONO') {
                     Swal.fire({
@@ -164,7 +159,7 @@ $(document).ready(function() {
                         showLoaderOnConfirm: true,
                         preConfirm: (telefono) => {
                             return $.ajax({
-                                url: '?pagina=iniciarSesion',
+                                url: 'index.php?pagina=' + paginaActual,
                                 type: 'POST',
                                 data: { accion: 'verificarTelefono', cedula: cedulaVal, telefono: telefono },
                                 dataType: 'json'
@@ -188,19 +183,15 @@ $(document).ready(function() {
                             });
                             
                             $cedula.prop('readOnly', true);
-                            $btnValidar.prop('disabled', true);
-                            
-                            $formRegistro.find('.input-box').each(function() {
-                                const $box = $(this);
-                                const $inp = $box.find('input, select');
+                            $btnValidar.prop('disabled', true);$formRegistro.find('.input-box').each(function() {
+                                const $box =$(this);
+                                const $inp =$box.find('input, select');
                                 const idInp = $inp.attr('id');
                                 
                                 if (idInp === 'reg_pass' || idInp === 'conf_pass' || $box.find('.g-recaptcha').length > 0) {
-                                    $box.show();
-                                    $inp.prop('disabled', false);
+                                    $box.show();$inp.prop('disabled', false);
                                 } else if (idInp !== 'cedula') {
-                                    $box.hide();
-                                    $inp.prop('disabled', true).prop('required', false);
+                                    $box.hide();$inp.prop('disabled', true).prop('required', false);
                                 }
                             });
                             
@@ -215,11 +206,9 @@ $(document).ready(function() {
                         text: 'Cédula no encontrada. Complete todos los datos del formulario.'
                     });
                     
-                    $cedula.prop('readOnly', true);
-                    $btnValidar.prop('disabled', true);
+                    $cedula.prop('readOnly', true);$btnValidar.prop('disabled', true);
                     
-                    $formRegistro.find('.input-box').show();
-                    $formRegistro.find('.input-box').find('input, select').prop('disabled', false);
+                    $formRegistro.find('.input-box').show();$formRegistro.find('.input-box').find('input, select').prop('disabled', false);
                     if (typeof grecaptcha !== 'undefined') {
                         grecaptcha.reset();
                     }
@@ -244,7 +233,7 @@ $(document).ready(function() {
 
     $("#formRegistro").on("submit", function (e) {
         e.preventDefault();
-        const $btnReg = $(this).find('button[type="submit"]');
+        const $btnReg =$(this).find('button[type="submit"]');
         $btnReg.text('Registrando...').prop('disabled', true);
         
         let recaptchaResponse = $(this).find('[name="g-recaptcha-response"]').val() || "";
@@ -267,7 +256,7 @@ $(document).ready(function() {
         formData.append('accion', esActivacion ? 'activarClave' : 'registrar');
 
         $.ajax({
-            url: 'index.php?pagina=iniciarsesion',
+            url: 'index.php?pagina=' + paginaActual,
             type: 'POST',
             data: formData,
             processData: false,
@@ -282,7 +271,7 @@ $(document).ready(function() {
                         background: "#000910",
                         color: "white"
                     }).then(() => {
-                        window.location.href = "index.php?pagina=iniciarsesion";
+                        window.location.href = "index.php?pagina=" + paginaActual;
                     });
                 } else {
                     const mensajeError = response.error || response.recaptcha || 'Ocurrió un error.';

@@ -30,11 +30,14 @@ if (!function_exists('validarRecaptcha')) {
 }
 
 if (isset($_SESSION["username"]) && !empty($_SESSION["username"])) {
+    $destinoLogueado = $_POST['destino'] ?? $_GET['destino'] ?? $_SESSION['destino_after_login'] ?? 'principal';
+    $redireccionLogueado = "?pagina=" . $destinoLogueado;
+    
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        echo json_encode(["data" => "?pagina=principal"]);
+        echo json_encode(["data" => $redireccionLogueado, "redirect" => $redireccionLogueado, "success" => true]);
         exit();
     }
-    header("Location: ?pagina=principal"); 
+    header("Location: " . $redireccionLogueado); 
     exit();
 }
 
@@ -169,11 +172,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $modeloLogin->setUsuario($usuario);
     $modeloLogin->setClave($clave);
     $respuesta = $modeloLogin->logearse();
-    if (isset($respuesta["success"])) {
+    
+   if (isset($respuesta["success"])) {
         $_SESSION["username"] = $respuesta["success"]["cedula_usuario"];
         $_SESSION["rol"] = $respuesta["success"]["idRol"] ?? $respuesta["success"]["id_rol"];
+        $_SESSION["cliente_cedula"] = $respuesta["success"]["cedula_usuario"];
+        
+        
+        $nombres = trim(($respuesta["success"]["nombre"] ?? '') . ' ' . ($respuesta["success"]["apellido"] ?? ''));
+        $_SESSION["cliente_nombre"] = !empty($nombres) ? $nombres : "Usuario Administrador";
+        
         $modeloLogin->limpiarIntentos($ip);
-        echo json_encode(["data" => "?pagina=principal"]);
+        
+        $destino = $_POST['destino'] ?? $_GET['destino'] ?? $_SESSION['destino_after_login'] ?? 'web_Catalogo';
+        $redireccion = "?pagina=" . $destino;
+        
+        echo json_encode(["data" => $redireccion, "redirect" => $redireccion, "success" => true]);
     } else {
         if (isset($respuesta["password"]) || isset($respuesta["notFound"]) || isset($respuesta["incorrect"])) {
             $modeloLogin->registrarIntentoFail($ip);
