@@ -1,14 +1,9 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 use App\Sistema\models\cliente_financiamiento;
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\scrape_dolar;
 use App\Sistema\models\principal;
-use App\Sistema\models\TasaModel;
 
 $action = $_GET['action'] ?? null;
 
@@ -29,40 +24,16 @@ if ($action === 'DatosDashboardCliente') {
 }
 
 $cedula = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
-$rol = $_SESSION["rol"] ?? '6';
+$rol = $_SESSION["rol"] ?? null;
 $_SESSION["rol"] = $rol;
 
 if (!$cedula) {
-    header("Location: ?pagina=loginEcommerce");
+    header("Location: ?pagina=login_principal");
     exit();
 }
 
-if (!function_exists('obtenerTasaOptimizada')) {
-    function obtenerTasaOptimizada(): float
-    {
-        $cacheTtl = 3600;
-
-        $tasa = scrape_dolar::obtenerPrecioDolarBCV();
-
-        if ($tasa !== null && $tasa > 0) {
-            $_SESSION['tasa_bcv'] = $tasa;
-            $_SESSION['tasa_bcv_time'] = time();
-            return (float) $tasa;
-        }
-
-        if (
-            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
-            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
-        ) {
-            return (float) $_SESSION['tasa_bcv'];
-        }
-
-        return 0.0;
-    }
-}
 
 $obj_usuario = new Usuarios();
-$obj_tasa = new TasaModel();
 $modulo_actual = "Administrar Pago De Cuotas";
 
 if (!$obj_usuario->tienePermiso($modulo_actual, "listar")) {
@@ -102,14 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
             echo json_encode($objeto_cliente->procesar('listarHistorialCuotas', $id_fin));
             break;
         case "tasa":
-            $tasaFinal = obtenerTasaOptimizada();
-            if ($tasaFinal <= 0) {
-                $tasaDB = $obj_tasa->obtenerTasaActual();
-                if ($tasaDB && !empty($tasaDB['monto'])) {
-                    $tasaFinal = (float)$tasaDB['monto'];
-                }
-            }
-            echo json_encode($tasaFinal);
+            $tasaModel = new scrape_dolar();
+            echo json_encode($tasaModel->obtenerPrecioDolarBCV());
             break;
     }
     exit();
@@ -127,12 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     switch ($accion) {
         case 'registrarPago':
             $id_cuota = filter_var($_POST['id_cuota'] ?? 0, FILTER_VALIDATE_INT);
-            $montoTexto = trim((string)($_POST['monto'] ?? ''));
-            if (!preg_match('/^\d{1,4}(\.\d{1,2})?$/', $montoTexto)) {
-                echo json_encode(["error" => "El monto debe tener hasta 4 dígitos enteros y 2 decimales."]);
-                exit();
-            }
-            $monto = (float)$montoTexto;
+            $monto = filter_var($_POST['monto'] ?? 0, FILTER_VALIDATE_FLOAT);
             $id_metodo = filter_var($_POST['id_metodo'] ?? 0, FILTER_VALIDATE_INT);
             $id_banco = filter_var($_POST['id_banco'] ?? 0, FILTER_VALIDATE_INT);
             $referencia = filter_var($_POST['referencia'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -165,10 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     exit();
 }
 
-$vista = 'App/views/cliente_financiamiento.php';
+$vista = 'app/views/cliente_financiamiento.php';
 
 if (file_exists($vista)) {
     require_once $vista;
 } else {
-    require_once 'App/views/error_404.php';
+    require_once 'app/views/error_404.php';
 }

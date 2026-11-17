@@ -1,6 +1,9 @@
 <?php
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\Empleados; 
+use App\Sistema\models\Respuesta;
+
+$modeloRespuesta = new Respuesta();
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,11 +22,11 @@ if ($action === 'DatosDashboardCliente') {
 }
 
 $cedula = $usuario_sesion;
-$rol = $_SESSION["rol"] ?? '6';
+$rol = $_SESSION["rol"] ?? null;
 $_SESSION["rol"] = $rol;
 
 if (!$cedula) {
-    header("Location: ?pagina=loginEcommerce");
+    header("Location: ?pagina=login_principal");
     exit();
 }
 
@@ -32,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     if ($_POST['accion'] === 'consulta') {
         $obj_perfil = new Empleados();
         $obj_perfil->setCedula($cedula);
-        $datos = $obj_perfil->procesarSolicitud('obtenerDatosUsuario');
+        $datos = $obj_perfil->obtenerDatosUsuario();
         
         if (!$datos || empty($datos)) {
             $datos = [
@@ -62,23 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         $obj_perfil->setCargo((int)$_POST['cargo']);
         $obj_perfil->setEdad(trim($_POST['fecha_nacimiento']));
         
-        $respuesta = $obj_perfil->procesarSolicitud('modificar', [
-            'cedula' => trim($_POST['cedula'])
-        ]);
+        $respuesta = $obj_perfil->ModificarEmpleado(trim($_POST['cedula']));
         
-        procesarRespuesta($respuesta, "Datos modificados exitosamente.");
-    }
-}
-
-if (!function_exists('procesarRespuesta')) {
-    function procesarRespuesta($respuesta, $mensajeExito) {
-        header('Content-Type: application/json');
-        if ($respuesta === true || (is_array($respuesta) && isset($respuesta["success"]))) {
-            echo json_encode(["success" => $mensajeExito]);
-        } else {
-            echo json_encode(is_array($respuesta) ? $respuesta : ["error" => "Error interno."]);
-        }
-        exit();
+        $modeloRespuesta->jsonConMensaje($respuesta, "Datos modificados exitosamente.");
     }
 }
 

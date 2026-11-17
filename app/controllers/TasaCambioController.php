@@ -4,8 +4,7 @@ namespace App\Sistema\Controllers;
 
 use App\Sistema\models\TasaCambioModel;
 use App\Sistema\models\bitacora;
-use App\Sistema\config\Conexion;
-use PDO;
+use App\Sistema\models\login;
 
 class TasaCambioController
 {
@@ -63,25 +62,16 @@ class TasaCambioController
             exit;
         }
 
-        try {
-            $conexUser = new Conexion('usuario');
-            $stmt = $conexUser->prepare("SELECT clave FROM usuarios WHERE cedula_usuario = :u AND estatus = 'Activo'");
-            $stmt->bindParam(':u', $username);
-            $stmt->execute();
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        $modeloLogin = new login();
 
-            if (!$resultado || !password_verify($clave, $resultado['clave'])) {
-                echo json_encode(['success' => false, 'message' => 'Clave incorrecta']);
-                exit;
-            }
-
-            $_SESSION['tasa_auth'] = time();
-            echo json_encode(['success' => true, 'message' => 'Clave verificada']);
-            exit;
-        } catch (\Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error del servidor']);
+        if (!$modeloLogin->verificarClave($username, $clave)) {
+            echo json_encode(['success' => false, 'message' => 'Clave incorrecta']);
             exit;
         }
+
+        $_SESSION['tasa_auth'] = time();
+        echo json_encode(['success' => true, 'message' => 'Clave verificada']);
+        exit;
     }
 
     public function actualizar()
@@ -123,19 +113,21 @@ class TasaCambioController
         }
 
         $tasaAnterior = $this->model->obtener();
-        $precio = $this->model->actualizarDesdeBCV();
+        $precio = $this->model->actualizarDesdeFuentes();
         if ($precio === null || $precio <= 0) {
-            echo json_encode(['success' => false, 'message' => 'No se pudo obtener la tasa del BCV']);
+            echo json_encode(['success' => false, 'message' => 'No se pudo obtener la tasa automáticamente. Ingrese la tasa manualmente.']);
             exit;
         }
-        $this->_registrarBitacora($tasaAnterior, $precio, 'bcv_scrape');
+        $fuente = $this->model->obtenerFuente();
+        $etiqueta = ($fuente === 'bcv_scrape') ? 'BCV' : 'API de respaldo';
+        $this->_registrarBitacora($tasaAnterior, $precio, $fuente);
         unset($_SESSION['tasa_auth']);
         echo json_encode([
             'success' => true,
-            'message' => 'Tasa BCV obtenida: Bs. ' . number_format($precio, 2) . ' por USD',
+            'message' => 'Tasa obtenida (' . $etiqueta . '): Bs. ' . number_format($precio, 2) . ' por USD',
             'tasa' => $precio,
             'fecha' => $this->model->obtenerFechaActualizacion(),
-            'fuente' => 'bcv_scrape'
+            'fuente' => $fuente
         ]);
         exit;
     }
@@ -165,7 +157,7 @@ class TasaCambioController
                 ]]
             );
         } catch (\Exception $e) {
-            // no romper el flujo si la bitácora falla
+
         }
     }
 }

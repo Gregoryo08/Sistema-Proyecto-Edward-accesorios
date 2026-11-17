@@ -50,18 +50,13 @@ class cliente_financiamiento extends Conexion
     {
         try {
             $conex = new conexion("sistema");
-            $sql = "SELECT c.id_cuota, c.numero_cuota, 
-                           c.monto_pagado, 
-                           c.monto_pagado AS monto_abonado, 
-                           f.monto_cuota as monto_original, 
-                           c.fecha_vencimiento, c.estado_cuota, c.fecha_pago_realizado, 
-                           m.nombre_metodopago, b.nombre_banco
+            $sql = "SELECT c.id_cuota, c.monto_pagado, c.fecha_vencimiento, c.estado_cuota, 
+                           c.fecha_pago_realizado, m.nombre_metodopago, b.nombre_banco
                     FROM cuotas c
-                    INNER JOIN financiamientos f ON c.id_financiamiento = f.id_financiamiento
                     LEFT JOIN metodo_pago m ON c.id_metodopago = m.id_metodopago
                     LEFT JOIN bancos b ON c.id_banco = b.id_banco
                     WHERE c.id_financiamiento = ? 
-                    ORDER BY c.fecha_vencimiento ASC, c.id_cuota ASC";
+                    ORDER BY c.fecha_vencimiento ASC";
             $stmt = $conex->prepare($sql);
             $stmt->execute([$id_financiamiento]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -75,15 +70,15 @@ class cliente_financiamiento extends Conexion
         try {
             $conex = new conexion("sistema");
             $sql = "SELECT f.id_financiamiento, pr.nombre_producto, f.monto_total, 
-                   (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) 
-                   FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
-                   (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
-                   (SELECT id_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as id_cuota,
-                   (SELECT IF(monto_pagado > 0, monto_pagado, f.monto_cuota) FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as monto_cuota
-                FROM financiamientos f
-                JOIN detalles_financiamiento df ON f.id_financiamiento = df.id_financiamiento
-                JOIN productos pr ON df.id_productos = pr.id_producto
-                WHERE f.cedula_persona = ? AND f.estado_financiamiento = 'vigente'";
+                       (f.monto_total - f.pago_inicial - (SELECT IFNULL(SUM(monto_pagado), 0) 
+                       FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pagado')) as saldo_pendiente,
+                       (SELECT fecha_vencimiento FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as proximo_vencimiento,
+                       (SELECT id_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as id_cuota,
+                       (SELECT monto_cuota FROM cuotas WHERE id_financiamiento = f.id_financiamiento AND estado_cuota = 'pendiente' ORDER BY fecha_vencimiento ASC LIMIT 1) as monto_cuota
+                    FROM financiamientos f
+                    JOIN detalles_financiamiento df ON f.id_financiamiento = df.id_financiamiento
+                    JOIN productos pr ON df.id_productos = pr.id_producto
+                    WHERE f.cedula_persona = ?";
             
             $stmt = $conex->prepare($sql);
             $stmt->execute([$this->cedula_cliente]);
@@ -93,14 +88,10 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-    private function registrarSolicitudPago($d)
+private function registrarSolicitudPago($d)
     {
-        $montoTexto = trim((string)($d['monto'] ?? ''));
-        if (!preg_match('/^\d{1,4}(\.\d{1,2})?$/', $montoTexto)) {
-            return ["error" => "El monto debe tener hasta 4 dígitos enteros y 2 decimales."];
-        }
         $this->setIdCuota($d['id_cuota'] ?? 0);
-        $this->setMonto((float)$montoTexto);
+        $this->setMonto($d['monto'] ?? 0);
         $this->setIdMetodo($d['id_metodo'] ?? 0);
         $this->setIdBanco($d['id_banco'] ?? 0);
         $this->setReferencia($d['referencia'] ?? '');
@@ -120,94 +111,58 @@ class cliente_financiamiento extends Conexion
             $user = $_SESSION["username"] ?? $_SESSION["cliente_cedula"] ?? 'Sistema';
             $this->exec("SET @usuario_actual = '{$user}'");
             $this->exec("SET @modulo = 'Administrar Financiamiento'");
-
-            $stmtInfo = $this->prepare("SELECT c.id_financiamiento, c.numero_cuota, c.fecha_vencimiento, c.monto_pagado,
-                (SELECT monto_cuota FROM financiamientos WHERE id_financiamiento = c.id_financiamiento) as valor_teorico 
-                FROM cuotas c WHERE c.id_cuota = ? AND c.estado_cuota = 'pendiente'");
-            $stmtInfo->execute([$this->id_cuota]);
-            $cuotaActual = $stmtInfo->fetch(PDO::FETCH_ASSOC);
-
-            if (!$cuotaActual) {
-                $this->rollBack();
-                return ["error" => "La cuota no existe o ya no está pendiente"];
-            }
-
-            $idFinanciamiento = $cuotaActual['id_financiamiento'];
-            $numeroCuota = $cuotaActual['numero_cuota'];
-            $fechaVencimiento = $cuotaActual['fecha_vencimiento'];
             
-            $montoPendienteActual = (!empty($cuotaActual['monto_pagado']) && $cuotaActual['monto_pagado'] > 0) 
-                ? $cuotaActual['monto_pagado'] 
-                : $cuotaActual['valor_teorico'];
-
-            $stmtVerif = $this->prepare("SELECT id_financiamiento FROM financiamientos WHERE id_financiamiento = ? AND cedula_persona = ?");
-            $stmtVerif->execute([$idFinanciamiento, $this->cedula_cliente]);
-            if (!$stmtVerif->fetch()) {
-                $this->rollBack();
-                return ["error" => "No autorizado para procesar esta cuota"];
-            }
-
-            if ($this->monto < $montoPendienteActual) {
-                $saldoRestante = $montoPendienteActual - $this->monto;
-
-                $sqlUpdate = "UPDATE cuotas 
-                        SET estado_cuota = 'en_revision', 
-                            monto_pagado = ?, 
-                            id_metodopago = ?, 
-                            id_banco = ?,
-                            referencia = ?, 
-                            fecha_pago_realizado = ?
-                        WHERE id_cuota = ?";
-                $stmtUpd = $this->prepare($sqlUpdate);
-                $stmtUpd->execute([$this->monto, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota]);
-
-                $sqlInsertRestante = "INSERT INTO cuotas (id_financiamiento, numero_cuota, fecha_vencimiento, monto_pagado, estado_cuota) 
-                                      VALUES (?, ?, ?, ?, 'pendiente')";
-                $stmtIns = $this->prepare($sqlInsertRestante);
-                $stmtIns->execute([$idFinanciamiento, $numeroCuota, $fechaVencimiento, $saldoRestante]);
-
-            } else {
-                $sqlUpdate = "UPDATE cuotas 
-                        SET estado_cuota = 'en_revision', 
-                            monto_pagado = ?, 
-                            id_metodopago = ?, 
-                            id_banco = ?,
-                            referencia = ?, 
-                            fecha_pago_realizado = ?
-                        WHERE id_cuota = ?";
-                $stmtUpd = $this->prepare($sqlUpdate);
-                $stmtUpd->execute([$montoPendienteActual, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota]);
-            }
-
-            $stmtCli = $this->prepare("SELECT p.nombre, p.apellido, p.cedula_persona FROM persona p INNER JOIN financiamientos f ON p.cedula_persona = f.cedula_persona WHERE f.id_financiamiento = ?");
-            $stmtCli->execute([$idFinanciamiento]);
-            $cli = $stmtCli->fetch(PDO::FETCH_ASSOC);
-            $nombreCompleto = $cli ? ($cli['nombre'] . ' ' . $cli['apellido']) : 'Cliente';
-            $cedulaPersona = $cli ? $cli['cedula_persona'] : $this->cedula_cliente;
-
-            $mensaje = "Nueva solicitud de abono/pago registrada para la cuota {$numeroCuota} por el cliente {$nombreCompleto} (Cédula: {$cedulaPersona}) con referencia {$this->referencia}.";
+            $sql = "UPDATE cuotas 
+                    SET estado_cuota = 'en_revision', 
+                        monto_pagado = ?, 
+                        id_metodopago = ?, 
+                        id_banco = ?,
+                        referencia = ?, 
+                        fecha_pago_realizado = ?
+                    WHERE id_cuota = ? 
+                    AND estado_cuota = 'pendiente'
+                    AND id_financiamiento IN (SELECT id_financiamiento FROM financiamientos WHERE cedula_persona = ?)";
             
-            $conexNoti = new conexion("usuario");
-            $sqlNoti = "INSERT INTO notificaciones (mensaje, tipo) VALUES (?, 'pago')";
-            $stmtNoti = $conexNoti->prepare($sqlNoti);
-            $stmtNoti->execute([$mensaje]);
+            $stmt = $this->prepare($sql);
+            $stmt->execute([$this->monto, $this->id_metodo, $this->id_banco, $this->referencia, $this->fecha, $this->id_cuota, $this->cedula_cliente]);
             
-            $id_notificacion = $conexNoti->lastInsertId();
+            if ($stmt->rowCount() > 0) {
+                $stmtCli = $this->prepare("SELECT p.nombre, p.apellido, p.cedula_persona FROM persona p INNER JOIN financiamientos f ON p.cedula_persona = f.cedula_persona INNER JOIN cuotas c ON f.id_financiamiento = c.id_financiamiento WHERE c.id_cuota = ?");
+                $stmtCli->execute([$this->id_cuota]);
+                $cli = $stmtCli->fetch(PDO::FETCH_ASSOC);
+                $nombreCompleto = $cli ? ($cli['nombre'] . ' ' . $cli['apellido']) : 'Cliente';
+                $cedulaPersona = $cli ? $cli['cedula_persona'] : $this->cedula_cliente;
+                
+                $stmtCuotaNum = $this->prepare("SELECT numero_cuota FROM cuotas WHERE id_cuota = ?");
+                $stmtCuotaNum->execute([$this->id_cuota]);
+                $numCuota = $stmtCuotaNum->fetchColumn() ?: $this->id_cuota;
 
-            $stmtUsrs = $conexNoti->prepare("SELECT cedula_usuario FROM usuarios WHERE id_rol IN (1, 3)");
-            $stmtUsrs->execute();
-            $usuariosAdmin = $stmtUsrs->fetchAll(PDO::FETCH_ASSOC);
+                $mensaje = "Nueva solicitud de pago registrada para la cuota {$numCuota} por el cliente {$nombreCompleto} (Cédula: {$cedulaPersona}) con referencia {$this->referencia}.";
+                
+                $conexNoti = new conexion("usuario");
+                $sqlNoti = "INSERT INTO notificaciones (mensaje, tipo) VALUES (?, 'pago')";
+                $stmtNoti = $conexNoti->prepare($sqlNoti);
+                $stmtNoti->execute([$mensaje]);
+                
+                $id_notificacion = $conexNoti->lastInsertId();
 
-            $sqlNotiUsr = "INSERT INTO notificaciones_usuario (cedula_usuario, id_notificacion, leida, enviada) VALUES (?, ?, 0, 0)";
-            $stmtNotiUsr = $conexNoti->prepare($sqlNotiUsr);
+                $stmtUsrs = $conexNoti->prepare("SELECT cedula_usuario FROM usuarios WHERE id_rol IN (1, 3)");
+                $stmtUsrs->execute();
+                $usuariosAdmin = $stmtUsrs->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($usuariosAdmin as $admin) {
-                $stmtNotiUsr->execute([$admin['cedula_usuario'], $id_notificacion]);
+                $sqlNotiUsr = "INSERT INTO notificaciones_usuario (cedula_usuario, id_notificacion, leida, enviada) VALUES (?, ?, 0, 0)";
+                $stmtNotiUsr = $conexNoti->prepare($sqlNotiUsr);
+
+                foreach ($usuariosAdmin as $admin) {
+                    $stmtNotiUsr->execute([$admin['cedula_usuario'], $id_notificacion]);
+                }
+
+                $this->commit();
+                return ["success" => true];
             }
-
-            $this->commit();
-            return ["success" => true];
-
+            
+            $this->rollBack();
+            return ["error" => "No se pudo procesar la solicitud"];
         } catch (PDOException $e) {
             if ($this->inTransaction()) {
                 $this->rollBack();
@@ -227,7 +182,7 @@ class cliente_financiamiento extends Conexion
         }
     }
 
-    private function listarBancos()
+   private function listarBancos()
     {
         try {
             $conex = new conexion("sistema");

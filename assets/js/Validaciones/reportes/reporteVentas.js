@@ -29,7 +29,6 @@ $(document).ready(function () {
         const origen = $('#origenContainer').val();
         const estado = $('#categoriesContainer').val();
 
-        // Construir la URL de exportación con los filtros aplicados en el cliente
         let urlExportar = `?pagina=reporteVentas&accion=exportarPdf`;
         if (busqueda) urlExportar += `&buscar=${encodeURIComponent(busqueda)}`;
         if (fInicio) urlExportar += `&fecha_inicio=${fInicio}`;
@@ -86,7 +85,6 @@ $(document).ready(function () {
             const cumpleOrigen = !origenSeleccionado ||
                 String(v.origen_venta || 'Mostrador').toLowerCase() === origenSeleccionado;
 
-            // Lógica de rango de fechas (Inicio y Fin)
             let cumpleFecha = true;
             if (v.fecha_venta) {
                 const fechaVentaLimpia = v.fecha_venta.split(' ')[0]; // Extrae YYYY-MM-DD
@@ -120,7 +118,6 @@ $(document).ready(function () {
         let ventasProcesadas = 0;
         let ventasAnuladas = 0;
 
-        // Estructuras para acumular datos de gráficos
         const ingresosPorFecha = {};
         const distribucionOrigen = {};
 
@@ -129,32 +126,26 @@ $(document).ready(function () {
             const origen = v.origen_venta || 'Mostrador';
             const fecha = v.fecha_venta ? v.fecha_venta.split(' ')[0] : 'Sin Fecha';
 
-            // Contadores de auditoría y KPIs
             if (estado === 'anulada' || estado === 'cancelada') {
                 ventasAnuladas++;
             } else {
                 montoTotal += parseFloat(v.total_venta || 0);
                 ventasProcesadas++;
 
-                // Agrupación para gráfico de Barras (solo ventas válidas)
                 ingresosPorFecha[fecha] = (ingresosPorFecha[fecha] || 0) + parseFloat(v.total_venta || 0);
             }
 
-            // Agrupación para gráfico de Dona
             distribucionOrigen[origen] = (distribucionOrigen[origen] || 0) + 1;
         });
 
-        // Actualizar valores en los contenedores HTML del DOM
         $('#kpiMontoTotal').text(`$${montoTotal.toFixed(2)}`);
         $('#kpiTotalVentas').text(ventasProcesadas);
         $('#kpiVentasAnuladas').text(ventasAnuladas);
 
-        // --- RENDERIZADO DEL GRÁFICO DE BARRAS ---
         const ctxBarras = document.getElementById('chartTendenciaVentas');
         if (ctxBarras) {
             if (chartBarrasInstance) chartBarrasInstance.destroy(); // Evita solapamientos
 
-            // Ordenar fechas cronológicamente para el eje X
             const fechasOrdenadas = Object.keys(ingresosPorFecha).sort();
             const montosOrdenados = fechasOrdenadas.map(f => ingresosPorFecha[f]);
 
@@ -162,7 +153,6 @@ $(document).ready(function () {
                 type: 'bar',
                 data: {
                     labels: fechasOrdenadas.map(f => {
-                        // Cambiar formato YYYY-MM-DD a DD/MM para que sea más legible en el eje
                         const partes = f.split('-');
                         return partes.length === 3 ? `${partes[2]}/${partes[1]}` : f;
                     }),
@@ -184,7 +174,6 @@ $(document).ready(function () {
             });
         }
 
-        // --- RENDERIZADO DEL GRÁFICO DE DONA ---
         const ctxDona = document.getElementById('chartOrigenVentas');
         if (ctxDona) {
             if (chartDonaInstance) chartDonaInstance.destroy();
@@ -343,13 +332,11 @@ $(document).ready(function () {
         }
         $('#tablareporteVentas').html(html);
 
-        // Ocultar o mostrar botones de anular según los permisos asignados inicialmente
         if (!permisos.eliminar) {
             $(".btn-anular").hide();
         }
     }
 
-    // Lógica para procesar la anulación vía AJAX
     $('#tablareporteVentas').on('click', '.btn-anular', function (e) {
         e.preventDefault();
         e.stopPropagation();

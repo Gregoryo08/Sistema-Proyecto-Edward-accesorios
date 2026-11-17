@@ -40,11 +40,11 @@
     .container_habitacion {
     position: fixed;
     top: 0;
-    left: -100%; /* Inicia oculto a la izquierda */
+    left: -100%;
     width: 100%;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1050; /* Por encima de todo */
+    z-index: 1050;
     display: flex;
     justify-content: center;
     align-items: center;

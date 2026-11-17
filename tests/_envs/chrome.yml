@@ -1,0 +1,15 @@
+# Entorno opcional para ejecutar las mismas pruebas con un navegador real:
+#   php vendor/bin/codecept run Acceptance --env chrome
+#
+# Requisitos: Google Chrome instalado y chromedriver en el PATH.
+# El chromedriver incluido esta en tests_automatizados/chromedriver.exe
+modules:
+    disabled:
+        - PhpBrowser
+    enabled:
+        - WebDriver:
+            url: http://localhost:8080/src/
+            browser: chrome
+            path: ''
+            window_size: 1366x768
+        - Asserts

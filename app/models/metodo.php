@@ -20,18 +20,7 @@ class metodo extends Conexion
         parent::__construct();
     }
 
-    public function procesarSolicitud($accion)
-    {
-        switch ($accion) {
-            case 'consultar': return $this->consultar();
-            case 'registrar': return $this->registrar();
-            case 'modificar': return $this->modificar();
-            case 'eliminar': return $this->eliminar();
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
-
-    private function existeNombreMetodoPago($nombre, $id_excluir = null)
+    public function existeNombreMetodoPago($nombre, $id_excluir = null)
     {
         try {
             $sql = "SELECT COUNT(*) FROM metodo_pago WHERE nombre_metodopago = :nombre";
@@ -64,7 +53,7 @@ class metodo extends Conexion
         }
     }
 
-    private function consultar()
+    public function consultar()
     {
         $id = $this->getIdMetodoPago();
 
@@ -93,7 +82,7 @@ class metodo extends Conexion
         }
     }
 
-    private function registrar()
+    public function registrar()
     {
         if ($this->getNombreMetodoPago() === null || $this->getMoneda() === null || $this->getMensaje() !== null) {
             if ($this->getNombreMetodoPago() === null && $this->getMensaje() === null) {
@@ -107,7 +96,7 @@ class metodo extends Conexion
         $nombre = $this->getNombreMetodoPago();
         $moneda = $this->getMoneda();
         $cuenta = $this->getCuenta();
-        $estado = $this->getEstado() ?? 1; // 1 por defecto (Activo)
+        $estado = $this->getEstado() ?? 1;
 
         if ($this->existeNombreMetodoPago($nombre)) {
             $this->setMensaje("El nombre del método de pago ya existe.");
@@ -144,7 +133,7 @@ class metodo extends Conexion
         }
     }
 
-    private function modificar()
+    public function modificar()
     {
         if ($this->getIdMetodoPago() === null || $this->getNombreMetodoPago() === null || $this->getMoneda() === null || $this->getMensaje() !== null) {
             if ($this->getIdMetodoPago() === null && $this->getMensaje() === null) {
@@ -209,7 +198,7 @@ class metodo extends Conexion
         }
     }
 
-    private function eliminar()
+    public function eliminar()
     {
         $id = $this->getIdMetodoPago();
 

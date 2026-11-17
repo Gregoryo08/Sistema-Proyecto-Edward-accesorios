@@ -14,6 +14,7 @@ class entradas_productos extends Conexion
     private $cantidad;
     private $cantidadOLD;
     private $dias_garantia;
+    private $imeis = [];
 
     public function __construct() 
     { 
@@ -84,8 +85,20 @@ class entradas_productos extends Conexion
     {
         if (empty($this->id_entrada) || $this->id_entrada <= 0) return ["error" => "ID entrada inválido"];
         if (empty($this->id_producto) || $this->id_producto <= 0) return ["error" => "Producto no válido"];
-        if (!is_numeric($this->cantidad) || $this->cantidad <= 0) return ["error" => "Cantidad inválida"];
         if (!is_numeric($this->dias_garantia) || $this->dias_garantia < 0) return ["error" => "Garantía debe ser 0 o superior"];
+
+        $esTelefono = $this->esTelefono($this->id_producto);
+
+        if ($esTelefono) {
+            if (count($this->imeis) === 0) return ["error" => "Debe indicar al menos un IMEI para el teléfono"];
+            foreach ($this->imeis as $imei) {
+                if (!preg_match('/^[0-9]{10,25}$/', $imei)) return ["error" => "IMEI inválido: " . htmlspecialchars($imei, ENT_QUOTES)];
+            }
+            if (count(array_unique($this->imeis)) !== count($this->imeis)) return ["error" => "Hay IMEIs repetidos en el formulario"];
+            $this->cantidad = count($this->imeis);
+        }
+
+        if (!is_numeric($this->cantidad) || $this->cantidad <= 0) return ["error" => "Cantidad inválida"];
 
         try {
             $this->beginTransaction();
@@ -93,6 +106,19 @@ class entradas_productos extends Conexion
             $user = $_SESSION["username"] ?? "system";
             $this->exec("SET @usuario_actual = '{$user}'");
             $this->exec("SET @modulo = 'Administrar Entradas'");
+
+            if ($esTelefono) {
+                $checkImei = $this->prepare("SELECT COUNT(*) FROM unidades_telefonos WHERE imei = ?");
+                $insertUnidad = $this->prepare("INSERT INTO unidades_telefonos (id_producto, id_entrada, imei, estado_venta) VALUES (?, ?, ?, 'Disponible')");
+                foreach ($this->imeis as $imei) {
+                    $checkImei->execute([$imei]);
+                    if ($checkImei->fetchColumn() > 0) {
+                        $this->rollBack();
+                        return ["error" => "El IMEI ya existe: " . htmlspecialchars($imei, ENT_QUOTES)];
+                    }
+                    $insertUnidad->execute([$this->id_producto, $this->id_entrada, $imei]);
+                }
+            }
 
             $sql = "INSERT INTO detalles_entrada (id_entrada_fk, id_producto_fk, cantidad_entrada, dias_garantia) VALUES (?, ?, ?, ?)";
             $stmt = $this->prepare($sql);
@@ -114,8 +140,20 @@ class entradas_productos extends Conexion
     private function modificarDetallesEntrada()
     {
         if (empty($this->id_entrada) || empty($this->id_producto)) return ["error" => "Campos de identificación incompletos"];
-        if (!is_numeric($this->cantidad) || $this->cantidad <= 0) return ["error" => "Cantidad inválida"];
         if (!is_numeric($this->dias_garantia) || $this->dias_garantia < 0) return ["error" => "Garantía inválida"];
+
+        $esTelefono = $this->esTelefono($this->id_producto);
+
+        if ($esTelefono) {
+            if (count($this->imeis) === 0) return ["error" => "Debe indicar al menos un IMEI para el teléfono"];
+            foreach ($this->imeis as $imei) {
+                if (!preg_match('/^[0-9]{10,25}$/', $imei)) return ["error" => "IMEI inválido: " . htmlspecialchars($imei, ENT_QUOTES)];
+            }
+            if (count(array_unique($this->imeis)) !== count($this->imeis)) return ["error" => "Hay IMEIs repetidos en el formulario"];
+            $this->cantidad = count($this->imeis);
+        } elseif (!is_numeric($this->cantidad) || $this->cantidad <= 0) {
+            return ["error" => "Cantidad inválida"];
+        }
 
         try {
             $this->beginTransaction();
@@ -134,13 +172,52 @@ class entradas_productos extends Conexion
             }
 
             $cantidadBaseReal = (float)$registroActual['cantidad_entrada'];
+            $diff = $this->cantidad - $cantidadBaseReal;
+
+            if ($esTelefono) {
+                $stmtUnidades = $this->prepare("SELECT id_unidad, imei, estado_venta FROM unidades_telefonos WHERE id_entrada = ? AND id_producto = ? FOR UPDATE");
+                $stmtUnidades->execute([$this->id_entrada, $this->id_producto]);
+                $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
+
+                $actuales = [];
+                foreach ($unidades as $u) { $actuales[$u['imei']] = $u; }
+
+                $nuevos = array_fill_keys($this->imeis, true);
+
+                foreach ($actuales as $imei => $u) {
+                    if (!isset($nuevos[$imei]) && $u['estado_venta'] !== 'Disponible') {
+                        $this->rollBack();
+                        return ["error" => "No se puede quitar el IMEI " . htmlspecialchars($imei, ENT_QUOTES) . ": ya fue vendido o financiado."];
+                    }
+                }
+
+                $checkImei = $this->prepare("SELECT COUNT(*) FROM unidades_telefonos WHERE imei = ?");
+                foreach ($this->imeis as $imei) {
+                    if (isset($actuales[$imei])) continue;
+                    $checkImei->execute([$imei]);
+                    if ($checkImei->fetchColumn() > 0) {
+                        $this->rollBack();
+                        return ["error" => "El IMEI ya existe: " . htmlspecialchars($imei, ENT_QUOTES)];
+                    }
+                }
+
+                $delUnidad = $this->prepare("DELETE FROM unidades_telefonos WHERE id_entrada = ? AND id_producto = ? AND imei = ?");
+                foreach ($actuales as $imei => $u) {
+                    if (!isset($nuevos[$imei])) { $delUnidad->execute([$this->id_entrada, $this->id_producto, $imei]); }
+                }
+
+                $insertUnidad = $this->prepare("INSERT INTO unidades_telefonos (id_producto, id_entrada, imei, estado_venta) VALUES (?, ?, ?, 'Disponible')");
+                foreach ($this->imeis as $imei) {
+                    if (!isset($actuales[$imei])) { $insertUnidad->execute([$this->id_producto, $this->id_entrada, $imei]); }
+                }
+
+                $diff = count($this->imeis) - count($unidades);
+            }
 
             $sql = "UPDATE detalles_entrada SET cantidad_entrada = ?, dias_garantia = ? WHERE id_entrada_fk = ? AND id_producto_fk = ?";
             $stmt = $this->prepare($sql);
             $stmt->execute([$this->cantidad, $this->dias_garantia, $this->id_entrada, $this->id_producto]);
 
-            $diff = $this->cantidad - $cantidadBaseReal;
-            
             $stmt2 = $this->prepare("UPDATE productos SET stock_actual = stock_actual + ? WHERE id_producto = ?");
             $stmt2->execute([$diff, $this->id_producto]);
 
@@ -165,13 +242,35 @@ class entradas_productos extends Conexion
             $this->exec("SET @usuario_actual = '{$user}'");
             $this->exec("SET @modulo = 'Administrar Entradas'");
 
-            $detalles = $this->prepare("SELECT id_producto_fk, cantidad_entrada FROM detalles_entrada WHERE id_entrada_fk = ?");
+            $detalles = $this->prepare("SELECT d.id_producto_fk, d.cantidad_entrada,
+                                               CASE WHEN LOWER(c.nombre_categoria) = 'telefono' THEN 1 ELSE 0 END AS es_telefono
+                                        FROM detalles_entrada d
+                                        LEFT JOIN productos p ON d.id_producto_fk = p.id_producto
+                                        LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+                                        WHERE d.id_entrada_fk = ?");
             $detalles->execute([$this->id_entrada]);
             $lista = $detalles->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($lista as $row) {
-                $this->prepare("UPDATE productos SET stock_actual = stock_actual - ? WHERE id_producto = ?")
-                     ->execute([$row['cantidad_entrada'], $row['id_producto_fk']]);
+                $idProducto = (int)$row['id_producto_fk'];
+
+                if ((int)$row['es_telefono'] === 1) {
+                    $stmtU = $this->prepare("SELECT COUNT(*) AS total, COALESCE(SUM(estado_venta <> 'Disponible'), 0) AS noDisponibles FROM unidades_telefonos WHERE id_entrada = ? AND id_producto = ?");
+                    $stmtU->execute([$this->id_entrada, $idProducto]);
+                    $resU = $stmtU->fetch(PDO::FETCH_ASSOC);
+
+                    if ((int)$resU['noDisponibles'] > 0) {
+                        $this->rollBack();
+                        return ["error" => "No se puede eliminar la entrada: una o más unidades del teléfono ya fueron vendidas o financiadas."];
+                    }
+
+                    $cantidadUnidades = (int)$resU['total'];
+                    $this->prepare("DELETE FROM unidades_telefonos WHERE id_entrada = ? AND id_producto = ?")->execute([$this->id_entrada, $idProducto]);
+                    $this->prepare("UPDATE productos SET stock_actual = stock_actual - ? WHERE id_producto = ?")->execute([$cantidadUnidades, $idProducto]);
+                } else {
+                    $this->prepare("UPDATE productos SET stock_actual = stock_actual - ? WHERE id_producto = ?")
+                         ->execute([$row['cantidad_entrada'], $idProducto]);
+                }
             }
 
             $this->prepare("DELETE FROM detalles_entrada WHERE id_entrada_fk = ?")->execute([$this->id_entrada]);
@@ -199,13 +298,27 @@ class entradas_productos extends Conexion
 
     private function obtenerDetallesEntradas()
     {
-        $sql = "SELECT d.*, p.nombre_producto 
+        $sql = "SELECT d.*, p.nombre_producto,
+                       CASE WHEN LOWER(c.nombre_categoria) = 'telefono' THEN 1 ELSE 0 END AS es_telefono
                 FROM detalles_entrada d 
                 LEFT JOIN productos p ON d.id_producto_fk = p.id_producto
+                LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
                 WHERE d.id_entrada_fk = ?";
         $stmt = $this->prepare($sql);
         $stmt->execute([$this->id_entrada]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmtImeis = $this->prepare("SELECT imei FROM unidades_telefonos WHERE id_entrada = ? AND id_producto = ? ORDER BY id_unidad ASC");
+        foreach ($filas as &$fila) {
+            $fila['imeis'] = [];
+            if ((int)$fila['es_telefono'] === 1) {
+                $stmtImeis->execute([$this->id_entrada, $fila['id_producto_fk']]);
+                $fila['imeis'] = array_column($stmtImeis->fetchAll(PDO::FETCH_ASSOC), 'imei');
+            }
+        }
+        unset($fila);
+
+        return $filas;
     }
 
     private function obtenerProductosSinUnidad()
@@ -214,8 +327,19 @@ class entradas_productos extends Conexion
                 FROM productos p 
                 LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
                 WHERE p.id_producto NOT IN (SELECT DISTINCT id_producto FROM unidades_telefonos)
+                   OR LOWER(c.nombre_categoria) = 'telefono'
                 ORDER BY p.nombre_producto ASC";
         return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function esTelefono($id_producto)
+    {
+        $sql = "SELECT COUNT(*) FROM productos p 
+                INNER JOIN categorias c ON p.id_categoria = c.id_categoria 
+                WHERE p.id_producto = ? AND LOWER(c.nombre_categoria) = 'telefono'";
+        $stmt = $this->prepare($sql);
+        $stmt->execute([$id_producto]);
+        return $stmt->fetchColumn() > 0;
     }
 
     private function verificarGarantiasPorVencer()
@@ -267,5 +391,17 @@ class entradas_productos extends Conexion
     public function setDiasGarantia($g) {
         if (is_numeric($g) && $g >= 0) { $this->dias_garantia = (int)$g; return true; }
         return false;
+    }
+
+    public function getImeis() { return $this->imeis; }
+    public function setImeis($imeis) {
+        $this->imeis = [];
+        if (is_array($imeis)) {
+            foreach ($imeis as $imei) {
+                $v = trim((string)$imei);
+                if ($v !== '') { $this->imeis[] = $v; }
+            }
+        }
+        return true;
     }
 }

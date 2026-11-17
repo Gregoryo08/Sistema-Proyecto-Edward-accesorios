@@ -1,13 +1,8 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\Cliente;
-use App\Sistema\models\scrape_dolar;
-use App\Sistema\models\TasaModel;
+use App\Sistema\models\TasaCambioModel;
 
 $cedula_session = $_SESSION['username'] ?? null;
 $rol = $_SESSION["rol"] ?? null;
@@ -19,63 +14,20 @@ if (!(isset($cedula_session) && isset($rol))) {
 
 $obj_usuario = new Usuarios();
 $modulo_actual = "Administrar Clientes";
-$obj_tasa = new TasaModel();
 
 if (!$obj_usuario->tienePermiso($modulo_actual, "listar")) {
     header("Location: ?pagina=principal");
     exit();
 }
 
-if (!function_exists('obtenerTasaOptimizada')) {
-    function obtenerTasaOptimizada(): float
-    {
-        $cacheTtl = 3600;
-
-        $tasa = scrape_dolar::obtenerPrecioDolarBCV();
-
-        if ($tasa !== null && $tasa > 0) {
-            $_SESSION['tasa_bcv'] = $tasa;
-            $_SESSION['tasa_bcv_time'] = time();
-            return (float) $tasa;
-        }
-
-        if (
-            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
-            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
-        ) {
-            return (float) $_SESSION['tasa_bcv'];
-        }
-
-        return 0.0;
-    }
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['obtener_tasa'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    
-    $tasa = obtenerTasaOptimizada();
-    $fecha = date('d/m/Y');
-
-    if ($tasa > 0) {
-        $idTasaDB = null;
+    $tasaModel = new TasaCambioModel();
+    $tasa = $tasaModel->obtener();
+    if (is_numeric($tasa) && $tasa > 0) {
+        echo json_encode(["tasa" => (float) $tasa]);
     } else {
-        $tasaDB = $obj_tasa->obtenerTasaActual();
-        if ($tasaDB && !empty($tasaDB['tasa'])) {
-            $tasa = (float) $tasaDB['tasa'];
-            $fecha = date('d/m/Y', strtotime($tasaDB['fecha_actualizacion']));
-        }
+        echo json_encode(["error" => "No se pudo obtener la tasa"]);
     }
-
-    if ($tasa <= 0) {
-        $obj_tasa->registrarNotificacionTasaNoDisponible();
-    }
-
-    echo json_encode([
-        "success" => $tasa > 0,
-        "tasa" => $tasa,
-        "fecha" => $fecha,
-        "mensaje" => $tasa > 0 ? "Tasa obtenida con éxito" : "No se pudo obtener la tasa de cambio"
-    ]);
     exit();
 }
 
@@ -91,8 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['permisos'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true' && !(isset($_GET['x']))) {
     $cliente = new Cliente();
-    $resultado = $cliente->datosClientes();
+    $resultado = $cliente->datosClientesActivos();
     echo json_encode($resultado);
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true' && isset($_GET['x']) && $_GET['x'] === 'inactivos') {
+    $cliente = new Cliente();
+    $inactivos = $cliente->consultaInactivos();
+    echo json_encode($inactivos);
     exit();
 }
 
@@ -100,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cedula = $_POST['cedula'];
     $cliente = new Cliente();
     $cliente->setCedula($cedula); 
-    $question = $cliente->procesarSolicitud('validarCedula');
+    $question = $cliente->validarCedula();
 
     if(isset($question['error'])){
         echo json_encode(["error" => $question['error']]);
@@ -114,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cedula = $_POST['id'];
     $cliente = new Cliente();
     $cliente->setCedula($cedula); 
-    $respuesta = $cliente->procesarSolicitud('consultar');
+    $respuesta = $cliente->consultarCliente();
 
     if(isset($respuesta["error"])){
         echo json_encode(["error" => $respuesta["error"]]);
@@ -134,17 +93,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setCel(trim($_POST['telefono'] ?? ''));
     $cliente->setDireccion(trim($_POST['direccion'] ?? ''));
     $cliente->setSexo(trim($_POST['sexo'] ?? ''));
-    $fechaNacimiento = trim($_POST['fecha'] ?? $_POST['fecha_nacimiento'] ?? '');
-    $cliente->setEdad($fechaNacimiento);
+    $cliente->setEdad(trim($_POST['fecha'] ?? '')); 
     $cliente->setIngresos(trim($_POST['ingresos_mensuales'] ?? '0')); 
-
+    
     $cliente->setResidenciaTipo(trim($_POST['tipo_residencia'] ?? 'No especificado'));
     $cliente->setCargaFamiliar(trim($_POST['carga_familiar'] ?? '0'));
     $cliente->setEstadoCivil(trim($_POST['estado_civil'] ?? 'Soltero/a'));
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'No especificado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? 'No especificado'));
 
-    $respuesta = $cliente->procesarSolicitud('registrar');
+    $respuesta = $cliente->registroCliente();
 
     if($respuesta === true){
         echo json_encode(["success" => "Cliente registrado exitosamente."]);
@@ -166,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'Empleado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? ''));
 
-    $respuesta = $cliente->procesarSolicitud('registrarPerfil');
+    $respuesta = $cliente->registrarPerfilFinanciero();
 
     if($respuesta === true){
         echo json_encode(["success" => "Perfil financiero registrado exitosamente."]);
@@ -199,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $cliente->setProfesion(trim($_POST['profesion'] ?? 'No especificado'));
     $cliente->setOcupacion(trim($_POST['ocupacion'] ?? 'No especificado'));
 
-    $respuesta = $cliente->procesarSolicitud('modificar'); 
+    $respuesta = $cliente->ModificarCliente(); 
 
     if($respuesta === true){
         echo json_encode(["success" => "Cliente modificado exitosamente."]);
@@ -212,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
     $cliente = new Cliente();
     $cliente->setCedula($_POST['id']); 
-    $respuesta = $cliente->procesarSolicitud('eliminar', ['estado' => $_POST['estado']]);
+    $respuesta = $cliente->eliminarClientes($_POST['estado']);
 
     if ($respuesta === true) {
         echo json_encode(["success" => "Estado del cliente actualizado exitosamente."]);
@@ -222,15 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-$tasaCambioActual = obtenerTasaOptimizada();
-if ($tasaCambioActual <= 0) {
-    $tasaDB = $obj_tasa->obtenerTasaActual();
-    $tasaCambioActual = ($tasaDB && !empty($tasaDB['tasa'])) ? (float)$tasaDB['tasa'] : 0.0;
-}
-
-if ($tasaCambioActual <= 0) {
-    $obj_tasa->registrarNotificacionTasaNoDisponible();
-}
 
 $vista = 'app/views/clientes.php';
 

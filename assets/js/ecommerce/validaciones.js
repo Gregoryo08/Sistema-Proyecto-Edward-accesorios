@@ -1,10 +1,4 @@
-// =============================================
-// VALIDACIONES REUTILIZABLES - validaciones.js
-// =============================================
 
-/**
- * Capitalizar palabras (ej: "gustavo miguel" → "Gustavo Miguel")
- */
 function capitalizarPalabras(cadena) {
     if (!cadena) return "";
     cadena = cadena.toLowerCase();
@@ -17,26 +11,16 @@ function capitalizarPalabras(cadena) {
     return palabras.join(' ');
 }
 
-/**
- * Validar formato de cédula (V-12345678, E-12345678, J-12345678, P-12345678)
- * ⚠️ IMPORTANTE: Valida PREFIJO y GUION (no eliminar)
- */
 function validarCedula(cedula) {
     var patron = /^(V|E|J|P)-\d{7,12}$/;
     return patron.test(cedula);
 }
 
-/**
- * Validar cédula venezolana (solo números, 7-8 dígitos)
- */
 function validarCedulaVenezolana(cedula) {
     var soloNumeros = String(cedula).replace(/[^0-9]/g, '');
     return soloNumeros.length >= 7 && soloNumeros.length <= 8;
 }
 
-/**
- * Validar referencia bancaria (solo números, 12-13 dígitos)
- */
 function validarReferencia(referencia) {
     var soloNumeros = String(referencia).replace(/[^0-9]/g, '');
     console.log('📌 Referencia ingresada:', referencia);
@@ -45,9 +29,6 @@ function validarReferencia(referencia) {
     return soloNumeros.length >= 12 && soloNumeros.length <= 13;
 }
 
-/**
- * Validar fecha de nacimiento (año >= 1936 y <= actual)
- */
 function validarFechaNacimiento(fecha) {
     if (!fecha) return false;
     var partes = fecha.split('-');
@@ -57,74 +38,50 @@ function validarFechaNacimiento(fecha) {
     return !isNaN(año) && año >= 1936 && año <= añoActual;
 }
 
-/**
- * Validar correo electrónico
- */
 function validarCorreo(correo) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
 }
 
-/**
- * Validar teléfono (solo números, mínimo 10 dígitos)
- */
 function validarTelefono(telefono) {
     var soloNumeros = telefono.replace(/[^0-9]/g, '');
     return soloNumeros.length >= 10 && soloNumeros.length <= 11;
 }
 
-/**
- * Validar que el campo no esté vacío
- */
 function validarTextoNoVacio(valor) {
     return typeof valor === 'string' && valor.trim().length > 0;
 }
 
-/**
- * Validar que solo tenga letras y espacios (para nombres)
- */
 function validarSoloLetras(valor) {
     return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor);
 }
 
-/**
- * Validar longitud mínima
- */
 function validarLongitudMinima(valor, min) {
     return typeof valor === 'string' && valor.trim().length >= min;
 }
 
-/**
- * Validar monto (número positivo)
- * Soporta inglés "198.99" y español "198,99"
- */
 function validarMonto(monto) {
-    var numero = parsearMontoBs(monto);
+    var numero = normalizarMonto(monto);
     return !isNaN(numero) && numero > 0;
 }
 
-/**
- * Parsear un monto en Bs soportando formato inglés y español.
- * Regla: el ÚLTIMO separador es el decimal.
- *   "1,340.23" → 1340.23 ; "1.340,23" → 1340.23
- *   "1340.23" / "1340,23" / "1340" → OK
- */
-function parsearMontoBs(raw) {
-    var texto = String(raw == null ? '' : raw).trim();
-    if (texto === '') return NaN;
-    var ultimaComa = texto.lastIndexOf(',');
-    var ultimoPunto = texto.lastIndexOf('.');
-    if (ultimaComa > ultimoPunto) {
-        texto = texto.replace(/\./g, '').replace(/,/g, '.');
-    } else {
-        texto = texto.replace(/,/g, '');
+function normalizarMonto(valor) {
+    var s = String(valor == null ? '' : valor).replace(/[^\d.,]/g, '').trim();
+    if (!s) return NaN;
+    var idxPunto = s.lastIndexOf('.');
+    var idxComa = s.lastIndexOf(',');
+    if (idxPunto === -1 && idxComa === -1) {
+        return parseInt(s, 10);
     }
-    var n = parseFloat(texto);
-    return isNaN(n) ? NaN : n;
+    var idxDecimal = (idxPunto > idxComa) ? idxPunto : idxComa;
+    var digitosDecimales = s.length - 1 - idxDecimal;
+    if (digitosDecimales < 1 || digitosDecimales > 2) {
+        return parseInt(s.replace(/[.,]/g, ''), 10);
+    }
+    var parteEntera = s.slice(0, idxDecimal).replace(/[.,]/g, '');
+    var num = parseFloat(parteEntera + '.' + s.slice(idxDecimal + 1));
+    return isNaN(num) ? NaN : num;
 }
 
-/**
- * Mostrar error (SweetAlert o alert)
- */
 function mostrarError(mensaje) {
     if (typeof Swal !== 'undefined') {
         Swal.fire('Error', mensaje, 'error');
@@ -133,9 +90,6 @@ function mostrarError(mensaje) {
     }
 }
 
-/**
- * Mostrar éxito (SweetAlert o alert)
- */
 function mostrarExito(mensaje, callback) {
     if (typeof Swal !== 'undefined') {
         Swal.fire('Éxito', mensaje, 'success').then(callback || function() {});
@@ -145,9 +99,6 @@ function mostrarExito(mensaje, callback) {
     }
 }
 
-/**
- * Validación integral del formulario (un solo paso) antes de enviar
- */
 function validarYEnviar() {
     let ref = document.querySelector('[name="referencia"]')?.value?.trim() || '';
     let banco = document.querySelector('[name="banco_emisor"]')?.value?.trim() || '';
@@ -155,9 +106,7 @@ function validarYEnviar() {
     let montoRaw = document.querySelector('[name="monto"]')?.value?.trim() || '';
     var tipoCed = document.querySelector('[name="tipo_cedula_pagador"]')?.value || 'V';
     let cedulaRaw = document.querySelector('[name="cedula_pagador"]')?.value?.trim() || '';
-    let metodo = document.querySelector('[name="metodo"]')?.value?.trim() || 'transferencia';
 
-    // Validar referencia: solo números, 12-13 dígitos
     if (!/^[0-9]+$/.test(ref)) {
         mostrarError('La referencia solo debe contener números');
         return;
@@ -172,41 +121,37 @@ function validarYEnviar() {
         return;
     }
 
-    // Validar teléfono SOLO para Pago Móvil.
-    // La transferencia bancaria se hace desde el portal del banco (browser),
-    // por eso no se pide teléfono y no debe exigirse.
-    if (metodo === 'pago_movil') {
-        if (!/^[0-9]+$/.test(telf)) {
-            mostrarError('El teléfono solo debe contener números');
-            return;
-        }
-        if (!validarTelefono(telf)) {
-            mostrarError('El teléfono debe tener al menos 10 dígitos');
-            return;
-        }
+    if (!/^[0-9]+$/.test(telf)) {
+        mostrarError('El teléfono solo debe contener números');
+        return;
+    }
+    if (!validarTelefono(telf)) {
+        mostrarError('El teléfono debe tener al menos 10 dígitos');
+        return;
     }
 
-    // Validar monto
-    var montoBs = parsearMontoBs(montoRaw);
-    if (isNaN(montoBs) || montoBs <= 0) {
+    if (!validarTextoNoVacio(montoRaw)) {
+        mostrarError('El monto es obligatorio');
+        return;
+    }
+    var montoNormalizado = normalizarMonto(montoRaw);
+    if (isNaN(montoNormalizado) || montoNormalizado <= 0) {
         mostrarError('El monto debe ser un número válido mayor a 0');
         return;
     }
 
-    // Validar que el equivalente en USD cubra el total del pedido
     var totalUsdInput = document.getElementById('total-usd');
     var totalUsdValor = parseFloat(totalUsdInput ? totalUsdInput.value : '0') || 0;
     var tasaEl = document.querySelector('.tasa-valor');
     var tasaActual = parseFloat(tasaEl ? tasaEl.textContent : '0') || 0;
     if (tasaActual > 0) {
-        var equivUsd = montoBs / tasaActual;
-        if (equivUsd < (totalUsdValor - 0.01)) {
-            mostrarError('El monto en dólares (Bs. ' + montoBs.toFixed(2) + ' → $' + equivUsd.toFixed(2) + ') no cubre el total del pedido ($' + totalUsdValor.toFixed(2) + '). Le falta dinero.');
+        var equivUsd = montoNormalizado / tasaActual;
+        if (equivUsd < totalUsdValor) {
+            mostrarError('El monto en dólares (Bs. ' + montoNormalizado.toFixed(2) + ' → $' + equivUsd.toFixed(2) + ') no cubre el total del pedido ($' + totalUsdValor.toFixed(2) + '). Le falta dinero.');
             return;
         }
     }
 
-    // Validar cédula SOLO SI fue ingresada (es opcional)
     if (cedulaRaw.length > 0) {
         var soloNumeros = cedulaRaw.replace(/[^0-9]/g, '');
         if (!validarCedulaVenezolana(soloNumeros)) {
@@ -217,14 +162,11 @@ function validarYEnviar() {
     }
 
     var montoInput = document.querySelector('[name="monto"]');
-    if (montoInput) montoInput.value = montoBs.toFixed(2);
+    if (montoInput) montoInput.value = montoNormalizado.toFixed(2);
 
     enviarReporte();
 }
 
-/**
- * Enviar reporte al controlador (AJAX)
- */
 function enviarReporte() {
     const form = document.getElementById('form-reporte');
     if (!form) {
@@ -286,9 +228,6 @@ function enviarReporte() {
     });
 }
 
-/**
- * ✅ MODAL PARA PAGO DUPLICADO
- */
 function mostrarPagoDuplicado(mensaje, redirectUrl) {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -304,9 +243,7 @@ function mostrarPagoDuplicado(mensaje, redirectUrl) {
             showCancelButton: true,
             confirmButtonColor: '#0d6efd',
             cancelButtonColor: '#6c757d',
-            // ✅ BOTÓN 1: Ver Mis Pedidos
             confirmButtonText: '<i class="fas fa-box"></i> Ver Mis Pedidos',
-            // ✅ BOTÓN 2: Seguir comprando
             cancelButtonText: '<i class="fas fa-store"></i> Seguir comprando',
             reverseButtons: true,
             background: '#fff',
@@ -314,10 +251,8 @@ function mostrarPagoDuplicado(mensaje, redirectUrl) {
             allowOutsideClick: false
         }).then((result) => {
             if (result.isConfirmed) {
-                // ✅ Redirige a Mis Pedidos
                 window.location.href = redirectUrl || '?pagina=misPedidos';
             } else {
-                // ✅ Redirige al Catálogo
                 window.location.href = '?pagina=web_Catalogo';
             }
         });

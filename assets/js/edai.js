@@ -1,4 +1,3 @@
-/* ED-AI Asistente (Intranet) - FAQ local con control de usuarios simultaneos */
 (function () {
     const fab = document.getElementById('edaiFab');
     const windowEl = document.getElementById('edaiWindow');

@@ -21,44 +21,38 @@ $(document).ready(function () {
             columns: [
                 { data: "rif_proveedor" },
                 { data: "nombre_proveedor" },
-                { data: "telefono_proveedor",},
+                { data: "telefono_proveedor" },
                 {
                     data: null,
                     render: function (data, type, row) {
                         let b = '<div class="btn-group">';
                         
-                        b += '<button type="button" class="btn btn-info btn-sm btn_verProveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="bi bi-eye"></i></button>';
+                        b += '<button type="button" class="btn btn-info btn-sm btn_verProveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="bi bi-eye"></i></button>';
                         
                         if (permisos.control_total || permisos.modificar) {
-                            b += '<button type="button" class="btn btn-warning btn-sm btn_modificarProveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="fa-solid fa-pen-to-square"></i></button>';
+                            b += '<button type="button" class="btn btn-warning btn-sm btn_modificarProveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '" data-telefono="' + row.telefono_proveedor + '" data-correo="' + encodeURIComponent(row.correo_proveedor || '') + '" data-ubicacion="' + encodeURIComponent(row.ubicacion_proveedor || '') + '"><i class="fa-solid fa-pen-to-square"></i></button>';
                         }
                         
                         if (permisos.control_total || permisos.eliminar) {
-                            b += '<button type="button" class="btn btn-danger btn-sm btn-eliminar-proveedor m-2" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '"><i class="fa-solid fa-trash"></i></button>';
+                            b += '<button type="button" class="btn btn-danger btn-sm btn-eliminar-proveedor" data-rif="' + row.rif_proveedor + '" data-nombre="' + row.nombre_proveedor + '"><i class="fa-solid fa-trash"></i></button>';
                         }
                         
                         return b + '</div>';
                     }
                 }
             ],
-            columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
         });
     }
 
-    // FUNCIÓN LIMPIAR
     function limpiarFormulario() {
         $("#formularioRegistroProveedor")[0].reset();
         $("#prefijo").val("J-");
         $("#codTelefono").val("0414");
     }
 
-    // VER DETALLES
+    $("#modalRegistroProveedor").on("shown.bs.modal", limpiarFormulario);
+
     $(document).on("click", ".btn_verProveedor", function() {
         let btn = $(this);
         $("#consulta_rif").text(btn.data("rif"));
@@ -69,8 +63,10 @@ $(document).ready(function () {
         $("#modalConsultarProveedor").modal("show");
     });
 
-    // REGISTRAR
     $("#btn_registrar").on("click", function() {
+        if (typeof window.validarFormularioProveedor === "function" && !window.validarFormularioProveedor(false)) {
+            return;
+        }
         if ($("#proveedor").val().trim() !== "" && $("#rif").val().trim() !== "") {
             showSweetAlert("pregunta1");
         } else {
@@ -98,7 +94,6 @@ $(document).ready(function () {
         ejecutarAjax(d, "#modalRegistroProveedor");
     };
 
-    // MODIFICAR
     $(document).on("click", ".btn_modificarProveedor", function () {
         let btn = $(this);
         $("#rif_modificar").val(btn.data("rif"));
@@ -120,6 +115,9 @@ $(document).ready(function () {
     });
 
     $("#btn_modificar").on("click", function() {
+        if (typeof window.validarFormularioProveedor === "function" && !window.validarFormularioProveedor(true)) {
+            return;
+        }
         if ($("#proveedor_modificar").val().trim() !== "") {
             showSweetAlert("pregunta2");
         } else {
@@ -143,7 +141,6 @@ $(document).ready(function () {
         ejecutarAjax(d, "#modalModificarProveedor");
     };
 
-    // ELIMINAR
     $(document).on("click", ".btn-eliminar-proveedor", function() {
         $("#rif_proveedor").val($(this).data("rif"));
         window.nombreProveedorEliminar = $(this).data("nombre");
@@ -155,7 +152,6 @@ $(document).ready(function () {
         ejecutarAjax(d, null);
     };
 
-    // FUNCIONES AUXILIARES
     function ejecutarAjax(datos, modalId) {
         showProcessingAlert();
         $.ajax({
@@ -170,7 +166,6 @@ $(document).ready(function () {
                     $(".modal-backdrop").remove();
                     $("body").removeClass("modal-open");
                     
-                    // LIMPIAR después de éxito
                     if (modalId === "#modalRegistroProveedor") {
                         limpiarFormulario();
                     }
@@ -181,7 +176,7 @@ $(document).ready(function () {
                 } else if (res.invalido) {
                     showSweetAlert("invalido", res.invalido);
                 } else {
-                    mostrarAlertaDuplicado(res.error || "Error");
+                    showSweetAlert("invalido", res.error || "Error");
                 }
             },
             error: function(xhr, status, error) {
@@ -191,7 +186,7 @@ $(document).ready(function () {
         });
     }
 
-    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "#2C74B3" });
+    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" });
 
     function showProcessingAlert() {
         Swal.fire({ title: "Procesando!", timerProgressBar: true, didOpen: () => { Swal.showLoading(); }, background: "#000910", color: "white", allowOutsideClick: false });
@@ -213,19 +208,5 @@ $(document).ready(function () {
             invalido: { title: "Atención", text: message, icon: "warning" }
         };
         return commonSwalMixin.fire(simple[action]);
-    }
-
-    function mostrarAlertaDuplicado(message) {
-        if (/Rif ya está registrado/i.test(message)) {
-            return Swal.fire({
-                title: "Ups!",
-                text: message,
-                icon: "error",
-                color: "#545454",
-                background: "#ffffff",
-                confirmButtonColor: "#7066e0"
-            });
-        }
-        return showSweetAlert("invalido", message);
     }
 });

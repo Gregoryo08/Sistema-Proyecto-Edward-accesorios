@@ -18,21 +18,8 @@ class Usuarios extends Empleados {
     {
         parent::__construct();
     }
-
-    public function procesarSolicitud($accion, $datos = [])
-    {
-        switch ($accion) {
-            case 'validarSeguridad': return $this->validarSeguridad();
-            case 'validarPermisos': return $this->validarPermisos($datos['rol'] ?? null);
-            case 'crearPerfil': return $this->crearPerfil();
-            case 'cambiarClave': return $this->cambiarClave();
-            case 'cambiarEstatus': return $this->cambiarEstatus();
-            case 'consultarSuspendido': return $this->consultarSuspendido();
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
     
-    private function validarSeguridad()
+    public function validarSeguridad()
     {
         $cedula = $this->getCedula();
         $conexUser = Conexion::getShared("usuario")->getConexion();
@@ -49,16 +36,10 @@ class Usuarios extends Empleados {
     public function tienePermiso($modulo, $accion)
     {
         try {
-            $id_rol = $_SESSION["rol"] ?? $_SESSION["id_rol"] ?? null;
-
-            if (!$id_rol) {
-                return false;
-            }
-
+            $id_rol = $_SESSION["rol"];
             if ($id_rol == 1) {
                 return true;
             }
-
             $conexUser = Conexion::getShared("usuario")->getConexion();
             $sql = "SELECT COUNT(*) as acceso 
                     FROM rol_permisos rp
@@ -67,39 +48,38 @@ class Usuarios extends Empleados {
                     WHERE rp.id_rol = :id_rol 
                     AND m.nombre_modulo = :modulo 
                     AND (a.nombre_accion = :accion OR a.nombre_accion = 'control_total')";
-
             $stmt = $conexUser->prepare($sql);
-            $stmt->bindParam(":id_rol", $id_rol, PDO::PARAM_INT);
-            $stmt->bindParam(":modulo", $modulo, PDO::PARAM_STR);
-            $stmt->bindParam(":accion", $accion, PDO::PARAM_STR);
+            $stmt->bindParam(":id_rol", $id_rol);
+            $stmt->bindParam(":modulo", $modulo);
+            $stmt->bindParam(":accion", $accion);
             $stmt->execute();
-
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             unset($conexUser);
-
-            return isset($resultado['acceso']) && ($resultado['acceso'] > 0);
+            return ($resultado['acceso'] > 0);
         } catch (Throwable $th) {
             return false;
         }
     }
 
-    public function obtenerDatosPersonales()
-    {
-        $cedula_base = trim($this->getCedula());
-        $cedula_busqueda = (strpos($cedula_base, 'V-') === 0) ? $cedula_base : 'V-' . $cedula_base;
-        
-        try {
-            $conex = new Conexion("sistema"); 
-            $stmt = $conex->prepare("SELECT nombre, apellido FROM persona WHERE cedula_persona = :c");
-            $stmt->bindParam(":c", $cedula_busqueda);
-            $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (Throwable $th) {
-            return false;
-        }
+public function obtenerDatosPersonales()
+{
+    $cedula_base = trim($this->getCedula());
+    
+    
+    $cedula_busqueda = (strpos($cedula_base, 'V-') === 0) ? $cedula_base : 'V-' . $cedula_base;
+    
+    try {
+        $conex = new Conexion("sistema"); 
+        $stmt = $conex->prepare("SELECT nombre, apellido FROM persona WHERE cedula_persona = :c");
+        $stmt->bindParam(":c", $cedula_busqueda);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $th) {
+        return false;
     }
+}
 
-    private function validarPermisos($rol)
+    public function validarPermisos($rol)
     {
         $conexUser = new Conexion("usuario");
         $sql = "SELECT rp.id_rol, r.descripcion_rol, m.id_modulo, m.nombre_modulo, a.nombre_accion 
@@ -116,7 +96,7 @@ class Usuarios extends Empleados {
         return $resultado;
     }
 
-    private function crearPerfil()
+   public function crearPerfil()
     {
         $usuario = $this->getCedula();
         $clave = $this->getClave();
@@ -170,7 +150,7 @@ class Usuarios extends Empleados {
         }
     }
 
-    private function cambiarClave()
+    public function cambiarClave()
     {
         $cedula = $this->getCedula();
         $clave = $this->getClave();
@@ -204,7 +184,7 @@ class Usuarios extends Empleados {
         }
     }
     
-    private function cambiarEstatus()
+    public function cambiarEstatus()
     {
         $cedula = $this->getCedula();
         $estatus = $this->getEstatus();
@@ -252,7 +232,9 @@ class Usuarios extends Empleados {
         }
     }
 
-    private function consultarSuspendido()
+    
+
+    public function consultarSuspendido()
     {
         try {
             $conex = new Conexion("sistema");
@@ -266,6 +248,8 @@ class Usuarios extends Empleados {
         }
     }
 
+    
+    
     public function getClave() { return $this->clave; }
     public function setClave($clave) { $this->clave = $clave; }
     public function getEstatus() { return $this->estatus; }

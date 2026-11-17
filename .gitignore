@@ -1,11 +1,28 @@
+
 vendor/
 
 composer.phar
 
-databases/
+databases/*
+!databases/migraciones/
 app/databases
+*.sql
+!databases/migraciones/*.sql
 
 app/config/data.php
-app/config/data-host.php
-app/config/Conexion.php
 app/config/db_host.cache
+app/config/mail-local.php
+app/config/captcha-local.php
+app/config/ia-local.php
+app/config/data-host.php
+
+# Binarios sueltos que no deben versionarse
+chromedriver.exe
+*.zip
+__pycache__/
+*.pyc
+
+CREDENCIALES.local.md
+.env
+.env.*
+despliegue.tar.gz

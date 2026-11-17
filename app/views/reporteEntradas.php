@@ -108,6 +108,6 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-<script src="assets/js/validaciones/reportes/reporteEntradas.js"></script>
+<script src="assets/js/validaciones/reportes/ReporteEntradas.js"></script>
 </body>
 </html>

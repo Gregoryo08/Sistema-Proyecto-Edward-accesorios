@@ -1,5 +1,5 @@
 function cargarTasaCambio() {
-    fetch('?pagina=tasaCambio&action=obtener')
+    fetch('?pagina=tasaEcommerce&action=obtener')
     .then(r => r.json())
     .then(data => {
         const tasa = parseFloat(data.tasa) || 0;

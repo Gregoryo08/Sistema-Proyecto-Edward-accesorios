@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!equipoVal) { aplicarRojo('#orden_equipo_tecnico'); valido = false; }
         if (!imeiVal) { aplicarRojo('#orden_imei_tecnico'); valido = false; }
 
-        // validar repuestos
         let repuestosTotalCalc = 0;
         for (let i = 0; i < repuestosRows.length; i++) {
             const row = repuestosRows[i];
@@ -131,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const totalOrdenVal = Number((totalOrden.value || '$ 0.00').toString().replace('S/ ', '').replace('$ ', ''));
 
-        // comparacion con tolerancia centavos
         if (Math.round(repuestosTotalCalc * 100) / 100 !== Math.round(totalOrdenVal * 100) / 100) {
             aplicarRojo('#orden_repuestos_total_tecnico');
             aplicarRojo('#orden_total_tecnico');
@@ -139,7 +137,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!valido) {
-            // usar alertas si está disponible, si no Swal
             if (typeof alertas === 'function') {
                 alertas('errorC', 'Corrige los campos resaltados', 'Datos incompletos');
             } else {
@@ -171,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function () {
             repuestos: JSON.stringify(repuestosArray)
         };
 
-        // determinar si es registrar o modificar según el campo oculto
         const ordenIdField = document.getElementById('orden_id_tecnico');
         if (ordenIdField && ordenIdField.value && Number(ordenIdField.value) > 0) {
             datos.accion = 'modificar';
@@ -199,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         try { res = (typeof response === 'string') ? JSON.parse(response) : response; } catch (e) {}
 
                         if (res.success) {
-                            // cerrar modal y remover backdrop sobrante si hay alguno
                             const modalElement = document.getElementById('modalOrdenTecnico');
                             const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
                             modalInstance.hide();

@@ -1,5 +1,8 @@
 <?php
-// Los datos ya vienen del controlador: $pedido, $metodo, $datos_pago, $titulo
+$metodo = $metodo ?? $metodoPago ?? 'pago_movil';
+$totalDolares = floatval($pedido['total'] ?? 0);
+$tasaVal = floatval($tasa ?? 0);
+$totalBs = $totalDolares * $tasaVal;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -14,7 +17,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="/src/web_Catalogo.php">Edward<span class="text-primary">Accesorios</span></a>
+        <a class="navbar-brand" href="?pagina=web_Catalogo">Edward<span class="text-primary">Accesorios</span></a>
     </div>
 </nav>
 
@@ -23,24 +26,25 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-credit-card"></i> <?= $titulo ?? ($metodo === 'transferencia' ? 'Transferencia Bancaria' : 'Pago Móvil') ?></h4>
+                    <h4 class="mb-0"><i class="fas fa-credit-card"></i> <?= htmlspecialchars($titulo ?? ($metodo === 'transferencia' ? 'Transferencia Bancaria' : 'Pago Móvil')) ?></h4>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        Realiza el pago exacto de <strong>$<?= number_format($pedido['total'], 2) ?> USD</strong>
-                        (<strong>Bs. <span id="totalBsEfectivo"><?= number_format($total_bs, 2) ?></span></strong>)
+                        Realiza el pago exacto de <strong>$<?= number_format($totalDolares, 2) ?> USD</strong>
+                        (<strong>Bs. <span id="totalBsEfectivo"><?= number_format($totalBs, 2) ?></span></strong>)
                         usando los siguientes datos:
                     </div>
+                    
                     <div class="row small text-muted mb-2 align-items-center">
                         <div class="col-8">
-                            Tasa: <span class="tasa-valor" id="tasaValor"><?= number_format($tasa, 2) ?></span> Bs./USD
-                            <span class="tasa-alert <?= $vigencia['expirada'] ? 'text-danger fw-bold' : 'text-success' ?>" id="tasaAlert">
-                                <?= $vigencia['mensaje'] ?>
+                            Tasa: <span class="tasa-valor" id="tasaValor"><?= number_format($tasaVal, 2) ?></span> Bs./USD
+                            <span class="tasa-alert <?= ($vigencia['expirada'] ?? false) ? 'text-danger fw-bold' : 'text-success' ?>" id="tasaAlert">
+                                <?= htmlspecialchars($vigencia['mensaje'] ?? '') ?>
                             </span>
                         </div>
                         <div class="col-4 text-end" id="tasaAccion">
-                            <?php if ($vigencia['expirada']): ?>
+                            <?php if ($vigencia['expirada'] ?? false): ?>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
                                     <span class="small text-danger fw-bold" id="tasaPulsa">pulsa para actualizar tasa &#8594;</span>
                                     <button type="button" class="btn btn-warning btn-sm fw-bold" id="btnActualizarTasa">
@@ -48,7 +52,6 @@
                                     </button>
                                 </div>
                                 <style>
-                                    /* Animación: el texto se desliza y rebota contra el botón */
                                     #tasaPulsa {
                                         display: inline-block;
                                         transform: translateX(0);
@@ -65,35 +68,33 @@
 
                     <?php if ($metodo === 'transferencia'): ?>
                         <table class="table table-bordered">
-                            <tr><th>Banco</th><td><?= htmlspecialchars($datos_pago['nombre'] ?? '') ?></td></tr>
-                            <tr><th>Número de cuenta</th><td><strong><?= htmlspecialchars($datos_pago['numero_cuenta'] ?? '') ?></strong></td></tr>
-                            <tr><th>Titular</th><td><?= htmlspecialchars($datos_pago['titular'] ?? 'Edward Accesorios C.A.') ?></td></tr>
-                            <tr><th>RIF</th><td><?= htmlspecialchars($datos_pago['cedula_rif'] ?? '') ?></td></tr>
+                            <tr><th>Banco</th><td>Banco de Venezuela (0102)</td></tr>
+                            <tr><th>Número de cuenta</th><td><strong>0102-0123-45-1234567890</strong></td></tr>
+                            <tr><th>Titular</th><td>Edward Accesorios C.A.</td></tr>
+                            <tr><th>RIF</th><td>J-12345678-9</td></tr>
                         </table>
                     <?php else: ?>
                         <table class="table table-bordered">
-                            <tr><th>Banco</th><td><?= htmlspecialchars($datos_pago['banco'] ?? '') ?></td></tr>
-                            <tr><th>Teléfono</th><td><strong><?= htmlspecialchars($datos_pago['telefono'] ?? '') ?></strong></td></tr>
-                            <tr><th>Cédula</th><td><?= htmlspecialchars($datos_pago['cedula'] ?? '') ?></td></tr>
-                            <tr><th>RIF</th><td><?= htmlspecialchars($datos_pago['rif'] ?? '') ?></td></tr>
+                            <tr><th>Banco</th><td>Banco de Venezuela (0102)</td></tr>
+                            <tr><th>Teléfono</th><td><strong>0412-1234567</strong></td></tr>
+                            <tr><th>Cédula</th><td>V-12345678</td></tr>
+                            <tr><th>RIF</th><td>J-12345678-9</td></tr>
                         </table>
                     <?php endif; ?>
 
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Importante:</strong> Una vez realizada la transferencia o pago móvil,
-                        haz clic en el botón "YA PAGUÉ" para reportar tu pago.
-                        <br><small>Reporta el monto exacto en <strong>Bs. <span id="totalBsReportar"><?= number_format($total_bs, 2) ?></span></strong></small>
+                        <strong>Importante:</strong> Una vez realizada la transferencia o pago móvil, haz clic en el botón "YA PAGUÉ" para reportar tu pago.
+                        <br><small>Reporta el monto exacto en <strong>Bs. <span id="totalBsReportar"><?= number_format($totalBs, 2) ?></span></strong></small>
                     </div>
 
-                    <a href="?pagina=reportarPago&pedido=<?= $id_pedido ?>&metodo=<?= $metodo ?>" 
+                    <a href="?pagina=reportarPago&pedido=<?= htmlspecialchars($id_pedido ?? '') ?>&metodo=<?= htmlspecialchars($metodo) ?>"
                        class="btn btn-success btn-lg w-100 mt-3" id="btnYaPague"
-                       <?php if ($vigencia['expirada']): ?>disabled style="pointer-events:none;opacity:.65;"<?php endif; ?>>
+                       <?php if ($vigencia['expirada'] ?? false): ?>disabled style="pointer-events:none;opacity:.65;"<?php endif; ?>>
                         <i class="fas fa-check-circle"></i> YA PAGUÉ
                     </a>
-                    
-                    <a  href="?pagina=carrito" 
-                       class="btn btn-outline-secondary w-100 mt-2">
+
+                    <a href="?pagina=carrito" class="btn btn-outline-secondary w-100 mt-2">
                         <i class="fas fa-arrow-left"></i> Volver al carrito
                     </a>
                 </div>
@@ -102,14 +103,9 @@
     </div>
 </div>
 
-<button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema" data-icon-oscuro="fas fa-sun" data-icon-claro="fas fa-moon">
-    <i class="fas fa-sun" id="themeIcon"></i>
-</button>
-<script src="assets/js/ecommerce/temaBoton.js"></script>
-
 <script>
 (function () {
-    var totalUSD = <?= (float) $pedido['total'] ?>;
+    var totalUSD = <?= $totalDolares; ?>;
     var btnTasa = document.getElementById('btnActualizarTasa');
     var btnYaPague = document.getElementById('btnYaPague');
     var tasaValor = document.getElementById('tasaValor');
@@ -122,66 +118,115 @@
         return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function actualizarTasa() {
-        if (!btnTasa) return;
+    if (btnTasa) {
+        btnTasa.addEventListener('click', function () {
+            var pulsar = document.getElementById('tasaPulsa');
+            if (pulsar) pulsar.remove();
 
-        var pulsar = document.getElementById('tasaPulsa');
-        if (pulsar) pulsar.remove();
+            btnTasa.disabled = true;
+            btnTasa.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando BCV...';
 
-        btnTasa.disabled = true;
-        btnTasa.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando BCV...';
+            fetch('?pagina=tasaEcommerce', { method: 'POST' })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.success) {
+                        btnTasa.disabled = false;
+                        btnTasa.innerHTML = 'TASA $/BCV HOY <span class="d-inline-block align-middle"><i class="fas fa-sync-alt"></i></span>';
+                        var err = document.createElement('div');
+                        err.className = 'small text-danger fw-bold';
+                        err.textContent = data.message || 'Error al actualizar la tasa';
+                        tasaAccion.appendChild(err);
+                        return;
+                    }
 
-        fetch('?pagina=tasaEcommerce', { method: 'POST' })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (!data.success) {
+                    if (tasaValor) tasaValor.textContent = fmt(data.tasa);
+                    if (tasaAlert) {
+                        tasaAlert.textContent = 'Tasa actualizada (0 min)';
+                        tasaAlert.className = 'tasa-alert text-success fw-bold';
+                    }
+
+                    if (totalBsEfectivo) totalBsEfectivo.textContent = fmt(totalUSD * data.tasa);
+                    if (totalBsReportar) totalBsReportar.textContent = fmt(totalUSD * data.tasa);
+
+                    tasaAccion.innerHTML = '';
+
+                    if (btnYaPague) {
+                        btnYaPague.removeAttribute('disabled');
+                        btnYaPague.style.pointerEvents = '';
+                        btnYaPague.style.opacity = '';
+                    }
+                })
+                .catch(function () {
                     btnTasa.disabled = false;
-                    btnTasa.innerHTML = 'TASA $/BCV HOY <span class="d-inline-block align-middle"><i class="fas fa-sync-alt"></i></span>';
+                    btnTasa.innerHTML = 'TASA $/BCV HOY';
                     var err = document.createElement('div');
                     err.className = 'small text-danger fw-bold';
-                    err.textContent = data.message || 'Error al actualizar la tasa';
+                    err.textContent = 'Error de conexión. Intenta nuevamente.';
                     tasaAccion.appendChild(err);
-                    return;
-                }
-
-                // Actualizar tasa visible
-                if (tasaValor) tasaValor.textContent = fmt(data.tasa);
-                if (tasaAlert) {
-                    tasaAlert.textContent = 'Tasa actualizada (0 min)';
-                    tasaAlert.className = 'tasa-alert text-success fw-bold';
-                }
-
-                // Recalcular montos en Bs con la nueva tasa
-                if (totalBsEfectivo) totalBsEfectivo.textContent = fmt(totalUSD * data.tasa);
-                if (totalBsReportar) totalBsReportar.textContent = fmt(totalUSD * data.tasa);
-
-                // Desaparecer todo el bloque de acción (botón) — el mensaje
-                // de "Tasa actualizada" ya se muestra a la izquierda (tasaAlert)
-                tasaAccion.innerHTML = '';
-
-                // Habilitar YA PAGUÉ
-                if (btnYaPague) {
-                    btnYaPague.removeAttribute('disabled');
-                    btnYaPague.style.pointerEvents = '';
-                    btnYaPague.style.opacity = '';
-                }
-            })
-            .catch(function () {
-                btnTasa.disabled = false;
-                btnTasa.innerHTML = 'TASA $/BCV HOY';
-                var err = document.createElement('div');
-                err.className = 'small text-danger fw-bold';
-                err.textContent = 'Error de conexión. Intenta nuevamente.';
-                tasaAccion.appendChild(err);
-            });
+                });
+        });
     }
 
-    if (btnTasa) {
-        btnTasa.addEventListener('click', actualizarTasa);
+    function cargarTasaCambio() {
+        fetch('?pagina=tasaCambio&action=obtener')
+        .then(r => r.json())
+        .then(data => {
+            const tasa = parseFloat(data.tasa) || 0;
+            const vigencia = data.vigencia || {};
+            const fecha = data.fecha || '';
 
-        // Auto-actualizar la tasa al cargar la página si está expirada, para que
-        // el cliente vea el monto final en Bs ANTES de transferir.
-        actualizarTasa();
+            document.querySelectorAll('.tasa-valor').forEach(el => {
+                el.textContent = tasa.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            });
+
+            var tasaAlert = document.getElementById('tasaAlert');
+            if (tasaAlert) {
+                tasaAlert.textContent = vigencia.mensaje || '';
+                tasaAlert.className = 'tasa-alert ' + (vigencia.expirada ? 'text-danger fw-bold' : 'text-success');
+            }
+
+            var totalBsEfectivo = document.getElementById('totalBsEfectivo');
+            var totalBsReportar = document.getElementById('totalBsReportar');
+            
+            var totalBsCalculado = (totalUSD * tasa).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (totalBsEfectivo) totalBsEfectivo.textContent = totalBsCalculado;
+            if (totalBsReportar) totalBsReportar.textContent = totalBsCalculado;
+        })
+        .catch(err => console.error('Error cargando tasa:', err));
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarTasaCambio);
+
+    var btnTasaControlador = document.getElementById('btnActualizarTasa');
+    if (btnTasaControlador) {
+        btnTasaControlador.addEventListener('click', function () {
+            btnTasaControlador.disabled = true;
+            btnTasaControlador.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando BCV...';
+
+            fetch('?pagina=tasaCambio&action=scrapear', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    btnTasaControlador.disabled = false;
+                    btnTasaControlador.innerHTML = 'TASA $/BCV HOY';
+                    if(data.success) {
+                        cargarTasaCambio();
+                        
+                        var btnYaPague = document.getElementById('btnYaPague');
+                        if (btnYaPague) {
+                            btnYaPague.removeAttribute('disabled');
+                            btnYaPague.style.pointerEvents = '';
+                            btnYaPague.style.opacity = '';
+                        }
+                    } else {
+                        alert(data.message || 'No se pudo actualizar la tasa');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    btnTasaControlador.disabled = false;
+                    btnTasaControlador.innerHTML = 'TASA $/BCV HOY';
+                });
+        });
     }
 })();
 </script>

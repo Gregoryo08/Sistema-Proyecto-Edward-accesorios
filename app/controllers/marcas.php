@@ -2,19 +2,9 @@
 
 use App\Sistema\models\marcas;
 use App\Sistema\models\Usuarios;
+use App\Sistema\models\Respuesta;
 
-if (!function_exists('procesarRespuesta')) {
-    function procesarRespuesta($respuesta, $mensajeExito) {
-        if ($respuesta === true) {
-            echo json_encode(["success" => $mensajeExito]);
-        } else if (is_array($respuesta)) {
-            echo json_encode($respuesta);
-        } else {
-            echo json_encode(["error" => "Error desconocido en el servidor."]);
-        }
-        exit();
-    }
-}
+$modeloRespuesta = new Respuesta();
 
 $cedula = $_SESSION['username'];
 $rol = $_SESSION["rol"];
@@ -52,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $id = (int) trim($_POST["id"]);
     $objeto_marcas = new marcas();
     $objeto_marcas->setId_marca($id);
-    $resultado = $objeto_marcas->procesarSolicitud('consultar');
+    $resultado = $objeto_marcas->consultarMarca();
     echo json_encode($resultado);
     exit();
 }
@@ -61,9 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $nombre = trim($_POST['nombre']);
     $objeto_marcas = new marcas();
     $objeto_marcas->setNombre_marca($nombre);
-    $respuesta = $objeto_marcas->procesarSolicitud('registrar');
+    $respuesta = $objeto_marcas->registrar();
     
-    procesarRespuesta($respuesta, "Marca registrada exitosamente.");
+    $modeloRespuesta->json($respuesta, "Marca registrada exitosamente.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'modificarMarca') {
@@ -73,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $objeto_marcas->setNombre_marca($nombre);
     $objeto_marcas->setId_marca($id);
     
-    $respuesta = $objeto_marcas->procesarSolicitud('modificar');
+    $respuesta = $objeto_marcas->modificar();
     
-    procesarRespuesta($respuesta, "Marca modificada exitosamente.");
+    $modeloRespuesta->json($respuesta, "Marca modificada exitosamente.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminarMarca') {
@@ -83,10 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $objeto_marcas = new marcas();
     $objeto_marcas->setId_marca($id);
     
-    $respuesta = $objeto_marcas->procesarSolicitud('eliminar');
+    $respuesta = $objeto_marcas->eliminar();
     
-    procesarRespuesta($respuesta, "Marca eliminada exitosamente.");
+    $modeloRespuesta->json($respuesta, "Marca eliminada exitosamente.");
 }
 
-require_once 'app/views/marcas.php';
+include 'app/views/marcas.php';
 ?>

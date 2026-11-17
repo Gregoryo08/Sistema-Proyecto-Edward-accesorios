@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const badgeCompromiso = document.querySelector('.badge.bg-warning'); 
                 if (badgeCompromiso) {
-                    badgeCompromiso.style.setProperty('color', '#000000', 'important');
                     badgeCompromiso.innerText = `Compromiso de ${nombreMesReal}`;
                 }
 
@@ -98,19 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 tbody.innerHTML = '';
 
                 let cantidadCuotasActuales = 0;
-                let totalAcumuladoPendiente = 0;
-
                 if (data.financiamientosActivos && data.financiamientosActivos.length > 0) {
                     cantidadCuotasActuales = data.financiamientosActivos.length;
                     data.financiamientosActivos.forEach(item => {
                         let esPagada = item.estado.toLowerCase() === 'pagada' || item.estado.toLowerCase() === 'pagado';
                         let badgeClase = esPagada ? 'bg-secondary' : 'bg-success';
-                        let textColor = 'style="color: #ffffff !important;"';
                         let estadoTexto = esPagada ? 'Pagada' : 'Activo';
-
-                        if (!esPagada) {
-                            totalAcumuladoPendiente += parseFloat(item.monto || 0);
-                        }
 
                         let tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -118,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>#${item.numero_cuota}</td>
                             <td>${item.fecha_vencimiento}</td>
                             <td class="fw-bold text-primary">${formatCurrency(item.monto || 0)}</td>
-                            <td><span class="badge ${badgeClase}" ${textColor}>${estadoTexto}</span></td>
+                            <td><span class="badge ${badgeClase}">${estadoTexto}</span></td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -129,13 +121,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 let nombreMesFiltro = data.mesSeleccionado ? obtenerNombreMes(data.mesSeleccionado.mes) : "";
                 const textoAlerta = document.getElementById('texto-alerta-mes');
                 if (textoAlerta) {
-                    textoAlerta.innerHTML = `Mostrando cuotas programadas para ${nombreMesFiltro} (${cantidadCuotasActuales} cuotas). Total acumulado: <span class="fw-bold" style="color: inherit;">${formatCurrency(totalAcumuladoPendiente)}</span>`;
+                    textoAlerta.innerHTML = `Mostrando cuotas programadas para ${nombreMesFiltro} (${cantidadCuotasActuales} cuotas). Total acumulado: <span class="fw-bold text-dark">${formatCurrency(data.compromisoMes || 0)}</span>`;
                 }
 
+            } else {
+                console.error("Error al cargar los datos del dashboard:", data.error || "Respuesta vacía");
             }
         })
         .catch(error => {
-            console.error(error);
+            console.error("Error en la petición AJAX:", error);
         });
     }
 

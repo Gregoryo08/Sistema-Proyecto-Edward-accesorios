@@ -15,16 +15,6 @@ class especialidad extends conexion {
         parent::__construct();
     }
 
-    public function procesarSolicitud($accion)
-    {
-        switch ($accion) {
-            case 'registrar': return $this->registrar();
-            case 'modificar': return $this->modificar();
-            case 'eliminar': return $this->eliminar();
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
-
     public function listar() {
        
         $conex = new conexion(); 
@@ -37,7 +27,7 @@ class especialidad extends conexion {
         return $array;
     }
 
-    private function registrar() {
+    public function registrar() {
         $conex = new conexion();
         
         $nombre = $this->getNombre_especialidad();
@@ -76,7 +66,7 @@ class especialidad extends conexion {
         }
     }
 
-    private function modificar() {
+    public function modificar() {
         $id = $this->getId_especialidad();
         $nombre = $this->getNombre_especialidad();
 
@@ -131,7 +121,7 @@ class especialidad extends conexion {
         }
     }
 
-    private function eliminar() {
+    public function eliminar() {
         $conex = new conexion();
         $id = $this->getId_especialidad();
 

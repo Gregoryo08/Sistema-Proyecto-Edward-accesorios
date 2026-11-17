@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+use App\Sistema\config\Acceso;
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\principal;
 
@@ -29,8 +30,13 @@ $cedula = $_SESSION['username'] ?? null;
 $rol = $_SESSION["rol"] ?? null;
 
 if (!$cedula || !$rol) {
-    header("Location: ?url=iniciarSesion");
+    header("Location: ?pagina=iniciarSesion");
     exit();
+}
+
+if (Acceso::esCliente()) {
+    header('Location: ?pagina=web_Catalogo');
+    exit;
 }
 
 $modelo = new principal();

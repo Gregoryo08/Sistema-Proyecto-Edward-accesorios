@@ -1,6 +1,4 @@
-// assets/JS/validaciones/clave/recuperacion.js
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (Tu función togglePasswordVisibility y validación de Bootstrap) ...
 
     const formSolicitarRecuperacion = document.getElementById('formSolicitarRecuperacion');
     const formRestablecerClave = document.getElementById('formRestablecerClave');
@@ -18,12 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
-    // La URL de tu controlador ahora es la de tu front-controller (index.php)
-    // y pasas la página como un parámetro GET.
     const controllerUrl = "?pagina=recuperacion"; 
 
     if (token) {
-        // La solicitud AJAX ahora va al index.php con pagina=recuperacion y accion=validarToken
         fetch(`${controllerUrl}&accion=validarToken&token=${encodeURIComponent(token)}`)
             .then(response => {
                 if (!response.ok) {

@@ -1,67 +1,49 @@
 .table-container {
-    /* Fondo blanco para la tabla */
     padding: 20px;
-    /* Espaciado interno */
     border-radius: 8px;
-    /* Bordes redondeados */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* Sombra suave */
 }
 
 .table th,
 .table td {
     vertical-align: middle;
-    /* Centra verticalmente el contenido de las celdas */
 }
 
 .table th {
     background-color: #343a40;
-    /* Color de fondo del encabezado */
     color: white;
-    /* Color del texto del encabezado */
 }
 
 .table td {
     background-color: #f8f9fa;
-    /* Color de fondo de las celdas */
 }
 
 .table-responsive {
     margin-top: 20px;
-    /* Espaciado superior para la tabla */
 }
 
 .modal-content {
     border-radius: 10px;
-    /* Bordes redondeados */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    /* Sombra más suave */
 }
 
 .modal-header {
     border-bottom: none;
-    /* Eliminar el borde inferior */
 }
 
 .modal-title {
     font-weight: bold;
-    /* Título en negrita */
     color: #343a40;
-    /* Color del título */
 }
 
 .form-control {
     border-radius: 5px;
-    /* Bordes redondeados para los campos */
     border: 1px solid #ced4da;
-    /* Borde gris claro */
 }
 
 .form-control:focus {
     border-color: #007bff;
-    /* Color del borde al enfocar */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    /* Sombra al enfocar */
 }
 
 

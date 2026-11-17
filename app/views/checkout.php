@@ -95,10 +95,5 @@
 <script src="assets/js/ecommerce/validaciones.js"></script>
 <script src="assets/js/ecommerce/checkout.js"></script>
 
-<button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema" data-icon-oscuro="fas fa-sun" data-icon-claro="fas fa-moon">
-    <i class="fas fa-sun" id="themeIcon"></i>
-</button>
-<script src="assets/js/ecommerce/temaBoton.js"></script>
-
 </body>
 </html>

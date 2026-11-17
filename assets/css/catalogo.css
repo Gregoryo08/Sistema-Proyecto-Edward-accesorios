@@ -1,4 +1,3 @@
-/* --- ESTILOS GENERALES Y LAYOUT --- */
 .container {
     width: 90%;
     max-width: 1200px;
@@ -13,7 +12,6 @@
     padding: 40px 0 80px;
 }
 
-/* --- ENCABEZADO DE CATÁLOGO --- */
 .catalog-header {
     background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1400&q=80');
     background-size: cover;
@@ -39,20 +37,19 @@
     margin-bottom: 25px;
 }
 
-/* --- BUSCADOR Y FILTROS --- */
 .search-wrapper {
     margin-bottom: 35px;
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    justify-content: space-between; /* Separa los elementos a los extremos */
+    justify-content: space-between;
     align-items: center;
     width: 100%;
 }
 
 .search-box {
     flex: 1;
-    max-width: 450px; /* Límite de ancho para el buscador en la izquierda */
+    max-width: 450px;
     min-width: 250px;
     display: flex;
     align-items: center;
@@ -84,11 +81,10 @@
     font-size: 0.95rem;
 }
 
-/* --- SELECT DE CATEGORÍAS (ALINEADO A LA DERECHA) --- */
 .category-box {
     flex: 0 1 220px;
     min-width: 200px;
-    margin-left: auto; /* Empuja la caja totalmente hacia la derecha */
+    margin-left: auto;
 }
 
 .category-select {
@@ -124,7 +120,6 @@
     padding: 10px;
 }
 
-/* --- ALERTA SIN PRODUCTOS --- */
 .alert-info {
     background-color: rgba(52, 152, 219, 0.15);
     border: 1px solid var(--primary, #3498db);
@@ -134,14 +129,12 @@
     text-align: center;
 }
 
-/* --- GRID DE PRODUCTOS --- */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
 }
 
-/* --- TARJETA DE PRODUCTO --- */
 .product-card {
     background-color: var(--card-bg, #1a1a1a);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -212,7 +205,6 @@
     margin-bottom: 15px;
 }
 
-/* --- BOTÓN DE COMPRAR --- */
 .btn-comprar {
     width: 100%;
     background-color: var(--primary, #3498db);
@@ -238,7 +230,6 @@
 .btn-comprar:active {
     transform: translateY(0);
 }
-/* Mensaje sin resultados del filtro */
 #sinResultados {
     display: none;
 }

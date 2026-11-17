@@ -2,12 +2,20 @@
 <?php require_once('assets/comunes/modalEmpleado.php'); ?>
 
 <main class="main m-4" id="main">
-    <section id="hero" class="hero section p-4" style="height: auto;">
+
+    <section id="hero" class="hero section" style="height: auto;">
+        
+        <div>
+            <?php require_once('assets/comunes/tablaEmpleadosInactivos.php'); ?>
             <h2 class="text-center">Administrar Empleados</h2>
 
-            <div class="text-end mb-3">
+            <div class="text-right" style="display: flex; justify-content: space-between;">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" id="registrarEmpleados">
-                    <i class="bi bi-person-add" style="font-size: 1.2rem;"></i> Registrar Empleado
+                    Registrar Empleado
+                </button>
+
+                <button type="button" class="btn btn-success" id="btn_verInactivos">
+                    Inactivos
                 </button>
             </div>
 
@@ -19,7 +27,6 @@
                                 <th>Cedula</th>
                                 <th>Nombre y Apellido</th>
                                 <th>Cargo</th>
-                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -35,8 +42,18 @@
                     </table>
                 </div>
             </div>
-</section>
+        </div>
+
+    </section>
+
 </main>
+
+<style>
+    .text-right {
+    display: flex !important;
+    visibility: visible !important;
+}
+</style>
 
 <?php require_once('assets/comunes/footer.php'); ?>
 

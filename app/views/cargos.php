@@ -6,12 +6,12 @@ require_once("assets/comunes/menu.php")
 <main class="main m-4" id="main">
     <section id="hero" class="hero section m-2" style="height: auto;">
 
-        <div class="w-75 mx-auto">
-            <h2 class="text-center" style="font-size: 45px;">Administrar Cargos</h2>
+        <div>
+            <h2 class="text-center">Administrar Cargos de Personal</h2>
 
-            <div class="text-end m-3">
+            <div class="text-right">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistroCargo">
-                    <i class="bi bi-plus-circle"></i> Registrar Cargo
+                    Registrar Cargo
                 </button>
             </div>
 

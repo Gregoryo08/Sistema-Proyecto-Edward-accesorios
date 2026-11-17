@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * Copia este archivo como "captcha-local.php" (misma carpeta) y rellena las
+ * claves. El archivo "captcha-local.php" esta en .gitignore: nunca se sube.
+ *
+ * En produccion (Alwaysdata) no hace falta este archivo: basta con definir
+ * las variables de entorno RECAPTCHA_SITE_KEY y RECAPTCHA_SECRET_KEY.
+ */
+
+return array(
+    'RECAPTCHA_SITE_KEY' => '',
+    'RECAPTCHA_SECRET_KEY' => '',
+);

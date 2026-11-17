@@ -1,5 +1,5 @@
 <?php
-//use App\Sistema\models\Notificacion;
+
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\categoria;
 
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_categoria = new categoria();
     $obj_categoria->setNombre_categoria($nombre);
-    $respuesta = $obj_categoria->procesarSolicitud('registrar');
+    $respuesta = $obj_categoria->registrar();
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_categoria = new categoria();
     $obj_categoria->setId_categoria($id);
     $obj_categoria->setNombre_categoria($nombre);
-    $respuesta = $obj_categoria->procesarSolicitud('modificar');
+    $respuesta = $obj_categoria->modificar();
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
 
     $obj_categoria = new categoria();
     $obj_categoria->setId_categoria($id);
-    $respuesta = $obj_categoria->procesarSolicitud('eliminar');
+    $respuesta = $obj_categoria->eliminar();
 
     if (isset($respuesta["error"])) {
         unset($obj_categoria);
@@ -98,5 +98,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-require_once 'app/views/categoria.php';
+include 'app/views/categoria.php';
 ?>

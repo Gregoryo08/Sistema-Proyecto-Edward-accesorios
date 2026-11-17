@@ -16,7 +16,7 @@
                             <div class="border border-secondary rounded-3 p-2 h-100">
                                 <span class="text-uppercase fw-semibold text-muted d-block" style="font-size: 10px; letter-spacing: 0.05em;">Total Orden</span>
                                 <span class="fs-5 fw-bold d-block mt-1 text-dark" id="totalAmountDollar">$0.00</span>
-                                <span class="text-dark d-block" style="font-size: 12px;" id="totalAmount">0.00 bs</span>
+                                <span class="text-muted d-block" style="font-size: 10px;" id="totalAmount">0.00 bs</span>
                             </div>
                         </div>
                         
@@ -24,7 +24,7 @@
                             <div class="border border-success rounded-3 p-2 h-100" style="box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);">
                                 <span class="text-uppercase fw-semibold text-success d-block" style="font-size: 10px; letter-spacing: 0.05em;">Total Abonado</span>
                                 <span class="fs-5 fw-bold d-block mt-1 text-success" id="mTotalAbonado">$0.00</span>
-                                <span class="text-dark d-block" style="font-size: 12px;" id="mTotalAbonadoBs">0.00 bs</span>
+                                <span class="text-muted d-block" style="font-size: 10px;" id="mTotalAbonadoBs">0.00 bs</span>
                             </div>
                         </div>
                         
@@ -32,7 +32,7 @@
                             <div class="border border-warning rounded-3 p-2 h-100" id="cardRestante">
                                 <span class="text-uppercase fw-semibold text-warning d-block" style="font-size: 10px; letter-spacing: 0.05em;" id="lblRestante">Por Pagar</span>
                                 <span class="fs-5 fw-bold d-block mt-1 text-warning" id="mTotalRestante">$0.00</span>
-                                <span class="text-dark d-block" style="font-size: 12px;" id="mTotalRestanteBs">0.00 bs</span>
+                                <span class="text-muted d-block" style="font-size: 10px;" id="mTotalRestanteBs">0.00 bs</span>
                             </div>
                         </div>
                     </div>
@@ -51,7 +51,7 @@
 
                             <div class="col-md-6" id="inputReferenciaCol">
                                 <label class="form-label mb-1 fw-medium" style="font-size: 12px;">Nro. de Referencia</label>
-                                <input type="text" id="refPago" name="refPago" inputmode="numeric" pattern="[0-9]*" placeholder="Opcional / Nro de comprobante" class="form-control" style="border-color: #475569; font-size: 14px; padding: 10px 12px;">
+                                <input type="text" id="refPago" placeholder="Opcional / Nro de comprobante" class="form-control" style="border-color: #475569; font-size: 14px; padding: 10px 12px;">
                             </div>
                         </div>
 
@@ -69,7 +69,7 @@
                             <p id="conversionAyuda" class="small text-info mt-1 mb-0 d-none fst-italic"></p>
                         </div>
 
-                        <button type="button" id="btnAgregarPago" class="btn w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white" style="background-color: #4f46e5; border: none; transition: background-color 0.2s;">
+                        <button type="button" onclick="agregarPago()" class="btn w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white" style="background-color: #4f46e5; border: none; transition: background-color 0.2s;">
                             <i class="fa-solid fa-plus"></i> Registrar Pago
                         </button>
                     </div>

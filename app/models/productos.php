@@ -27,33 +27,7 @@ class productos extends Conexion
         parent::__construct();
     }
 
-    public function procesarSolicitud($accion, $datos = [])
-    {
-        switch ($accion) {
-            case 'existeNombre':
-                return $this->existeNombre($datos['nombre'] ?? null, $datos['id'] ?? null);
-            case 'registrar':
-                return $this->registrar();
-            case 'modificar':
-                return $this->modificar();
-            case 'eliminar':
-                return $this->eliminar();
-            case 'autoAsociarImagenes':
-                return $this->autoAsociarImagenes();
-            case 'actualizarImagen':
-                return $this->actualizarImagen($datos['id'], $datos['imagen']);
-            case 'obtenerImagen':
-                return $this->obtenerImagen($datos['id']);
-            case 'renombrarImagen':
-                return $this->renombrarImagen($datos['id'], $datos['nombre']);
-            case 'eliminarImagen':
-                return $this->eliminarImagen($datos['id']);
-            default:
-                return ["error" => "Acción no reconocida"];
-        }
-    }
-
-    private function existeNombre($nombre, $id = null)
+    public function existeNombre($nombre, $id = null)
     {
         $conex = new Conexion("sistema");
         $sql = "SELECT COUNT(*) FROM productos WHERE nombre_producto = :n";
@@ -69,7 +43,7 @@ class productos extends Conexion
         return $stmt->fetchColumn() > 0;
     }
 
-    private function registrar()
+    public function registrar()
     {
         try {
             $conex = new Conexion("sistema");
@@ -124,7 +98,7 @@ class productos extends Conexion
         }
     }
 
-    private function modificar()
+    public function modificar()
     {
         try {
             $conex = new Conexion("sistema");
@@ -195,7 +169,7 @@ class productos extends Conexion
         }
     }
 
-    private function eliminar()
+    public function eliminar()
     {
         $id = $this->getId_producto();
         try {
@@ -271,14 +245,10 @@ class productos extends Conexion
     public function getImagen_principal() { return $this->imagen_principal; }
     public function setImagen_principal($img) { $this->imagen_principal = $img; }
 
-    private function actualizarImagen($id, $imagen)
+    public function actualizarImagen($id, $imagen)
     {
         try {
             $conex = new Conexion("sistema");
-              $user = $_SESSION["username"];
-            $modulo = "Administrar Productos";
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("UPDATE productos SET imagen_principal = :img WHERE id_producto = :id");
             $stmt->execute([":img" => $imagen, ":id" => $id]);
             return true;
@@ -287,14 +257,10 @@ class productos extends Conexion
         }
     }
 
-    private function obtenerImagen($id)
+    public function obtenerImagen($id)
     {
         try {
             $conex = new Conexion("sistema");
-              $user = $_SESSION["username"];
-            $modulo = "Administrar Productos";
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT id_producto, nombre_producto, imagen_principal FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -303,14 +269,10 @@ class productos extends Conexion
         }
     }
 
-    private function renombrarImagen($id, $nuevoNombre)
+    public function renombrarImagen($id, $nuevoNombre)
     {
         try {
             $conex = new Conexion("sistema");
-              $user = $_SESSION["username"];
-            $modulo = "Administrar Productos";
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT imagen_principal, nombre_producto FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             $prod = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -354,14 +316,10 @@ class productos extends Conexion
         }
     }
 
-    private function eliminarImagen($id)
+    public function eliminarImagen($id)
     {
         try {
             $conex = new Conexion("sistema");
-              $user = $_SESSION["username"];
-            $modulo = "Administrar Productos";
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = '{$modulo}'");
             $stmt = $conex->prepare("SELECT imagen_principal FROM productos WHERE id_producto = :id");
             $stmt->execute([":id" => $id]);
             $prod = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -382,16 +340,12 @@ class productos extends Conexion
         }
     }
 
-    private function autoAsociarImagenes()
+    public function autoAsociarImagenes()
     {
         $directorio = __DIR__ . '/../../assets/img/productos/';
         $resultados = ['asociadas' => 0, 'renombradas' => 0, 'sin_match' => [], 'ya_tenian' => 0];
 
         $conex = new Conexion("sistema");
-          $user = $_SESSION["username"];
-            $modulo = "Administrar Productos";
-            $conex->exec("SET @usuario_actual = '{$user}'");
-            $conex->exec("SET @modulo = '{$modulo}'");
         $stmt = $conex->query("SELECT id_producto, nombre_producto, imagen_principal FROM productos ORDER BY id_producto");
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

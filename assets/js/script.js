@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
             burger.classList.toggle('toggle');
         });
 
-        // Cerrar el menú móvil al hacer clic en un enlace
         document.querySelectorAll('#nav-menu a').forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('nav-active');
@@ -33,9 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', reveal);
     reveal();
 
-    // ============================================
-    // ED-AI ASISTENTE VIRTUAL
-    // ============================================
     const modal = document.getElementById('welcome-modal');
     const modalBtn = document.getElementById('modal_ia');
     const chatWidget = document.querySelector('.chat-widget');

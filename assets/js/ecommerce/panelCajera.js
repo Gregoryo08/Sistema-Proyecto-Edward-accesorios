@@ -1,11 +1,4 @@
-// /src/assets/js/admin/panelCajera.js
-// =============================================
-// PANEL DE CAJERA - FUNCIONES UNIFICADAS
-// =============================================
 
-// =============================================
-// SECCIONES RETRÁCTILES
-// =============================================
 function toggleSection(sectionId) {
     let section = document.getElementById(sectionId);
     if (section) {
@@ -13,28 +6,157 @@ function toggleSection(sectionId) {
     }
 }
 
-// =============================================
-// ACTUALIZAR SECCIONES (AJAX) — pendientes / aprobados / despachos
-// =============================================
 function actualizarDashboard() {
     fetch('?pagina=getDashboardData')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                const pendientes = document.getElementById('pendientesCount');
+                const aprobados = document.getElementById('aprobadosCount');
+                const ruta = document.getElementById('rutaCount');
+                const total = document.getElementById('totalPedidosCount');
+                if (pendientes) pendientes.innerText = data.pendientes || 0;
+                if (aprobados) aprobados.innerText = data.aprobados || 0;
+                if (ruta) ruta.innerText = data.en_ruta || 0;
+                if (total) total.innerText = data.total_pedidos || 0;
+
                 const contPendientes = document.querySelector('#pendientesSection .card-body');
                 const contAprobados = document.querySelector('#aprobadosSection .card-body');
                 const contDespachos = document.querySelector('#despachosSection .card-body');
                 if (contPendientes) contPendientes.innerHTML = data.html_pendientes;
                 if (contAprobados) contAprobados.innerHTML = data.html_aprobados;
                 if (contDespachos) contDespachos.innerHTML = data.html_despachos;
+
+                cargarGraficoDespachosMensuales();
             }
         })
-        .catch(err => console.error('Error al actualizar panel:', err));
+        .catch(err => console.error('Error al actualizar dashboard:', err));
 }
 
-// =============================================
-// ACTUALIZACIÓN EN TIEMPO REAL
-// =============================================
+function cargarGraficos() {
+    fetch('?pagina=getDashboardData&tipo=ventas_diarias')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartVentasDiarias', {
+                    chart: { type: 'column' },
+                    title: { text: 'Ventas Aprobadas (Últimos 7 Días)', style: { fontSize: '12px' } },
+                    xAxis: { categories: data.categorias, title: { text: 'Fecha' } },
+                    yAxis: { title: { text: 'Monto ($)' }, min: 0 },
+                    series: [{ name: 'Ventas', data: data.valores, color: '#28a745' }],
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar ventas diarias:', err));
+
+    fetch('?pagina=getDashboardData&tipo=ventas_mensuales')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartVentasMensuales', {
+                    chart: { type: 'line' },
+                    title: { text: 'Ventas Acumuladas del Mes', style: { fontSize: '12px' } },
+                    xAxis: { categories: data.categorias, title: { text: 'Semana' } },
+                    yAxis: { title: { text: 'Monto ($)' }, min: 0 },
+                    series: [{ name: 'Acumulado', data: data.valores, color: '#007bff' }],
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar ventas mensuales:', err));
+
+    fetch('?pagina=getDashboardData&tipo=ventas_no_concretadas')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartVentasNoConcretadas', {
+                    chart: { type: 'pie' },
+                    title: { text: 'Ventas No Concretadas', style: { fontSize: '12px' } },
+                    series: [{ name: 'Motivo', data: data.datos }],
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar ventas no concretadas:', err));
+
+    fetch('?pagina=getDashboardData&tipo=metodos_pago')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartMetodosPago', {
+                    chart: { type: 'pie' },
+                    title: { text: 'Métodos de Pago', style: { fontSize: '14px' } },
+                    series: [{ name: 'Pedidos', data: data.datos }],
+                    plotOptions: { pie: { dataLabels: { enabled: true, format: '{point.name}: {point.y}' } } },
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar métodos de pago:', err));
+
+    fetch('?pagina=getDashboardData&tipo=top_clientes')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartTopClientes', {
+                    chart: { type: 'bar' },
+                    title: { text: 'Top 5 Mejores Clientes', style: { fontSize: '14px' } },
+                    xAxis: { categories: data.categorias, title: { text: 'Cliente' } },
+                    yAxis: { title: { text: 'Total Gastado ($)' }, min: 0 },
+                    series: [{ name: 'Compras', data: data.valores, color: '#ffc107' }],
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar top clientes:', err));
+
+    fetch('?pagina=getDashboardData&tipo=top_productos')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Highcharts.chart('chartTopProductos', {
+                    chart: { type: 'bar' },
+                    title: { text: 'Top 5 Productos Más Vendidos', style: { fontSize: '14px' } },
+                    xAxis: { categories: data.categorias, title: { text: 'Producto' } },
+                    yAxis: { title: { text: 'Cantidad Vendida' }, min: 0 },
+                    series: [{ name: 'Ventas', data: data.valores, color: '#28a745' }],
+                    credits: { enabled: false }
+                });
+            }
+        })
+        .catch(err => console.error('Error al cargar top productos:', err));
+
+    cargarGraficoDespachosMensuales();
+}
+
+let despachosChart = null;
+
+function cargarGraficoDespachosMensuales() {
+    fetch('?pagina=getDashboardData&tipo=despachos_mensuales')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                if (despachosChart) {
+                    despachosChart.update({
+                        xAxis: { categories: data.categorias },
+                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }]
+                    });
+                } else {
+                    despachosChart = Highcharts.chart('chartDespachosMensuales', {
+                        chart: { type: 'column' },
+                        title: { text: 'Despachos del Mes', style: { fontSize: '12px' } },
+                        xAxis: { categories: data.categorias, title: { text: 'Semana' } },
+                        yAxis: { title: { text: 'Cantidad' }, min: 0 },
+                        series: [{ name: 'Despachos', data: data.valores, color: '#17a2b8' }],
+                        credits: { enabled: false }
+                    });
+                }
+            }
+        })
+        .catch(err => console.error('Error al cargar despachos:', err));
+}
+
 let timeoutActualizacion = null;
 
 function programarActualizacion() {
@@ -60,15 +182,7 @@ function iniciarActualizacion() {
     programarActualizacion();
 }
 
-// =============================================
-// FUNCIONES DE APROBAR / RECHAZAR / DESPACHO
-// =============================================
 
-/**
- * Aprobar un pago desde el panel de cajera
- * @param {number} id_reporte - ID del reporte de pago
- * @param {number} id_pedido - ID del pedido asociado
- */
 function aprobarPago(id_reporte, id_pedido) {
     Swal.fire({ 
         title: '¿Aprobar este pago?', 
@@ -104,11 +218,6 @@ function aprobarPago(id_reporte, id_pedido) {
     });
 }
 
-/**
- * Rechazar un pago desde el panel de cajera
- * @param {number} id_reporte - ID del reporte de pago
- * @param {number} id_pedido - ID del pedido asociado
- */
 function rechazarPago(id_reporte, id_pedido) {
     Swal.fire({ 
         title: '¿Rechazar este pago?', 
@@ -147,15 +256,6 @@ function rechazarPago(id_reporte, id_pedido) {
     });
 }
 
-/**
- * Mostrar formulario para asignar despacho
- * @param {number} id_reporte - ID del reporte de pago
- * @param {number} id_pedido - ID del pedido
- * @param {string} cedula - Cédula del cliente
- * @param {string} nombre - Nombre del cliente
- * @param {string} telefono - Teléfono del cliente
- * @param {string} direccion - Dirección de entrega
- */
 function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefono, direccion) {
     Swal.fire({
         title: 'Asignar Despacho',
@@ -166,8 +266,7 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
                 <option value="tienda">📦 Retiro en Tienda</option>
                 <option value="delivery">🚚 Delivery</option>
             </select>
-            <div style="text-align:left; margin:4px 0 2px; font-size:.85em; color:#6c757d;">Tiempo estimado de entrega (minutos)</div>
-            <input type="number" id="tiempo_estimado" class="swal2-input" placeholder="60 a 120 minutos" min="60" max="120" step="5" value="60">
+            <input type="number" id="tiempo_estimado" class="swal2-input" placeholder="Tiempo estimado (min)" value="60">
         `,
         showCancelButton: true, 
         confirmButtonText: 'Asignar', 
@@ -176,21 +275,17 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
             let nom = document.getElementById('motorizado_nombre').value.trim();
             let tel = document.getElementById('motorizado_telefono').value.trim();
             let tipo = document.getElementById('tipo_despacho').value;
-            let tiempo = parseInt(document.getElementById('tiempo_estimado').value, 10);
+            let tiempo = document.getElementById('tiempo_estimado').value || 60;
             
             if (!nom || !tel) { 
                 Swal.showValidationMessage('Complete todos los datos del motorizado'); 
                 return false; 
             }
-            if (isNaN(tiempo) || tiempo < 60 || tiempo > 120) {
-                Swal.showValidationMessage('El tiempo debe estar entre 60 y 120 minutos');
-                return false;
-            }
             return { 
                 motorizado_nombre: nom, 
                 motorizado_telefono: tel, 
                 tipo_despacho: tipo, 
-                tiempo_estimado: tiempo 
+                tiempo_estimado: parseInt(tiempo) 
             };
         }
     }).then((result) => {
@@ -222,14 +317,9 @@ function mostrarFormularioDespacho(id_reporte, id_pedido, cedula, nombre, telefo
     });
 }
 
-/**
- * Actualizar estado de un despacho (en_ruta, entregado, cancelado)
- * @param {number} id_pedido - ID del pedido
- * @param {string} accion - Acción a realizar (en_ruta, entregado, cancelado)
- */
 function actualizarEstadoDespacho(id_pedido, accion) {
     let titulo = accion === 'en_ruta' ? 'Iniciar Ruta' : 
-                 (accion === 'entregado' ? 'Marcar Entregado' : 'Eliminar Despacho');
+                 (accion === 'entregado' ? 'Marcar Entregado' : 'Cancelar Despacho');
     let icono = accion === 'en_ruta' ? 'info' : 
                 (accion === 'entregado' ? 'success' : 'warning');
     
@@ -268,17 +358,7 @@ function actualizarEstadoDespacho(id_pedido, accion) {
     });
 }
 
-// =============================================
-// FUNCIONES DE BITÁCORA (llamadas desde el controlador)
-// =============================================
 
-/**
- * Registrar acción en bitácora (desde el frontend)
- * @param {string} tabla - Tabla afectada
- * @param {string} accion - Acción realizada
- * @param {string} modulo - Módulo del sistema
- * @param {number} id_modulo - ID del registro afectado
- */
 function registrarBitacora(tabla, accion, modulo, id_modulo) {
     fetch('?pagina=registrarBitacora', {
         method: 'POST',
@@ -299,15 +379,12 @@ function registrarBitacora(tabla, accion, modulo, id_modulo) {
     .catch(err => console.error('Error de conexión con bitácora:', err));
 }
 
-// =============================================
-// INICIALIZACIÓN
-// =============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Panel de Cajera inicializado');
     actualizarDashboard();
+    cargarGraficos();
     iniciarActualizacion();
 
-    // Sincronizar margen del contenido con el ancho del sidebar
     var navmenu = document.getElementById('navmenu');
     var mainContent = document.querySelector('.main-content');
     if (navmenu && mainContent) {

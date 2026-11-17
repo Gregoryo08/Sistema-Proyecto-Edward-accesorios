@@ -17,27 +17,9 @@ $(document).ready(function () {
         }
 
         cargarTablaClientes();
+        cargarTablaInactivos();
     });
-    
 
-
-
-  
-$.ajax({
-    type: "GET",
-    url: "?pagina=clientes&obtener_tasa=true",
-    success: function (response) {
-     
-        var res = typeof response === "object" ? response : JSON.parse(response);
-        
-        
-        if (res.success && res.tasa > 0) {
-            $("#tasa_bcv").val(res.tasa.toString().replace(',', '.'));
-        } else {
-            $("#tasa_bcv").val("0.00");
-        }
-    }
-});
     function cargarTablaClientes() {
         $("#clientestabla").DataTable({
             destroy: true,
@@ -57,43 +39,24 @@ $.ajax({
                 {
                     data: null,
                     render: function (data, type, row) {
-                        let esActivo = (row.estado === 'activo');
-                        return esActivo 
-                            ? '<span class="badge bg-success">Activo</span>' 
-                            : '<span class="badge bg-danger">Inactivo</span>';
-                    }
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
                         let btns = `<div class="btn-group" role="group">`;
 
                         if (permisos.control_total || permisos.consultar) {
-                            btns += `<button type="button" class="btn btn-info btn-verDatos m-2" data-id="${row.cedula_persona}"><i class="bi bi-eye-fill"></i></button>`;
+                            btns += `<button type="button" class="btn btn-info btn-verDatos" data-id="${row.cedula_persona}"><i class="bi bi-eye-fill"></i></button>`;
                         }
 
                         if (permisos.control_total || permisos.modificar) {
-                            btns += `<button type="button" class="btn btn-warning m-2" data-toggle="modal" data-target="#modalModificar" data-id="${row.cedula_persona}"><i class="fa-solid fa-pen-to-square"></i></button>`;
+                            btns += `<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalModificar" data-id="${row.cedula_persona}"><i class="fa-solid fa-pen-to-square"></i></button>`;
                         }
 
                         if (permisos.control_total || permisos.registrar) {
                             if (row.ingresos_mensuales === null || row.ingresos_mensuales === undefined) {
-                                btns += `<button type="button" class="btn btn-primary btn-agregarPerfil m-2" data-toggle="modal" data-target="#modalRegistroPerfilFinanciero" data-id="${row.cedula_persona}"><i class="bi bi-wallet2"></i></button>`;
+                                btns += `<button type="button" class="btn btn-primary btn-agregarPerfil" data-toggle="modal" data-target="#modalRegistroPerfilFinanciero" data-id="${row.cedula_persona}"><i class="bi bi-wallet2"></i></button>`;
                             }
                         }
 
                         if (permisos.control_total || permisos.eliminar) {
-                            let esActivo = (row.estado == 1 || row.estado === 'activo');
-                            
-                            if (esActivo) {
-                                btns += `<button type="button" class="btn btn-danger btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="inactivo">
-                                                <i class="bi bi-person-fill-slash" style="font-size: 1.25rem;" title="Inhabilitar Cliente"></i>
-                                            </button>`;
-                            } else {
-                                btns += `<button type="button" class="btn btn-success btn-cambiar-estado m-2" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}" data-accion="activo">
-                                                <i class="bi bi-person-check p-0" style="font-size: 1.25rem;" title="Habilitar Cliente"></i>
-                                            </button>`;
-                            }
+                            btns += `<button type="button" class="btn btn-danger btn-eliminar" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}"><i class="fa-solid fa-trash-can"></i></button>`;
                         }
 
                         btns += `</div>`;
@@ -103,12 +66,7 @@ $.ajax({
             ],
             pageLength: 4,
             lengthMenu: [[4, 8, 12, 16], ["4", "8", "12", "16"]],
-            columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ],
+            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
             language: {
                 processing: "Procesando...",
                 search: "Buscar:",
@@ -133,6 +91,58 @@ $.ajax({
         });
     }
 
+    function cargarTablaInactivos() {
+        $("#tablaInactivos").DataTable({
+            destroy: true,
+            ajax: {
+                url: "?pagina=clientes&ajax=true&x=inactivos",
+                dataSrc: "",
+            },
+            columns: [
+                { data: "cedula_persona" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `${row.nombre} ${row.apellido}`;
+                    },
+                },
+                { data: "sexo" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        if (permisos.control_total || permisos.eliminar || permisos.modificar) {
+                            return `<button type="button" class="btn btn-danger btn-activar" data-id="${row.cedula_persona}" data-nombre="${row.nombre} ${row.apellido}"><i class="bi bi-x"></i></button>`;
+                        }
+                        return '<i class="bi bi-lock-fill"></i>';
+                    },
+                },
+            ],
+            pageLength: 4,
+            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
+            language: {
+                processing: "Procesando...",
+                search: "Buscar Inactivos:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No hay clientes inactivos",
+                emptyTable: "Ningún dato disponible en esta tabla",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                }
+            }
+        });
+    }
+});
+
+
+
+$(document).ready(function () {
   $("#modalRegistroCliente").on("show.bs.modal", function () {
     $.ajax({
       type: "GET",
@@ -147,20 +157,17 @@ $.ajax({
     });
   });
 
-
-
-$(document).on("input", "#ingreso_bs_perfil", function () {
-    var bs = parseFloat($(this).val().toString().replace(',', '.')) || 0;
-    var tasa = parseFloat($("#tasa_bcv_perfil").val()) || 1;
-    
-  
-    var usd = tasa > 0 ? (bs / tasa).toFixed(2) : "0.00";
-
-    $("#calc_usd_perfil").text(usd);
+  $(document).on("input", "#ingreso_bs, #tasa_bcv", function () {
+    var bsVal = $("#ingreso_bs").val().toString().replace(',', '.');
+    var tasaVal = $("#tasa_bcv").val().toString().replace(',', '.');
+    var bs = parseFloat(bsVal) || 0;
+    var tasa = parseFloat(tasaVal) || 1;
+    var usd = (bs / tasa).toFixed(2);
+    $("#calc_usd").text(usd);
     $("#ingresos_mensuales").val(usd); 
-});
+  });
 
-  $("#guardarCliente").off("click.validacionCliente").on("click.validacionCliente", function () {
+  $("#guardarCliente").on("click", function () {
     if (validarDatos()) {
       alertas(
         "pregunta",
@@ -181,7 +188,7 @@ function registrar() {
     var direccion = $("#direccion").val();
     var correo = $("#correo").val();
     var sexo = $("#sexo").val();
-    var fecha = $("#fecha_nacimiento").val();
+    var fecha = $("#fecha").val();
     var ingresos_mensuales = $("#ingresos_mensuales").val();
     var tipo_residencia = $("#tipo_residencia").val();
     var profesion = $("#profesion").val();
@@ -248,7 +255,7 @@ function registrar() {
                         $("#clientestabla").DataTable().ajax.reload();
 
                     } else if (res.error) {
-                      mostrarAlertaDuplicado(res.error);
+                        alertas("error", res.error, "¡Ups!");
                     } else if (res.incompleto) {
                         alertas("errorC", "¡Hay datos incompletos!", "Lo Siento!");
                         resaltarErrores(res.input, "incompleto");
@@ -295,62 +302,18 @@ function registrar() {
     limpiarEstilos();
   });
 
-  function validarFechaNacimientoCliente(fechaStr) {
-    const hoy = new Date();
-    const fechaNac = new Date(fechaStr + 'T00:00:00');
-
-    if (!fechaStr || isNaN(fechaNac.getTime())) {
-      return false;
-    }
-
-    let edad = hoy.getFullYear() - fechaNac.getFullYear();
-    const mes = hoy.getMonth() - fechaNac.getMonth();
-
-    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-      edad--;
-    }
-
-    return fechaNac <= hoy && edad >= 18;
-  }
-
   function validarDatos() {
-    const nombre = ($("#nombre").val() || "").trim();
-    const apellido = ($("#apellido").val() || "").trim();
-    const cedula = ($("#cedula").val() || "").trim();
-    const prefijo = ($("#prefijo").val() || "").trim();
-    const correo = ($("#correo").val() || "").trim();
-    const telefono = ($("#telefono").val() || "").trim();
-    const direccion = ($("#direccion").val() || "").trim();
-    const fecha = ($("#fecha_nacimiento").val() || "").trim();
-    const sexo = ($("#sexo").val() || "").trim();
-    const tipoResidencia = ($("#tipo_residencia").val() || "").trim();
-    const estadoCivil = ($("#estado_civil").val() || "").trim();
-    const profesion = ($("#profesion").val() || "").trim();
-    const cargaFamiliar = ($("#carga_familiar").val() || "").trim();
-    const ocupacion = ($("#ocupacion").val() || "").trim();
-    const ingresoBs = ($("#ingreso_bs").val() || "").trim();
-    const operadora = ($("#operadora").val() || "").trim();
-
-    if (!/^[VE]-$/.test(prefijo) || !/^[0-9]{7,8}$/.test(cedula)) return false;
-    if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
-    if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
-    if (!fecha || !validarFechaNacimientoCliente(fecha)) return false;
-    if (!sexo) return false;
-    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
-    if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
-    if (!telefono || !/^[0-9]{6,7}$/.test(telefono)) return false;
-    if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
-    if (!tipoResidencia || !estadoCivil || !profesion) return false;
-    if (cargaFamiliar === "" || isNaN(cargaFamiliar) || Number(cargaFamiliar) < 0 || Number(cargaFamiliar) > 20) return false;
-    if (!ocupacion || ocupacion.length < 5 || ocupacion.length > 60 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test(ocupacion)) return false;
-    if (!ingresoBs || !/^[0-9]+([.,][0-9]+)?$/.test(ingresoBs) || Number(ingresoBs.replace(",",".")) <= 0) return false;
-
-    return true;
+    var valid = true;
+    $("#formRegistroCliente [required]").each(function() {
+        if ($(this).val() === "" || $(this).val() === null) {
+            valid = false;
+        }
+    });
+    return valid;
   }
 
 
 
-  //--------------------------------------------------------------------------------------------
 
   const calcularEdad = (fechaN) => {
     var edad = 0;
@@ -450,56 +413,6 @@ $("#btn_salir_ver, .btn-close").click(function () {
     $("#modalVerDatos").modal("hide");
 });
 
-$(document).on("click", ".btn-cambiar-estado", function () {
-        var id = $(this).data("id");
-        var nombre = $(this).data("nombre");
-        var nuevaAccion = $(this).data("accion");
-
-        let textoMensaje = (nuevaAccion === 'inactivo') 
-            ? "¿Estás seguro de inhabilitar al cliente '" + nombre + "'?" 
-            : "¿Estás seguro de habilitar al cliente '" + nombre + "'?";
-
-        alertas("eliminar", textoMensaje, "Espera un momento!", estado, {id: id, nuevaAccion: nuevaAccion});
-    });
-
-    function estado(datos) {
-        let timerInterval;
-        Swal.fire({
-            title: "Procesando!",
-            timer: 1500,
-            color: "white",
-            background: "#000910",
-            timerProgressBar: true,
-            didOpen: () => { Swal.showLoading(); },
-            willClose: () => { clearInterval(timerInterval); },
-        }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-                $.ajax({
-                    type: "POST",
-                    url: "",
-                    data: {
-                        id: datos.id,
-                        estado: datos.nuevaAccion,
-                        accion: "eliminar"
-                    },
-                    success: function (response) {
-                        var res = JSON.parse(response);
-
-                        if (res.success) {
-                            $("#clientestabla").DataTable().ajax.reload();
-                            alertas("success");
-                        } else if (res.error) {
-                          mostrarAlertaDuplicado(res.error);
-                        }
-                    },
-                    error: function () {
-                        mensaje("error");
-                    },
-                });
-            }
-        });
-    }
-
 
  $(document).on("click", ".btn-warning", function () {
     var id = $(this).data("id");
@@ -565,7 +478,7 @@ $(document).on("click", ".btn-cambiar-estado", function () {
     });
   });
 
-  $("#modificarDatos").off("click.validacionModCliente").on("click.validacionModCliente", function () {
+  $("#modificarDatos").on("click", function () {
     if (validarDatosModificar()) {
       alertas(
         "pregunta",
@@ -574,7 +487,7 @@ $(document).on("click", ".btn-cambiar-estado", function () {
         modificar
       );
     } else {
-      alertas("errorC", "Debes completar todos los campos y cumplir con el formato solicitado.", "Lo Siento!");
+      alertas("errorC", "Debes completar todos los campos.", "Lo Siento!");
     }
   });
 
@@ -587,21 +500,14 @@ $(document).on("click", ".btn-agregarPerfil", function () {
     $("#cedulaPerfil").val(id);
     $("#cedulaPerfilVisual").val(id);
 
-    $("#ingreso_bs_perfil").val("");
-    $("#calc_usd_perfil").text("0.00");
-    $("#ingresos_mensuales").val("");
-
     $.ajax({
         type: "GET",
         url: "",
         data: { obtener_tasa: true },
-        dataType: "json",
-        success: function (res) {
-            if (res && res.tasa) {
+        success: function (response) {
+            var res = JSON.parse(response);
+            if (res.tasa) {
                 $("#tasa_bcv_perfil").val(res.tasa.toString().replace(',', '.'));
-                if (typeof calcularDolaresPerfil === "function") {
-                    calcularDolaresPerfil();
-                }
             }
         }
     });
@@ -618,23 +524,17 @@ $(document).on("input", "#ingreso_bs_perfil", function () {
     $("#ingresos_mensuales").val(usd);
 });
 
-$("#guardarPerfilFinanciero").off("click.validacionPerfil").on("click.validacionPerfil", function () {
+$("#guardarPerfilFinanciero").on("click", function () {
     var cedula = $("#cedulaPerfil").val();
+   
     var ingresosUsd = $("#calc_usd_perfil").text();
 
-    if (!cedula || !/^[VE]-\d{7,8}$/.test(cedula)) {
-        alertas("error", "Debe asociar una cédula válida antes de guardar el perfil financiero.", "¡Error!");
+    if (!cedula) {
+        alertas("error", "La cédula no está definida", "¡Error!");
         return;
     }
 
-    if (!$("#tipo_residenciaPerfil").val() || !$("#estado_civilPerfil").val() || !$("#profesionPerfil").val() ||
-        !$("#carga_familiarPerfil").val() || !$("#ocupacionPerfil").val() || !$("#ingreso_bs_perfil").val() ||
-        Number($("#ingreso_bs_perfil").val()) <= 0 || !/^[0-9]+([.,][0-9]+)?$/.test($("#ingreso_bs_perfil").val().trim()) ||
-        !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test($("#ocupacionPerfil").val().trim())) {
-        alertas("warning", "Debes completar todos los campos y respetar el formato indicado.", "¡Lo Siento!");
-        return;
-    }
-
+    
     var formData = $("#formRegistroPerfil").serializeArray();
     formData.push({ name: "ingresos_mensuales", value: ingresosUsd });
     formData.push({ name: "accion", value: "registrarPerfil" });
@@ -811,57 +711,108 @@ function modificar() {
         }
     });
 }
-  //--------------------------------------------------------------------------------------------
+  $(document).ready(function () {
+    
+   
+    $("#btn_verInactivos").click(function () {
+        $("#container_clientes").addClass("active");
+    });
+
+    $("#btn_salir").on("click", function () {
+        $("#container_clientes").removeClass("active");
+    });
+
+   
+
+    
+    $(document).on("click", ".btn-eliminar", function () {
+        var id = $(this).data("id");
+        var nombre = $(this).data("nombre");
+        
+        alertas(
+            "eliminar",
+            "¿Estás seguro de inactivar al cliente '" + nombre + "'?",
+            "¡Atención!",
+            function() { cambiarEstado(id, "inactivo"); }
+        );
+    });
+
+    $(document).on("click", ".btn-activar", function () {
+        var id = $(this).data("id");
+        var nombre = $(this).data("nombre");
+        
+        alertas(
+            "pregunta",
+            "¿Desea activar nuevamente al cliente '" + nombre + "'?",
+            "Restaurar Cliente",
+            function() { cambiarEstado(id, "activo"); }
+        );
+    });
+
+    function cambiarEstado(id, nuevoEstado) {
+        $.ajax({
+            type: "POST",
+            url: "", 
+            data: {
+                id: id,
+                estado: nuevoEstado,
+                accion: "eliminar" 
+            },
+            success: function (response) {
+                try {
+                    var res = JSON.parse(response);
+                    if (res.success) {
+                        alertas("success");
+                        
+                        $("#clientestabla").DataTable().ajax.reload();
+                        $("#tablaInactivos").DataTable().ajax.reload();
+                    } else {
+                        alertas("error", res.error, "Error");
+                    }
+                } catch (e) {
+                    console.error("Error parseando respuesta:", e);
+                }
+            }
+        });
+    }
+});
   function validarDatosModificar() {
-    const nombre = ($("#nombreModificar").val() || "").trim();
-    const apellido = ($("#apellidoModificar").val() || "").trim();
-    const cedula = ($("#cedulaModificar").val() || "").trim();
-    const correo = ($("#correoModificar").val() || "").trim();
-    const telefono = ($("#telefonoModificar").val() || "").trim();
-    const direccion = ($("#direccionModificar").val() || "").trim();
-    const sexo = ($("#sexoModificar").val() || "").trim();
-    const tipoResidencia = ($("#tipo_residenciaModificar").val() || "").trim();
-    const estadoCivil = ($("#estado_civilModificar").val() || "").trim();
-    const profesion = ($("#profesionModificar").val() || "").trim();
-    const cargaFamiliar = ($("#carga_familiarModificar").val() || "").trim();
-    const ocupacion = ($("#ocupacionModificar").val() || "").trim();
-    const ingresosMensuales = ($("#ingresosModificar").val() || "").trim();
-    const operadora = ($("#operadoraModificar").val() || "").trim();
+    var nombre = $("#nombreModificar").val();
+    var apellido = $("#apellidoModificar").val();
+    var cedula = $("#cedulaModificar").val();
+    var correo = $("#correoModificar").val();
+    var telefono = $("#telefonoModificar").val();
+    var direccion = $("#direccionModificar").val();
+    var sexo = $("#sexoModificar").val();
+    var tipo_residencia = $("#tipo_residenciaModificar").val();
+    var estado_civil = $("#estado_civilModificar").val();
+    var profesion = $("#profesionModificar").val();
+    var carga_familiar = $("#carga_familiarModificar").val();
+    var ocupacion = $("#ocupacionModificar").val();
+    var ingresos_mensuales = $("#ingresosModificar").val();
 
-    if (!cedula || !/^[VE]-?[0-9]{7,8}$/.test(cedula.replace(/\s+/g, ''))) return false;
-    if (!nombre || nombre.length < 2 || nombre.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) return false;
-    if (!apellido || apellido.length < 2 || apellido.length > 35 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) return false;
-    if (!correo || correo.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return false;
-    if (!operadora || !/^[0-9]{3,4}$/.test(operadora)) return false;
-    if (!telefono || !/^[0-9]{6,7}$/.test(telefono)) return false;
-    if (!direccion || direccion.length < 5 || direccion.length > 50) return false;
-    if (!sexo) return false;
-    if (!tipoResidencia || !estadoCivil || !profesion) return false;
-    if (cargaFamiliar === "" || isNaN(cargaFamiliar) || Number(cargaFamiliar) < 0 || Number(cargaFamiliar) > 20) return false;
-    if (!ocupacion || ocupacion.length < 5 || ocupacion.length > 60 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,/-]+$/.test(ocupacion)) return false;
-    if (!ingresosMensuales || !/^[0-9]+([.,][0-9]+)?$/.test(ingresosMensuales) || Number(ingresosMensuales.replace(",",".")) <= 0) return false;
-
+    if (
+        nombre === "" || 
+        apellido === "" || 
+        cedula === "" || 
+        correo === "" || 
+        telefono === "" || 
+        direccion === "" || 
+        sexo === "" || 
+        tipo_residencia === "" || 
+        estado_civil === "" || 
+        profesion === "" || 
+        carga_familiar === "" || 
+        ocupacion === "" || 
+        ingresos_mensuales === ""
+    ) {
+        return false;
+    }
     return true;
 }
 
    
   
-
-  //--------------------------------------------------------------------------------------------
-  function mostrarAlertaDuplicado(texto) {
-    if (/cédula ya está registrada/i.test(texto)) {
-      Swal.fire({
-        title: "Ups!",
-        text: texto,
-        icon: "error",
-        color: "#545454",
-        background: "#ffffff",
-        confirmButtonColor: "#7066e0"
-      });
-      return;
-    }
-    alertas("error", texto, "¡Ups!");
-  }
 
   function alertas(accion, texto, titulo, funcion, dato) {
     if (accion == "errorC") {
@@ -871,7 +822,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
       });
     } else if (accion == "error") {
@@ -881,7 +832,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
       });
     } else if (accion == "warning") {
@@ -891,7 +842,7 @@ function modificar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
       });
     } else if (accion == "pregunta") {
@@ -901,8 +852,8 @@ function modificar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
-        confirmButtonBorder: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonBorder: "rgb(238, 191, 0)",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -919,8 +870,8 @@ function modificar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
-        confirmButtonBorder: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonBorder: "rgb(238, 191, 0)",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -937,7 +888,7 @@ function modificar() {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
         timer: 1500,
       });

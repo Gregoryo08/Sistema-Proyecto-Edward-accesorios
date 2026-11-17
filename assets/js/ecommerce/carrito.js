@@ -1,11 +1,4 @@
-// /src/assets/js/ecommerce/carrito.js
-// =============================================
-// CARRITO DE COMPRAS - FUNCIONES COMPLETAS
-// =============================================
 
-/**
- * Obtener carrito desde localStorage
- */
 function obtenerCarrito() {
     try {
         return JSON.parse(localStorage.getItem('carrito') || '[]');
@@ -14,16 +7,30 @@ function obtenerCarrito() {
     }
 }
 
-/**
- * Guardar carrito en localStorage
- */
+
+$.ajax({
+    url: '?pagina=verificarSesion',
+    type: 'GET',
+    dataType: 'json',
+    success: function(response) {
+        if (response.logueado || response.logged || response.success) {
+           
+            $('#btn-login').hide();
+            
+           
+            $('#dropdownUser').show();
+            $('#nombre-usuario').text(response.nombre || response.usuario || 'Usuario');
+        } else {
+            $('#btn-login').show();
+            $('#dropdownUser').hide();
+        }
+    }
+});
+
 function guardarCarrito(carrito) {
     localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-/**
- * Actualizar contador del carrito en el header
- */
 function actualizarContadorCarrito() {
     var carrito = obtenerCarrito();
     var total = carrito.reduce(function(sum, item) {
@@ -35,9 +42,6 @@ function actualizarContadorCarrito() {
     });
 }
 
-/**
- * Función para mostrar modal de decisión
- */
 function mostrarModalDecision() {
     var modalElement = document.getElementById('modalDecision');
     if (modalElement) {
@@ -47,13 +51,10 @@ function mostrarModalDecision() {
         });
         modal.show();
     } else {
-        window.location.href = '?pagina=loginEcommerce&destino=checkout';
+        window.location.href = '?pagina=login_principal&destino=checkout';
     }
 }
 
-/**
- * Renderizar el carrito en la página
- */
 function renderizarCarrito() {
     var carrito = obtenerCarrito();
     var contenedor = document.getElementById('carrito-contenido');
@@ -63,13 +64,11 @@ function renderizarCarrito() {
         return;
     }
 
-    // ✅ PRIMERO: Verificar sesión para saber si mostrar "Mis Pedidos"
     fetch('?pagina=verificarSesion')
         .then(response => response.json())
         .then(data => {
             var logueado = data.logueado || false;
             
-            // ✅ CARRITO VACÍO
             if (carrito.length === 0) {
                 contenedor.innerHTML = `
                     <div class="alert alert-info text-center py-5">
@@ -81,12 +80,10 @@ function renderizarCarrito() {
                     </div>
                 `;
                 
-                // ✅ AGREGAR BOTONES (INCLUYENDO "MIS PEDIDOS" SI ESTÁ LOGUEADO)
                 agregarBotonesCarrito(contenedor, logueado, true);
                 return;
             }
 
-            // ✅ CARRITO CON PRODUCTOS
             var html = `
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
@@ -148,14 +145,11 @@ function renderizarCarrito() {
 
             contenedor.innerHTML = html;
             
-            // ✅ AGREGAR BOTONES (CON "MIS PEDIDOS" SI ESTÁ LOGUEADO)
             agregarBotonesCarrito(contenedor, logueado, false);
             
-            // ✅ Asignar eventos (solo si hay productos)
             asignarEventosCarrito();
         })
         .catch(function() {
-            // ❌ Si falla la verificación, NO mostrar "Mis Pedidos"
             if (carrito.length === 0) {
                 contenedor.innerHTML = `
                     <div class="alert alert-info text-center py-5">
@@ -171,14 +165,7 @@ function renderizarCarrito() {
         });
 }
 
-/**
- * Agregar botones del carrito con verificación de sesión
- * @param {HTMLElement} contenedor - Contenedor donde agregar los botones
- * @param {boolean} logueado - Si el usuario está logueado
- * @param {boolean} vacio - Si el carrito está vacío
- */
 function agregarBotonesCarrito(contenedor, logueado, vacio) {
-    // ✅ BOTÓN "MIS PEDIDOS" (SOLO SI ESTÁ LOGUEADO)
     var misPedidosBtn = '';
     if (logueado) {
         misPedidosBtn = `
@@ -188,7 +175,6 @@ function agregarBotonesCarrito(contenedor, logueado, vacio) {
         `;
     }
     
-    // ✅ BOTÓN "PROCEDER AL PAGO" (DESHABILITADO SI CARRITO VACÍO)
     var btnPagar = '';
     if (vacio) {
         btnPagar = `
@@ -218,7 +204,6 @@ function agregarBotonesCarrito(contenedor, logueado, vacio) {
     
     contenedor.insertAdjacentHTML('beforeend', botonesHTML);
     
-    // ✅ Si hay productos, asignar evento al botón "Proceder al pago"
     if (!vacio) {
         document.getElementById('btn-pagar')?.addEventListener('click', function() {
             var carrito = obtenerCarrito();
@@ -249,11 +234,7 @@ function agregarBotonesCarrito(contenedor, logueado, vacio) {
     }
 }
 
-/**
- * Asignar eventos del carrito (solo si hay productos)
- */
 function asignarEventosCarrito() {
-    // ✅ Eliminar producto
     document.querySelectorAll('.eliminar-item').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var index = parseInt(this.dataset.index);
@@ -287,7 +268,6 @@ function asignarEventosCarrito() {
         });
     });
 
-    // ✅ Cambiar cantidad
     document.querySelectorAll('.cantidad-input').forEach(function(input) {
         input.addEventListener('change', function() {
             var index = parseInt(this.dataset.index);
@@ -312,7 +292,6 @@ function asignarEventosCarrito() {
         });
     });
 
-    // ✅ Vaciar carrito
     document.getElementById('vaciar-carrito')?.addEventListener('click', function() {
         Swal.fire({
             title: '¿Vaciar carrito?',
@@ -339,9 +318,6 @@ function asignarEventosCarrito() {
     });
 }
 
-// =============================================
-// INICIALIZACIÓN
-// =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🛒 Carrito.js cargado correctamente');

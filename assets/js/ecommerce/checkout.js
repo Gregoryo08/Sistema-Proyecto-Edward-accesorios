@@ -2,34 +2,7 @@ $(function() {
 
     let tipoEntrega = 'retiro';
     let costoEnvio = 0;
-    const COSTO_ENVIO = 10;
-    const ENVIO_GRATIS_DESDE = 100;
 
-    // Mismo criterio que CarritoModel::calcularTotal (envío gratis desde $100)
-    function calcularSubtotal(carrito) {
-        return carrito.reduce(function(sum, item) {
-            return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
-        }, 0);
-    }
-
-    function calcularCostoEnvio(subtotal) {
-        if (tipoEntrega !== 'delivery') return 0;
-        return subtotal >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
-    }
-
-    function actualizarBotonEnvio() {
-        var boton = $('#btn-delivery');
-        if (!boton.length) return;
-        var texto = '🚚 Delivery ($' + COSTO_ENVIO.toFixed(2) + ')';
-        if (tipoEntrega === 'delivery') {
-            texto = costoEnvio > 0 ? '🚚 Delivery ($' + costoEnvio.toFixed(2) + ')' : '🚚 Delivery (Gratis)';
-        }
-        boton.text(texto);
-    }
-
-    // =============================================
-    // VALIDACIONES
-    // =============================================
     function validarFormularioCheckout() {
         let nombre = $('#nombre').val().trim();
         let email = $('#email').val().trim();
@@ -50,9 +23,6 @@ $(function() {
         return true;
     }
 
-    // =============================================
-    // MOSTRAR RESUMEN DEL CARRITO
-    // =============================================
     function mostrarResumen() {
         let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
 
@@ -62,12 +32,11 @@ $(function() {
             return;
         }
 
-        let subtotalProductos = calcularSubtotal(carrito);
-        costoEnvio = calcularCostoEnvio(subtotalProductos);
-
         let html = '<strong>Resumen del pedido:</strong><ul>';
+        let subtotalProductos = 0;
         carrito.forEach(function(item) {
             let subtotal = parseFloat(item.precio) * parseInt(item.cantidad);
+            subtotalProductos += subtotal;
             html += '<li>' + item.nombre + ' x ' + item.cantidad + ' - $' + subtotal.toFixed(2) + '</li>';
         });
         html += '</ul>';
@@ -76,24 +45,18 @@ $(function() {
         html += '<p class="fw-bold">Total: $' + (subtotalProductos + costoEnvio).toFixed(2) + '</p>';
 
         $('#resumen-carrito').html(html);
-        actualizarTotal();
+        $('#total-final').text('$' + (subtotalProductos + costoEnvio).toFixed(2));
     }
 
-    // =============================================
-    // ACTUALIZAR TOTAL (al cambiar delivery/retiro)
-    // =============================================
     function actualizarTotal() {
         let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-        let subtotal = calcularSubtotal(carrito);
-        costoEnvio = calcularCostoEnvio(subtotal);
+        let subtotal = carrito.reduce(function(sum, item) {
+            return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
+        }, 0);
         let total = subtotal + costoEnvio;
         $('#total-final').text('$' + total.toFixed(2));
-        actualizarBotonEnvio();
     }
 
-    // =============================================
-    // ENVIAR PEDIDO (AJAX)
-    // =============================================
     function enviarPedido() {
         let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
 
@@ -123,15 +86,14 @@ $(function() {
             }
         }
 
-        let subtotal = calcularSubtotal(carrito);
-        costoEnvio = calcularCostoEnvio(subtotal);
-
         const pedido = {
             cliente: { cedula: cedula, nombre: nombre, email: email, telefono: telefono },
             entrega: tipoEntrega,
             direccion: direccion,
             costo_envio: costoEnvio,
-            total: subtotal + costoEnvio,
+            total: carrito.reduce(function(sum, item) {
+                return sum + (parseFloat(item.precio) || 0) * (parseInt(item.cantidad) || 1);
+            }, 0) + costoEnvio,
             carrito: carrito,
             metodo_pago: metodoPago
         };
@@ -144,7 +106,7 @@ $(function() {
         });
 
         $.ajax({
-            url: '?pagina=guardarPedido',
+            url: '?pagina=guardarpedido',
             type: 'POST',
             contentType: 'application/json',
             dataType: 'json',
@@ -159,7 +121,7 @@ $(function() {
                         timer: 2000,
                         showConfirmButton: false
                     }).then(function() {
-                        window.location.href = '?pagina=datosPago&pedido=' + res.id_pedido + '&metodo=' + metodoPago;
+                        window.location.href = '?pagina=datospago&pedido=' + res.id_pedido + '&metodo=' + metodoPago;
                     });
                 } else {
                     mostrarError(res.error || 'No se pudo guardar el pedido');
@@ -171,9 +133,6 @@ $(function() {
         });
     }
 
-    // =============================================
-    // EVENTOS
-    // =============================================
     $('#btn-retiro').on('click', function() {
         tipoEntrega = 'retiro';
         costoEnvio = 0;
@@ -183,6 +142,7 @@ $(function() {
 
     $('#btn-delivery').on('click', function() {
         tipoEntrega = 'delivery';
+        costoEnvio = 10;
         $('#delivery-form').show();
         actualizarTotal();
     });
@@ -192,8 +152,5 @@ $(function() {
         enviarPedido();
     });
 
-    // =============================================
-    // INICIALIZACIÓN
-    // =============================================
     mostrarResumen();
 });

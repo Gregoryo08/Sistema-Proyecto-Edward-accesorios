@@ -3,13 +3,14 @@
 
 <main class="main m-4" id="main">
     <section id="hero" class="hero section" style="height: auto;">
-        <div class="w-75 mx-auto">
-            <h2 class="text-center" style="font-weight: bold; font-size: 35px;">Administrar Modulos del Sistema</h2>
 
-            <div class="text-end mb-3">
+        <div>
+            <h2 class="text-center">Administrar Modulos del Sistema</h2>
+
+            <div class="text-right">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal"
                     data-bs-target="#modalRegistroModulo">
-                    <i class="bi bi-plus-circle"></i> Registrar Modulo
+                    Registrar Modulo
                 </button>
             </div>
 
@@ -36,7 +37,7 @@
 
 <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
         class="bi bi-arrow-up-short"></i></a>
-<?php require_once('assets/comunes/footer.php'); ?>
+
 
 
 <script src="assets/js/validaciones/modulo/modulo.js"></script>

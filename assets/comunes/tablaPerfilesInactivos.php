@@ -34,16 +34,16 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 9999;
-    overflow-y: auto; /* Permite scroll si la tabla es muy larga */
-    padding: 20px 0; /* Espaciado arriba y abajo */
+    overflow-y: auto;
+    padding: 20px 0;
 }
 
 .container_cont {
     max-width: 90%;
-    margin: 20px auto; /* Centrado con margen */
+    margin: 20px auto;
     background: white;
     padding: 20px;
     border-radius: 10px;
-    position: relative; /* Por si necesitas posicionar algo dentro */
+    position: relative;
 }
 </style>

@@ -1,8 +1,3 @@
-// ============================================
-// MODAL CARRITO DE COMPRAS
-// Lee el carrito desde localStorage ('carrito')
-// y lo muestra en un modal en lugar de navegar.
-// ============================================
 
 function obtenerCarritoStorage() {
     return JSON.parse(localStorage.getItem('carrito') || '[]');
@@ -38,9 +33,6 @@ function calcularTotalCarrito(carrito) {
     return carrito.reduce((sum, item) => sum + (parseFloat(item.precio) * (item.cantidad || 0)), 0);
 }
 
-// ============================================
-// RENDERIZADO DEL MODAL
-// ============================================
 function renderizarCarritoModal() {
     const contenedor = document.getElementById('cartItemsContainer');
     const totalEl = document.getElementById('cartTotalPrice');
@@ -81,9 +73,6 @@ function renderizarCarritoModal() {
     if (totalEl) totalEl.textContent = formatearPrecio(calcularTotalCarrito(carrito));
 }
 
-// ============================================
-// ACCIONES SOBRE LOS PRODUCTOS
-// ============================================
 function procesarAccionCarrito(accion, index) {
     let carrito = obtenerCarritoStorage();
     if (!carrito[index]) return;
@@ -127,9 +116,6 @@ function vaciarCarrito() {
     });
 }
 
-// ============================================
-// ABRIR / CERRAR MODAL
-// ============================================
 function abrirCarritoCompras(e) {
     if (e) e.preventDefault();
     renderizarCarritoModal();
@@ -142,25 +128,19 @@ function cerrarCarritoCompras() {
     if (overlay) overlay.classList.remove('active');
 }
 
-// ============================================
-// INICIALIZACIÓN
-// ============================================
 document.addEventListener('DOMContentLoaded', function () {
     actualizarContadorCarritoModal();
 
-    // Icono del carrito del menú → abre el modal (NO navega)
     const verCarrito = document.getElementById('verCarrito');
     if (verCarrito) {
         verCarrito.addEventListener('click', abrirCarritoCompras);
     }
 
-    // Cerrar con la X
     const closeCartBtn = document.getElementById('closeCartBtn');
     if (closeCartBtn) {
         closeCartBtn.addEventListener('click', cerrarCarritoCompras);
     }
 
-    // Cerrar al hacer clic fuera del modal
     const overlay = document.getElementById('cartModalOverlay');
     if (overlay) {
         overlay.addEventListener('click', function (e) {
@@ -168,12 +148,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Cerrar con tecla ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') cerrarCarritoCompras();
     });
 
-    // Botones de cantidad / eliminar (delegación de eventos)
     const contenedor = document.getElementById('cartItemsContainer');
     if (contenedor) {
         contenedor.addEventListener('click', function (e) {
@@ -183,13 +161,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Vaciar carrito
     const btnClearCart = document.getElementById('btnClearCart');
     if (btnClearCart) {
         btnClearCart.addEventListener('click', vaciarCarrito);
     }
 
-    // Procesar compra: no permitir si está vacío
     const btnCheckout = document.getElementById('btnCheckout');
     if (btnCheckout) {
         btnCheckout.addEventListener('click', function (e) {

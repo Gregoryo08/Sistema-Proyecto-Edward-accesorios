@@ -1,6 +1,7 @@
 <?php
 namespace App\Sistema\models;
 
+use App\Sistema\config\Acceso;
 use App\Sistema\config\Conexion;
 use PDO;
 use PDOException;
@@ -84,10 +85,43 @@ class ClienteEcommerce {
         $this->conn = Conexion::getShared('sistema')->getConexion();
     }
 
+    public function captchaHabilitado() {
+        return defined('RECAPTCHA_HABILITADO') && RECAPTCHA_HABILITADO === true;
+    }
+
+    public function verificarCaptcha($token) {
+        if (!$this->captchaHabilitado()) {
+            return true;
+        }
+
+        $token = trim((string) $token);
+
+        if ($token === '') {
+            return false;
+        }
+
+        if (!defined('RECAPTCHA_VERIFY_URL')) {
+            define('RECAPTCHA_VERIFY_URL', 'https://www.google.com/recaptcha/api/siteverify');
+        }
+
+        $respuesta = @file_get_contents(
+            RECAPTCHA_VERIFY_URL . '?' . http_build_query([
+                'secret' => RECAPTCHA_SECRET_KEY,
+                'response' => $token,
+                'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+            ])
+        );
+
+        $datos = json_decode((string) $respuesta, true);
+
+        return isset($datos['success']) && $datos['success'] === true;
+    }
+
     public function ejecutar($accion, $datos = []) {
         switch ($accion) {
             case 'registrar': return $this->_registrar($datos);
             case 'login': return $this->_login($datos['cedula'], $datos['password']);
+            case 'verificarCedula': return $this->_verificarCedula($datos['cedula']);
             case 'estaLogueado': return $this->_estaLogueado();
             case 'obtenerPorCorreo': return $this->_obtenerPorCorreo($datos['email']);
             case 'obtenerPorCedula': return $this->_obtenerPorCedula($datos['cedula']);
@@ -98,7 +132,7 @@ class ClienteEcommerce {
     }
 
     private function _estaLogueado() {
-        return isset($_SESSION['es_ecommerce']) && $_SESSION['es_ecommerce'] === true 
+        return isset($_SESSION['es_ecommerce']) && $_SESSION['es_ecommerce'] === true
                && !empty($_SESSION['cliente_cedula']);
     }
 
@@ -116,9 +150,112 @@ class ClienteEcommerce {
 
     private function _verificarCredenciales($cedula) {
         $connUser = Conexion::getShared('usuario')->getConexion();
-        $stmt = $connUser->prepare("SELECT clave, estatus FROM usuarios WHERE cedula_usuario = ?");
+        $stmt = $connUser->prepare("SELECT clave, estatus, id_rol FROM usuarios WHERE cedula_usuario = ?");
         $stmt->execute([$cedula]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    private function _iniciarSesionTienda($cedula, $nombre, $correo, $telefono, $rol) {
+        $rol = (int) $rol;
+
+        Acceso::registrarIngresoTienda($cedula, $nombre, $correo, $telefono, $rol);
+
+        if ($rol !== Acceso::ROL_CLIENTE) {
+            $_SESSION['username'] = $cedula;
+            $_SESSION['nombre_completo'] = $nombre;
+        }
+
+        return [
+            'cedula'   => $cedula,
+            'nombre'   => $nombre,
+            'correo'   => $correo,
+            'telefono' => $telefono,
+            'rol'      => $rol
+        ];
+    }
+
+    private function _rolDeUsuario($cedula) {
+        $connUser = Conexion::getShared('usuario')->getConexion();
+        $stmt = $connUser->prepare("SELECT id_rol FROM usuarios WHERE cedula_usuario = ?");
+        $stmt->execute([$cedula]);
+        $fila = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $fila ? (int) $fila['id_rol'] : 6;
+    }
+
+    private function _claveConfirmacion() {
+        $semilla = __DIR__ . '|' . (defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : 'edward');
+
+        return hash_hmac('sha256', 'confirmacion-registro', $semilla);
+    }
+
+    private function _emitirTokenConfirmacion($cedula, $persona) {
+        $huella = hash_hmac(
+            'sha256',
+            $cedula . '|' . ($persona['correo'] ?? '') . '|' . ($persona['telefono'] ?? ''),
+            $this->_claveConfirmacion()
+        );
+
+        return $huella;
+    }
+
+    private function _validarConfirmacion($cedula, $token, $persona) {
+        if (!is_string($token) || $token === '') {
+            return false;
+        }
+
+        return hash_equals($this->_emitirTokenConfirmacion($cedula, $persona), $token);
+    }
+
+    private function _verificarCedula($cedula) {
+        try {
+            $connUser = Conexion::getShared('usuario')->getConexion();
+
+            $stmt = $connUser->prepare("SELECT cedula_usuario, estatus FROM usuarios WHERE cedula_usuario = ?");
+            $stmt->execute([$cedula]);
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($usuario) {
+                return [
+                    'success'     => false,
+                    'estado'      => 'tiene_usuario',
+                    'estatus'     => $usuario['estatus'],
+                    'needsReset'  => true,
+                    'message'     => 'Esta cédula ya tiene una cuenta en el sistema. Inicia sesión o recupera tu contraseña.'
+                ];
+            }
+
+            $stmtPersona = $this->conn->prepare("SELECT cedula_persona, nombre, apellido, correo, telefono, direccion FROM persona WHERE cedula_persona = ?");
+            $stmtPersona->execute([$cedula]);
+            $persona = $stmtPersona->fetch(PDO::FETCH_ASSOC);
+
+            if ($persona) {
+                $stmtEstado = $this->conn->prepare("SELECT estado FROM clientes WHERE cedula_persona = ?");
+                $stmtEstado->execute([$cedula]);
+                $filaCliente = $stmtEstado->fetch(PDO::FETCH_ASSOC);
+
+                $esCliente = (bool) $filaCliente;
+
+                return [
+                    'success' => true,
+                    'estado'  => $esCliente ? 'cliente_existente' : 'persona_existente',
+                    'requiereConfirmacion' => true,
+                    'tokenConfirmacion' => $this->_emitirTokenConfirmacion($cedula, $persona),
+                    'message' => $esCliente
+                        ? 'Esta cédula ya está registrada como cliente. Confirma que tus datos son correctos para crear tu acceso.'
+                        : 'Encontramos datos con esta cédula. Confirma que la información es correcta para continuar.',
+                    'datos'   => $persona
+                ];
+            }
+
+            return [
+                'success' => true,
+                'estado'  => 'nueva',
+                'requiereConfirmacion' => false,
+                'message' => 'Cédula disponible. Completa el formulario para registrarte.'
+            ];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Error al verificar la cédula.'];
+        }
     }
 
     private function _registrar($datos) {
@@ -128,26 +265,37 @@ class ClienteEcommerce {
             $connUser = Conexion::getShared('usuario')->getConexion();
 
             if ($clienteExistente) {
-                // La persona ya existe en clientes (pudo haber comprado en ventas/financiamiento)
-                // 1. Verificar si ya posee usuario en el sistema
+
+                if (!$this->_validarConfirmacion($cedula, $datos['token_confirmacion'] ?? '', $clienteExistente)) {
+                    return [
+                        'success' => false,
+                        'estado'  => 'requiere_confirmacion',
+                        'requiereConfirmacion' => true,
+                        'message' => 'Debes revisar y confirmar los datos ya registrados con esta cédula antes de continuar.',
+                        'datos'   => $clienteExistente
+                    ];
+                }
+
                 $stmtU = $connUser->prepare("SELECT cedula_usuario FROM usuarios WHERE cedula_usuario = ?");
                 $stmtU->execute([$cedula]);
                 if ($stmtU->fetch(PDO::FETCH_ASSOC)) {
-                    return ['success' => false, 'message' => 'Esta cédula ya está registrada como usuario. Inicia sesión.'];
+                    return ['success' => false, 'message' => 'Esta cédula ya está registrada como usuario. Inicia sesión o recupera tu contraseña.', 'needsReset' => true];
                 }
 
-                // 2. Validar que el correo no pertenezca a otra persona distinta
                 $stmtCorreo = $this->conn->prepare("SELECT cedula_persona FROM persona WHERE correo = ? AND cedula_persona <> ?");
                 $stmtCorreo->execute([$datos['correo'], $cedula]);
                 if ($stmtCorreo->fetch(PDO::FETCH_ASSOC)) {
                     return ['success' => false, 'message' => 'El correo ya está registrado a otra persona'];
                 }
 
-                // 3. Actualizar datos de contacto del cliente existente (opcional/útil)
-                $stmtUpd = $this->conn->prepare("UPDATE persona SET correo = ?, telefono = ? WHERE cedula_persona = ?");
-                $stmtUpd->execute([$datos['correo'], $datos['telefono'], $cedula]);
+                $stmtUpd = $this->conn->prepare("UPDATE persona SET correo = ?, telefono = ?, direccion = ? WHERE cedula_persona = ?");
+                $stmtUpd->execute([
+                    $datos['correo'],
+                    $datos['telefono'],
+                    $datos['direccion'] ?? '',
+                    $cedula
+                ]);
 
-                // 4. Solo crear el usuario (rol Cliente = 6)
                 $password_hash = password_hash($datos['password'], PASSWORD_DEFAULT);
                 $connUser->beginTransaction();
                 $stmt = $connUser->prepare("INSERT INTO usuarios (cedula_usuario, clave, estatus, id_rol) VALUES (?, ?, 'Activo', 6)");
@@ -156,15 +304,16 @@ class ClienteEcommerce {
 
                 $nombre = $clienteExistente['nombre'];
                 $apellido = $clienteExistente['apellido'] ?? '';
-                $_SESSION['es_ecommerce'] = true;
-                $_SESSION['cliente_cedula'] = $cedula;
-                $_SESSION['cliente_nombre'] = $nombre . ' ' . $apellido;
-                $_SESSION['cliente_correo'] = $clienteExistente['correo'];
-                $_SESSION['cliente_telefono'] = $clienteExistente['telefono'];
+                $this->_iniciarSesionTienda(
+                    $cedula,
+                    $nombre . ' ' . $apellido,
+                    $clienteExistente['correo'],
+                    $clienteExistente['telefono'],
+                    6
+                );
                 return ['success' => true, 'message' => 'Registro exitoso', 'existente' => true];
             }
 
-            // La persona NO existe → flujo normal: persona + clientes + usuario
             $stmtCorreo = $this->conn->prepare("SELECT cedula_persona FROM persona WHERE correo = ?");
             $stmtCorreo->execute([$datos['correo']]);
             if ($stmtCorreo->fetch(PDO::FETCH_ASSOC)) {
@@ -182,11 +331,13 @@ class ClienteEcommerce {
             $stmt->execute([$cedula, $password_hash]);
             $this->conn->commit();
             $connUser->commit();
-            $_SESSION['es_ecommerce'] = true;
-            $_SESSION['cliente_cedula'] = $cedula;
-            $_SESSION['cliente_nombre'] = $datos['nombre'] . ' ' . ($datos['apellido'] ?? '');
-            $_SESSION['cliente_correo'] = $datos['correo'];
-            $_SESSION['cliente_telefono'] = $datos['telefono'];
+            $this->_iniciarSesionTienda(
+                $cedula,
+                $datos['nombre'] . ' ' . ($datos['apellido'] ?? ''),
+                $datos['correo'],
+                $datos['telefono'],
+                6
+            );
             return ['success' => true, 'message' => 'Registro exitoso'];
         } catch (PDOException $e) {
             if (isset($this->conn) && $this->conn->inTransaction()) $this->conn->rollBack();
@@ -223,13 +374,39 @@ class ClienteEcommerce {
             if ($usuarioData['estatus'] !== 'Activo') {
                 return ['success' => false, 'message' => 'Cuenta inactiva, contacte al administrador'];
             }
-            $_SESSION['es_ecommerce'] = true;
-            $_SESSION['cliente_cedula'] = $usuarioData['cedula_usuario'];
+            if ((int) $usuarioData['id_rol'] !== Acceso::ROL_CLIENTE
+                && Acceso::dominioActual() === Acceso::DOMINIO_TIENDA) {
+                return ['success' => false, 'message' => 'Esta cuenta es del personal del sistema. Inicia sesión en el portal de intranet.'];
+            }
             $cliente = $this->_obtenerPorCedula($usuarioData['cedula_usuario']);
-            $_SESSION['cliente_nombre'] = $cliente ? ($cliente['nombre'] . ' ' . ($cliente['apellido'] ?? '')) : 'Usuario';
-            $_SESSION['cliente_correo'] = $cliente['correo'] ?? '';
-            $_SESSION['cliente_telefono'] = $cliente['telefono'] ?? '';
-            return ['success' => true, 'message' => 'Login exitoso', 'cliente' => ['cedula' => $usuarioData['cedula_usuario'], 'nombre' => $_SESSION['cliente_nombre'], 'correo' => $_SESSION['cliente_correo'], 'telefono' => $_SESSION['cliente_telefono']]];
+            $nombreSesion = $cliente ? ($cliente['nombre'] . ' ' . ($cliente['apellido'] ?? '')) : 'Usuario';
+            $sesion = $this->_iniciarSesionTienda(
+                $usuarioData['cedula_usuario'],
+                $nombreSesion,
+                $cliente['correo'] ?? '',
+                $cliente['telefono'] ?? '',
+                $usuarioData['id_rol']
+            );
+            return ['success' => true, 'message' => 'Login exitoso', 'cliente' => $sesion];
+        }
+
+        foreach ($candidatos as $c) {
+            $personaExistente = $this->_obtenerPorCedula($c);
+            if ($personaExistente) {
+
+                if ($this->_verificarCredenciales($c)) {
+                    return [
+                        'success'   => false,
+                        'message'   => 'Credenciales incorrectas. Si las olvidaste, usa la opción "¿Olvidaste tu contraseña?".',
+                    ];
+                }
+                return [
+                    'success'      => false,
+                    'needsRegister' => true,
+                    'message'      => 'Esta cédula tiene datos registrados pero aún no tiene cuenta en la tienda.',
+                    'cliente'      => $personaExistente
+                ];
+            }
         }
 
         $cliente = $this->_obtenerPorCorreo($cedula);
@@ -240,12 +417,14 @@ class ClienteEcommerce {
             return ['success' => false, 'message' => 'Credenciales incorrectas o cuenta inactiva'];
         }
 
-        $_SESSION['es_ecommerce'] = true;
-        $_SESSION['cliente_cedula'] = $cliente['cedula_persona'];
-        $_SESSION['cliente_nombre'] = $cliente['nombre'] . ' ' . ($cliente['apellido'] ?? '');
-        $_SESSION['cliente_correo'] = $cliente['correo'];
-        $_SESSION['cliente_telefono'] = $cliente['telefono'];
-        return ['success' => true, 'message' => 'Login exitoso', 'cliente' => ['cedula' => $cliente['cedula_persona'], 'nombre' => $_SESSION['cliente_nombre'], 'correo' => $_SESSION['cliente_correo'], 'telefono' => $_SESSION['cliente_telefono']]];
+        $sesion = $this->_iniciarSesionTienda(
+            $cliente['cedula_persona'],
+            $cliente['nombre'] . ' ' . ($cliente['apellido'] ?? ''),
+            $cliente['correo'],
+            $cliente['telefono'],
+            $this->_rolDeUsuario($cliente['cedula_persona'])
+        );
+        return ['success' => true, 'message' => 'Login exitoso', 'cliente' => $sesion];
     }
 
     private function _logout() {

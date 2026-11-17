@@ -1,4 +1,3 @@
-/* --- PRELOADER: PREMIUM DARK --- */
 
 #preloader-sistema {
     position: fixed;
@@ -6,7 +5,6 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    /* Usamos tu color principal para el fondo */
     background-color: #000910 !important; 
     display: flex;
     flex-direction: column;
@@ -19,7 +17,6 @@
     width: 60px;
     height: 60px;
     border: 6px solid rgba(255, 255, 255, 0.05);
-    /* El borde superior usa tu tono Cian para un look tecnológico */
     border-top: 6px solid #0ef; 
     border-radius: 50%;
     animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;

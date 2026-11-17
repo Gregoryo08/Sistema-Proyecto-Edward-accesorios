@@ -33,7 +33,6 @@
 
 $(document).on("click", "#btn_verInactivos", function() {
     $("#container_empleados").fadeIn();
-    // Solo inicializar la tabla cuando el contenedor ya es visible
         cargarTablaInactivos();  
 });
 
@@ -50,14 +49,14 @@ $(document).on("click", "#container_empleados", function(e) {
 </script>
 <style>
     #container_empleados {
-    display: none; /* Inicia oculto */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999; /* Asegúrate de que sea muy alto */
+    z-index: 9999;
     padding: 50px 20px;
     overflow-y: auto;
 }

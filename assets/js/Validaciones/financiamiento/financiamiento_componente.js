@@ -17,12 +17,7 @@ const IAEvaluador = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cedula: cedula })
         })
-        .then(res => {
-            if (!res.ok && res.headers.get("content-type")?.indexOf("application/json") === -1) {
-                throw new Error("Error en el servidor");
-            }
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
             $("#ia_cargando").hide();
             if (data.error) {
@@ -76,8 +71,8 @@ const IAEvaluador = {
     }
 };
 
-$(document).on("change blur", "#cedula_persona", function() {
-    let cedula = $(this).val().trim();
+$(document).on("change", "#cedula_persona", function() {
+    let cedula = $(this).val();
     if (cedula) {
         IAEvaluador.consultar(cedula);
     }

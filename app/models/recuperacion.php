@@ -9,6 +9,8 @@ use \DateTime;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+require_once __DIR__ . '/../config/mail.php';
+
 class recuperacion 
 {
     private $email;
@@ -33,54 +35,56 @@ class recuperacion
     public function getMensaje() { return $this->mensaje; }
     public function setMensaje($mensaje) { $this->mensaje = $mensaje; }
 
-   public function generarTokenRecuperacion()
-{
-    $email = $this->getEmail();
+    public function generarTokenRecuperacion()
+    {
+        $email = $this->getEmail();
 
-    if (empty($email)) {
-        return ["incompleto" => "El correo electrónico es requerido."];
-    }
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return ["invalido" => "Formato de correo electrónico inválido."];
-    }
-
-    try {
-        $conexSistema = new Conexion("sistema");
-        
-        $stmt = $conexSistema->prepare("SELECT cedula_persona FROM persona WHERE correo = :correo");
-        $stmt->execute([":correo" => $email]);
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        
-        if (!$resultado) {
-            return ["not_found" => "El correo electrónico no se encuentra registrado en el sistema."]; 
+        if (empty($email)) {
+            return ["incompleto" => "El correo electrónico es requerido."];
         }
 
-        $cedula = $resultado['cedula_persona'];
-        $token = bin2hex(random_bytes(32));
-        $expira_en = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-        $conexUsuario = new Conexion("usuario");
-        $stmt_update = $conexUsuario->prepare("UPDATE usuarios SET reset_token = :token, reset_token_expires_at = :expira WHERE cedula_usuario = :cedula");
-        $stmt_update->execute([
-            ":token" => $token,
-            ":expira" => $expira_en,
-            ":cedula" => $cedula
-        ]);
-
-        if (!$this->enviarCorreoRecuperacion($email, $token)) {
-            return ["error" => "Error al enviar el correo de recuperación."];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ["invalido" => "Formato de correo electrónico inválido."];
         }
 
-        return ["success" => "Se ha enviado un enlace de recuperación a tu correo electrónico."];
+        try {
+            $conexSistema = new Conexion("sistema");
+            
+            $stmt = $conexSistema->prepare("SELECT cedula_persona FROM persona WHERE correo = :correo");
+            $stmt->execute([":correo" => $email]);
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    } catch (PDOException $e) {
-        return ["error" => "Error de conexión con la base de datos."];
-    } catch (Exception $e) {
-        return ["error" => "Error interno del servidor."];
+            if (!$resultado) {
+                return ["success" => "Si el correo electrónico existe, se ha enviado un enlace de recuperación."]; 
+            }
+
+            $cedula = $resultado['cedula_persona'];
+            $token = bin2hex(random_bytes(32));
+            $expira_en = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+            $conexUsuario = new Conexion("usuario");
+            $stmt_update = $conexUsuario->prepare("UPDATE usuarios SET reset_token = :token, reset_token_expires_at = :expira WHERE cedula_usuario = :cedula");
+            $stmt_update->execute([
+                ":token" => $token,
+                ":expira" => $expira_en,
+                ":cedula" => $cedula
+            ]);
+
+            if (!$this->enviarCorreoRecuperacion($email, $token)) {
+                if (!MAIL_CONFIGURADO) {
+                    return ["error" => "El correo de recuperacion no esta configurado en el servidor. Contacta al administrador."];
+                }
+                return ["error" => "Error al enviar el correo."];
+            }
+
+            return ["success" => "Si el correo existe, se ha enviado un enlace de recuperación."];
+
+        } catch (PDOException $e) {
+            return ["error" => "Error de conexión con la base de datos."];
+        } catch (Exception $e) {
+            return ["error" => "Error interno."];
+        }
     }
-}
 
     public function validarTokenYRestablecerClave()
     {
@@ -152,17 +156,22 @@ class recuperacion
 
     private function enviarCorreoRecuperacion($email, $token)
     {
+        if (!MAIL_CONFIGURADO) {
+            error_log('recuperacion: MAIL_PASSWORD no esta definida en el entorno ni en app/config/mail-local.php');
+            return false;
+        }
+
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = MAIL_HOST;
             $mail->SMTPAuth = true;
-            $mail->Username = 'soportehotelelmeson@gmail.com';
-            $mail->Password = 'bcxy zubw eamp foet';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port = 465;
+            $mail->Username = MAIL_USERNAME;
+            $mail->Password = MAIL_PASSWORD;
+            $mail->SMTPSecure = (MAIL_SECURIDAD === 'tls') ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = MAIL_PORT;
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom('soportehotelelmeson@gmail.com', 'Sistema Edward Accesorios');
+            $mail->setFrom(MAIL_USERNAME, MAIL_FROM_NAME);
             $mail->addAddress($email);
             $mail->isHTML(true);
             $mail->Subject = 'Recuperación de Contraseña';
@@ -170,7 +179,7 @@ class recuperacion
             $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
             $host = $_SERVER['HTTP_HOST'];
             $uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\'); 
-            $resetLink = $protocol . "://" . $host . $uri . "/index.php?pagina=iniciarSesion&token=" . urlencode($token);
+            $resetLink = $protocol . "://" . $host . $uri . "/index.php?pagina=login_principal&token=" . urlencode($token);
 
             $mail->Body = "
                 <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;'>
@@ -190,6 +199,7 @@ class recuperacion
 
             return $mail->send();
         } catch (Exception $e) {
+            error_log('recuperacion: fallo PHPMailer -> ' . $e->getMessage());
             return false;
         }
     }

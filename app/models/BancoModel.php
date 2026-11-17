@@ -190,4 +190,57 @@ class BancoModel {
 
         return trim($nombre);
     }
+
+    public function obtenerReceptor($metodo) {
+        $metodo = ($metodo === 'pago_movil') ? 'pago_movil' : 'transferencia';
+
+        $stmt = $this->conn->prepare(
+            "SELECT c.metodo,
+                    c.id_banco,
+                    b.nombre_banco,
+                    c.numero_cuenta,
+                    c.tipo_cuenta,
+                    c.titular,
+                    c.cedula_rif,
+                    c.telefono,
+                    c.cedula_pago_movil,
+                    c.estado
+             FROM configuracion_pago c
+             LEFT JOIN bancos b ON b.id_banco = c.id_banco
+             WHERE c.metodo = ? AND c.estado = 'activo'
+             LIMIT 1"
+        );
+        $stmt->execute([$metodo]);
+        $fila = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $fila ?: null;
+    }
+
+    public function obtenerNombreReceptor($metodo) {
+        $fila = $this->obtenerReceptor($metodo);
+        return $fila ? $fila['nombre_banco'] : null;
+    }
+
+    public function obtenerDatosPagoReceptor($metodo) {
+        $fila = $this->obtenerReceptor($metodo);
+        if (!$fila) {
+            return [];
+        }
+        if ($metodo === 'pago_movil') {
+            return [
+                'banco'         => $fila['nombre_banco'],
+                'telefono'      => $fila['telefono'],
+                'cedula'        => $fila['cedula_pago_movil'],
+                'rif'           => $fila['cedula_rif'],
+                'titular'       => $fila['titular'],
+            ];
+        }
+        return [
+            'nombre'        => $fila['nombre_banco'],
+            'numero_cuenta' => $fila['numero_cuenta'],
+            'tipo_cuenta'   => $fila['tipo_cuenta'],
+            'titular'       => $fila['titular'],
+            'cedula_rif'    => $fila['cedula_rif'],
+        ];
+    }
 }

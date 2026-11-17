@@ -24,25 +24,22 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Nacimiento</label>
-                            <input type="date" class="form-control bg-light border-light-subtle" id="fecha_nacimiento" required>
+                            <input type="date" class="form-control bg-light border-light-subtle" id="fecha" required>
                             <p id="texto_mensaje_fecha_nacimiento" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
                             <input type="text" class="form-control bg-light border-light-subtle" id="nombre" placeholder="Nombre completo" required>
-                            <p id="texto_mensaje_nombre" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Apellido</label>
                             <input type="text" class="form-control bg-light border-light-subtle" id="apellido" placeholder="Apellido completo" required>
-                            <p id="texto_mensaje_apellido" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-8">
                             <label class="form-label small fw-bold text-muted text-uppercase">Correo Electrónico</label>
                             <input type="email" class="form-control bg-light border-light-subtle" id="correo" placeholder="ejemplo@correo.com" required>
-                            <p id="texto_mensaje_correo" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-muted text-uppercase">Sexo</label>
@@ -51,7 +48,6 @@
                                 <option value="Masculino">Masculino</option>
                                 <option value="Femenino">Femenino</option>
                             </select>
-                            <p id="texto_mensaje_sexo" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-12">
@@ -63,11 +59,9 @@
                                     <option value="0426">0426</option>
                                     <option value="0414">0414</option>
                                     <option value="0424">0424</option>
-                                    <option value="0422">0422</option>
                                 </select>
-                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" maxlength="7" required>
+                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefono" placeholder="1234567" required>
                             </div>
-                            <p id="texto_mensaje_telefono" class="text-danger small mt-1"></p>
                         </div>
 
                         <hr class="my-2 opacity-25">
@@ -79,18 +73,16 @@
                                 <option value="Familiar">Familiar</option>
                                 <option value="Alquilada">Alquilada</option>
                             </select>
-                            <p id="texto_mensaje_tipo_residencia" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Estado Civil</label>
                             <select id="estado_civil" class="form-select bg-light border-light-subtle">
-                                <option value="Soltero">Soltero/a</option>
-                                <option value="Casado">Casado/a</option>
-                                <option value="Divorciado">Divorciado/a</option>
-                                <option value="Viudo">Viudo/a</option>
+                                <option value="Soltero">Soltero</option>
+                                <option value="Casado">Casado</option>
+                                <option value="Divorciado">Divorciado</option>
+                                <option value="Viudo">Viudo</option>
                                 <option value="En relación">En relación</option>
                             </select>
-                            <p id="texto_mensaje_estado_civil" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Categoría</label>
@@ -102,23 +94,20 @@
                                 <option value="Pensionado">Pensionado</option>
                                 <option value="Desempleado">Desempleado</option>
                             </select>
-                            <p id="texto_mensaje_profesion" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Cargas</label>
                             <input type="number" id="carga_familiar" class="form-control bg-light border-light-subtle" value="0" min="0">
-                            <p id="texto_mensaje_carga_familiar" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Ocupación Específica</label>
                             <input type="text" id="ocupacion" class="form-control bg-light border-light-subtle" placeholder="Ej: Vendedor de repuestos / Cajera">
-                            <p id="texto_mensaje_ocupacion" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-muted text-uppercase">Tasa BCV</label>
-                            <input type="text" id="tasa_bcv" class="form-control bg-light border-light-subtle"  readonly>
+                            <input type="text" id="tasa_bcv" class="form-control bg-light border-light-subtle" value="60.00">
                         </div>
                         <div class="col-md-8">
                             <label class="form-label small fw-bold text-info text-uppercase">Ingreso Mensual (Bolívares)</label>
@@ -129,13 +118,11 @@
                                 </span>
                             </div>
                             <input type="hidden" id="ingresos_mensuales" value="0">
-                            <p id="texto_mensaje_ingresos" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Dirección Exacta</label>
                             <textarea id="direccion" class="form-control bg-light border-light-subtle" rows="2" required></textarea>
-                            <p id="texto_mensaje_direccion" class="text-danger small mt-1"></p>
                         </div>
                     </div>
                 </form>
@@ -147,6 +134,8 @@
         </div>
     </div>
 </div>
+
+
 
 <div class="modal fade" id="modalModificar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -166,17 +155,14 @@
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
                             <input type="text" class="form-control bg-light border-light-subtle" id="nombreModificar" name="nombre" required>
-                            <p id="texto_mensaje_nombre_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Apellido</label>
                             <input type="text" class="form-control bg-light border-light-subtle" id="apellidoModificar" name="apellido" required>
-                            <p id="texto_mensaje_apellido_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-8">
                             <label class="form-label small fw-bold text-muted text-uppercase">Correo Electrónico</label>
                             <input type="email" class="form-control bg-light border-light-subtle" id="correoModificar" name="correo" required>
-                            <p id="texto_mensaje_correo_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-muted text-uppercase">Sexo</label>
@@ -185,24 +171,23 @@
                                 <option value="Masculino">Masculino</option>
                                 <option value="Femenino">Femenino</option>
                             </select>
-                            <p id="texto_mensaje_sexo_modificar" class="text-danger small mt-1"></p>
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label small fw-bold text-muted text-uppercase">Teléfono</label>
-                            <div class="input-group">
-                                <select name="operadora" class="form-select bg-light border-light-subtle" id="operadoraModificar" style="max-width: 90px;">
-                                    <option value="0412">0412</option>
-                                    <option value="0416">0416</option>
-                                    <option value="0426">0426</option>
-                                    <option value="0414">0414</option>
-                                    <option value="0424">0424</option>
-                                </select>
-                                <input type="tel" class="form-control bg-light border-light-subtle" id="telefonoModificar" name="telefono" placeholder="4563478" required>
-                            </div>
-                            <p id="texto_mensaje_telefono_modificar" class="text-danger small mt-1"></p>
-                        </div>
+    <label class="form-label small fw-bold text-muted text-uppercase">Teléfono</label>
+    <div class="input-group">
+        <select name="operadora" class="form-select bg-light border-light-subtle" id="operadoraModificar" style="max-width: 90px;">
+            <option value="0412">0412</option>
+            <option value="0416">0416</option>
+            <option value="0426">0426</option>
+            <option value="0414">0414</option>
+            <option value="0424">0424</option>
+        </select>
+        <input type="tel" class="form-control bg-light border-light-subtle" id="telefonoModificar" name="telefono" placeholder="4563478" required>
+    </div>
+</div>
 
+                       
                         <hr class="my-2 opacity-25">
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Tipo Residencia</label>
@@ -211,18 +196,16 @@
                                 <option value="Familiar">Familiar</option>
                                 <option value="Alquilada">Alquilada</option>
                             </select>
-                            <p id="texto_mensaje_tipo_residencia_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Estado Civil</label>
                             <select id="estado_civilModificar" name="estado_civil" class="form-select bg-light border-light-subtle">
-                                <option value="Soltero">Soltero/a</option>
-                                <option value="Casado">Casado/a</option>
-                                <option value="Divorciado">Divorciado/a</option>
-                                <option value="Viudo">Viudo/a</option>
+                                <option value="Soltero">Soltero</option>
+                                <option value="Casado">Casado</option>
+                                <option value="Divorciado">Divorciado</option>
+                                <option value="Viudo">Viudo</option>
                                 <option value="En relación">En relación</option>
                             </select>
-                            <p id="texto_mensaje_estado_civil_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Categoría Laboral</label>
@@ -234,27 +217,22 @@
                                 <option value="Pensionado">Pensionado</option>
                                 <option value="Desempleado">Desempleado</option>
                             </select>
-                            <p id="texto_mensaje_cargo_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Carga Familiar</label>
                             <input type="number" id="carga_familiarModificar" name="carga_familiar" class="form-control bg-light border-light-subtle" min="0">
-                            <p id="texto_mensaje_carga_familiar_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Ocupación Específica</label>
                             <input type="text" id="ocupacionModificar" name="ocupacion" class="form-control bg-light border-light-subtle">
-                            <p id="texto_mensaje_ocupacion_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Ingresos ($)</label>
                             <input type="number" step="0.01" class="form-control bg-light border-light-subtle" id="ingresosModificar" name="ingresos_mensuales" required>
-                            <p id="texto_mensaje_ingresos_modificar" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Dirección Exacta</label>
                             <textarea name="direccion" id="direccionModificar" class="form-control bg-light border-light-subtle" rows="2" required></textarea>
-                            <p id="texto_mensaje_direccion_modificar" class="text-danger small mt-1"></p>
                         </div>
                     </div>
                 </form>
@@ -267,10 +245,11 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="modalVerDatos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-5">
-            <div class="modal-header text-white border-0 p-4 rounded-top-5">
+            <div class="modal-header  text-white border-0 p-4 rounded-top-5">
                 <h5 class="modal-title fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Ficha del Cliente</h5>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button>
             </div>
@@ -338,6 +317,20 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="modal fade" id="modalRegistroPerfilFinanciero" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-5">
@@ -355,50 +348,42 @@
                             <label class="form-label small fw-bold text-muted text-uppercase">Cédula del Cliente</label>
                             <input type="text" id="cedulaPerfilVisual" class="form-control bg-light border-light-subtle fw-bold" readonly>
                             <input type="hidden" id="cedulaPerfil" name="cedula">
-                            <p id="texto_mensaje_cedula_perfil" class="text-danger small mt-1"></p>
                         </div>
                         <input type="hidden" id="tasa_bcv_perfil" value="1">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Tipo Residencia</label>
-                            <select id="tipo_residenciaPerfil" name="tipo_residencia" class="form-select bg-light border-light-subtle">
+                            <select name="tipo_residencia" class="form-select bg-light border-light-subtle">
                                 <option value="Propia">Propia</option>
                                 <option value="Familiar">Familiar</option>
                                 <option value="Alquilada">Alquilada</option>
                             </select>
-                            <p id="texto_mensaje_tipo_residencia_perfil" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Estado Civil</label>
-                            <select id="estado_civilPerfil" name="estado_civil" class="form-select bg-light border-light-subtle">
-                                <option value="Soltero">Soltero/a</option>
-                                <option value="Casado">Casado/a</option>
-                                <option value="Divorciado">Divorciado/a</option>
-                                <option value="Viudo">Viudo/a</option>
-                                <option value="En relación">En relación</option>
+                            <select name="estado_civil" class="form-select bg-light border-light-subtle">
+                                <option value="Soltero/a">Soltero/a</option>
+                                <option value="Casado/a">Casado/a</option>
+                                <option value="Divorciado/a">Divorciado/a</option>
+                                <option value="Viudo/a">Viudo/a</option>
                             </select>
-                            <p id="texto_mensaje_estado_civil_perfil" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Categoría</label>
-                            <select id="profesionPerfil" name="profesion" class="form-select bg-light border-light-subtle">
+                            <select name="profesion" class="form-select bg-light border-light-subtle">
                                 <option value="Empleado">Empleado Fijo</option>
                                 <option value="Independiente">Independiente</option>
-                                <option value="Estudiante (Becado)">Becado</option>
+                                <option value="Becado">Becado</option>
                                 <option value="Estudiante">Estudiante</option>
                                 <option value="Pensionado">Pensionado</option>
-                                <option value="Desempleado">Desempleado</option>
                             </select>
-                            <p id="texto_mensaje_profesion_perfil" class="text-danger small mt-1"></p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase">Cargas Familiares</label>
-                            <input type="number" id="carga_familiarPerfil" name="carga_familiar" class="form-control bg-light border-light-subtle" value="0" min="0">
-                            <p id="texto_mensaje_carga_familiar_perfil" class="text-danger small mt-1"></p>
+                            <input type="number" name="carga_familiar" class="form-control bg-light border-light-subtle" value="0" min="0">
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-muted text-uppercase">Ocupación</label>
-                            <input type="text" id="ocupacionPerfil" name="ocupacion" class="form-control bg-light border-light-subtle" placeholder="Ej: Vendedor de repuestos">
-                            <p id="texto_mensaje_ocupacion_perfil" class="text-danger small mt-1"></p>
+                            <input type="text" name="ocupacion" class="form-control bg-light border-light-subtle" placeholder="Ej: Vendedor de repuestos">
                         </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold text-info text-uppercase">Ingreso Mensual (Bolívares)</label>
@@ -408,8 +393,7 @@
                                     $ <span id="calc_usd_perfil" class="ms-1">0.00</span>
                                 </span>
                             </div>
-                            <input type="hidden" id="ingresos_mensuales" name="ingresos_mensuales" >
-                            <p id="texto_mensaje_ingresos_perfil" class="text-danger small mt-1"></p>
+                            <input type="hidden" id="ingresos_mensuales" name="ingresos_mensuales" value="0">
                         </div>
                     </div>
                 </form>

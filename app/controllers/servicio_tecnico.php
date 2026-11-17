@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['x'])) {
             $respuesta = $obj_servicio->listarEspecialidad();
             break;
         case 'productos':
-    $filtro = $_GET['q'] ?? ''; 
-    $respuesta = $obj_servicio->listarProductos($filtro); 
-    header('Content-Type: application/json; charset=utf-8'); // Asegura formato
-    echo json_encode($respuesta); 
-    exit(); 
+    $filtro = $_GET['q'] ?? '';
+    $respuesta = $obj_servicio->listarProductos($filtro);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($respuesta);
+    exit();
             break;
         case 'metodos_pago':
             $respuesta = $obj_servicio->listarMetodosPago();
@@ -75,10 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['x'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     if (ob_get_length()) ob_end_clean();
     header('Content-Type: application/json; charset=utf-8');
-    
+
     $accion = $_POST['accion'];
     $accionesEscritura = ['registrar', 'modificar', 'eliminar', 'agregar_producto', 'cobrar'];
-    
+
     if (in_array($accion, $accionesEscritura) && !$obj_usuario->tienePermiso($modulo_actual, $accion === 'agregar_producto' || $accion === 'cobrar' ? 'modificar' : $accion)) {
         echo json_encode(["error" => "No tienes permisos"]);
         exit();
@@ -92,9 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         case 'registrar':
     $datos = [
         'cedula' => trim($_POST['cedula_persona'] ?? ''),
-        'equipo' => trim($_POST['equipo'] ?? ''),        
+        'equipo' => trim($_POST['equipo'] ?? ''),
         'falla'  => trim($_POST['falla'] ?? ''),
-        'especialidad' => (int)($_POST['especialidad'] ?? 0) 
+        'especialidad' => (int)($_POST['especialidad'] ?? 0)
     ];
     echo json_encode($obj_servicio->procesarSolicitud('registrar', $datos));
     break;
@@ -134,4 +134,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     exit();
 }
 
-require_once 'app/views/servicio_tecnico.php';
+include 'app/views/servicio_tecnico.php';

@@ -37,7 +37,7 @@
                 <ul class="nav-links">
                     <li><a href="?pagina=home">Inicio</a></li>
                     <li><a href="?pagina=home#financiados">Financiados</a></li>
-                    <li><a href="?pagina=web_Catalogo">Catálogo</a></li>
+                    <li><a href="?pagina=catalogo">Catálogo</a></li>
                     <li><a href="?pagina=home#servicio">Soporte Técnico</a></li>
                     <li><a href="?pagina=home#ubicacion">Ubicación</a></li>
                     

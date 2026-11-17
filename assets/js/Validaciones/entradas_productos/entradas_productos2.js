@@ -55,9 +55,28 @@ $(document).ready(function() {
             esValido = false;
         }
 
+        const imeisVistos = [];
+
         $filas.each(function() {
+            const $txtImeis = $(this).find(".input-imeis");
             const $txtCantidad = $(this).find(".input-cantidad");
-            if (!$txtCantidad.hasClass('is-valid')) {
+
+            if ($txtImeis.length > 0) {
+                const imeis = ($txtImeis.val() || "")
+                    .split(/\r?\n/)
+                    .map(function(texto) { return texto.trim(); })
+                    .filter(function(texto) { return texto !== ""; });
+
+                if (imeis.length === 0) {
+                    esValido = false;
+                }
+
+                imeis.forEach(function(imei) {
+                    if (!/^[0-9]{10,25}$/.test(imei)) { esValido = false; }
+                    if (imeisVistos.indexOf(imei) !== -1) { esValido = false; }
+                    imeisVistos.push(imei);
+                });
+            } else if (!$txtCantidad.hasClass('is-valid')) {
                 esValido = false;
             }
 
@@ -73,6 +92,8 @@ $(document).ready(function() {
         $("#guardarEntrada").prop('disabled', !esValido);
     }
 
+    window.verificarFormularioEntrada = verificarFormulario;
+
     $('#proveedorSelect').select2({
         placeholder: "Selecciona un Proveedor",
         allowClear: true,
@@ -84,6 +105,13 @@ $(document).ready(function() {
     });
 
 
+    $("#tablaEntradaProductos").on("input", ".input-imeis", function () {
+        const imeis = ($(this).val() || "").split(/\r?\n/).map(function(t) { return t.trim(); }).filter(function(t) { return t !== ""; });
+        const todosValidos = imeis.length > 0 && imeis.every(function(i) { return /^[0-9]{10,25}$/.test(i); });
+        $(this).toggleClass('is-valid', todosValidos).toggleClass('is-invalid', !todosValidos);
+        verificarFormulario();
+    });
+
     $("#tablaEntradaProductos").on("input change", ".input-cantidad", function () {
         let valor = $(this).val();
         
@@ -91,11 +119,8 @@ $(document).ready(function() {
         valor = valor.replace(/[^0-9.]/g, "");
         
         const partes = valor.split(".");
-        partes[0] = partes[0].slice(0, 4);
         if (partes.length > 2) {
             valor = partes[0] + "." + partes.slice(1).join("").slice(0, 2);
-        } else {
-            valor = partes[0] + (partes.length === 2 ? "." + partes[1].slice(0, 2) : "");
         }
         $(this).val(valor);
 
@@ -110,7 +135,6 @@ $(document).ready(function() {
         
         valor = valor.replace(/^0+/g, "");
         valor = valor.replace(/[^0-9]/g, "");
-        valor = valor.slice(0, 4);
         $(this).val(valor);
 
         const regexEnteroPositivo = /^[1-9][0-9]*$/;
@@ -143,17 +167,13 @@ $(document).ready(function() {
             val = val.replace(/^0+/g, "");
             val = val.replace(/[^0-9.]/g, "");
             const partes = val.split(".");
-            partes[0] = partes[0].slice(0, 4);
             if (partes.length > 2) {
                 val = partes[0] + "." + partes.slice(1).join("").slice(0, 2);
-            } else {
-                val = partes[0] + (partes.length === 2 ? "." + partes[1].slice(0, 2) : "");
             }
         } else {
         
             if(val !== "0") val = val.replace(/^0+/g, "");
             val = val.replace(/[^0-9]/g, "");
-            if (val !== "0") val = val.slice(0, 4);
         }
         $(this).val(val);
 

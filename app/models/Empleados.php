@@ -14,20 +14,7 @@ class Empleados extends Persona
         parent::__construct();
     }
 
-    public function procesarSolicitud($accion, $datos = [])
-    {
-        switch ($accion) {
-            case 'validarCedula': return $this->validarCedula();
-            case 'obtenerDatosUsuario': return $this->obtenerDatosUsuario();
-            case 'consultar': return $this->consultar();
-            case 'registrar': return $this->registroEmpleado();
-            case 'modificar': return $this->ModificarEmpleado($datos['cedula'] ?? null);
-            case 'eliminar': return $this->eliminarEmpleado();
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
-
-    private function validarCedula()
+    public function validarCedula()
     {
         $cedula = $this->getCedula();
         $conex = new Conexion("sistema");
@@ -89,7 +76,8 @@ public function listarEmpleados()
                        p.fecha_nacimiento, p.sexo, p.direccion, c.nombre_cargo, e.perfil 
                 FROM empleados e 
                 INNER JOIN persona p ON e.cedula_persona = p.cedula_persona 
-                INNER JOIN cargos c ON e.id_cargo = c.id_cargo";
+                INNER JOIN cargos c ON e.id_cargo = c.id_cargo 
+                WHERE e.estado = 'activo'";
         
         $stmt = $conex->prepare($sql);
         $stmt->execute();
@@ -102,7 +90,7 @@ public function listarEmpleados()
 }
 
 
-private function obtenerDatosUsuario()
+public function obtenerDatosUsuario()
 {
     $cedula = $this->getCedula();
     if (empty($cedula)) {
@@ -133,7 +121,33 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
 }
 
 
-    private function consultar()
+public function consultaInactivos() {
+    try {
+        $conex = new Conexion("sistema");
+        
+        $sql = "SELECT e.cedula_persona, 
+                       COALESCE(p.nombre, 'Sin') as nombre, 
+                       COALESCE(p.apellido, 'Nombre') as apellido, 
+                       COALESCE(c.nombre_cargo, 'Sin Cargo') as nombre_cargo 
+                FROM empleados e 
+                LEFT JOIN persona p ON e.cedula_persona = p.cedula_persona 
+                LEFT JOIN cargos c ON e.id_cargo = c.id_cargo 
+                WHERE e.estado = 'inactivo'";
+        
+        $stmt = $conex->prepare($sql);
+        $stmt->execute();
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        unset($conex);
+        return $resultado;
+    } catch (PDOException $e) {
+        error_log("Error: " . $e->getMessage());
+        return [];
+    }
+}
+
+
+    public function consultar()
     {
         $cedula = $this->getCedula();
         if (empty($cedula)) {
@@ -163,28 +177,11 @@ $sql = "SELECT p.nombre, p.apellido, p.cedula_persona, p.telefono,
 
    
     
-private function registroEmpleado()
+public function registroEmpleado()
 {
-    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $this->getCedula())) {
-        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
-    }
-    if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
-        return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
-    }
-
-    $conexExiste = new Conexion("sistema");
-    $stmtExiste = $conexExiste->prepare("SELECT COUNT(*) FROM persona WHERE cedula_persona = :cedula");
-    $stmtExiste->execute([":cedula" => $this->getCedula()]);
-    if ((int) $stmtExiste->fetchColumn() > 0) {
-        return ["error" => "Esta cédula ya está registrada."];
-    }
-
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
-             $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar empleados'");
 
         
         $sexoInput = $this->getSexo();
@@ -227,27 +224,15 @@ private function registroEmpleado()
             unset($conex);
         }
     
-        if ((int) $e->getCode() === 23000) {
-            return ["error" => "Esta cédula ya está registrada."];
-        }
         return ["error" => "Error en BD: " . $e->getMessage()];
     }
 }
-private function ModificarEmpleado($cedula) 
+public function ModificarEmpleado($cedula) 
 {
-    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $this->getCedula())) {
-        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
-    }
-    if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
-        return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
-    }
-
     try {
         $conex = new Conexion("sistema");
         $conex->beginTransaction();
-            $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar Empleado'");
+
        
         $sexoFinal = ($this->getSexo() === 'Masculino' || $this->getSexo() === 'M') ? 'M' : 'F';
 
@@ -291,13 +276,10 @@ private function ModificarEmpleado($cedula)
     }
 }
 
-    private function eliminarEmpleado()
+    public function eliminarEmpleado()
     {
         try {
             $conex = new Conexion("sistema");
-              $user = $_SESSION["username"];
-        $conex->exec("SET @usuario_actual = '{$user}'");
-        $conex->exec("SET @modulo = 'Administrar Empleado'");
             $sql = "UPDATE empleados SET estado = :e WHERE cedula_persona = :cedula";
             $stmt = $conex->prepare($sql);
             $stmt->execute([

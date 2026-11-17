@@ -33,13 +33,31 @@ class chequeo_orden extends conexion
         }
 
         $conex = new conexion();
-        $stmt = $conex->prepare("SELECT * FROM ordenes WHERE estado = :estado ORDER BY fecha_registro DESC");
+        $stmt = $conex->prepare(
+            "SELECT o.id_orden,
+                    CONCAT(COALESCE(p.nombre, ''), ' ', COALESCE(p.apellido, '')) AS cliente,
+                    o.equipo,
+                    o.estado,
+                    o.fecha_registro,
+                    COALESCE(SUM(r.cantidad * r.precio_unitario), 0) AS total_repuestos,
+                    COALESCE(o.monto_reparacion, 0) AS monto_reparacion,
+                    COALESCE(SUM(r.cantidad * r.precio_unitario), 0) + COALESCE(o.monto_reparacion, 0) AS total_orden
+             FROM ordenes o
+             LEFT JOIN persona p ON p.cedula_persona = o.cedula_persona
+             LEFT JOIN orden_repuestos r ON r.id_orden = o.id_orden
+             WHERE o.estado = :estado
+             GROUP BY o.id_orden, p.cedula_persona, p.nombre, p.apellido,
+                      o.equipo, o.estado, o.fecha_registro, o.monto_reparacion
+             ORDER BY o.fecha_registro DESC"
+        );
         $stmt->bindParam(":estado", $estado, PDO::PARAM_INT);
         $stmt->execute();
 
         $ordenes = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $fila) {
-            $fila["repuestos"] = !empty($fila["repuestos"]) ? json_decode($fila["repuestos"], true) : [];
+            $fila["total_repuestos"] = (float) $fila["total_repuestos"];
+            $fila["monto_reparacion"] = (float) $fila["monto_reparacion"];
+            $fila["total_orden"] = (float) $fila["total_orden"];
             $ordenes[] = $fila;
         }
 

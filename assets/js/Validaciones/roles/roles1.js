@@ -37,12 +37,7 @@ $("#tablaRoles").DataTable({
   ],
   pageLength: 4,
   lengthMenu: [[4, 8], ["4", "8"]],
-  columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ],
+  columnDefs: [{ className: "dt-head-center", targets: "_all" }],
   language: {
     lengthMenu: "Mostrar _MENU_ registros por página",
     zeroRecords: "No se encontraron resultados",
@@ -60,7 +55,6 @@ $("#tablaRoles").DataTable({
 });
 
 
-// -----------------------------------------------------------------------------------------------------------
 
 $(document).ready(function () {
   $("#btn_registro_rol").click(function () {
@@ -390,7 +384,6 @@ $(document).ready(function () {
     $("#registrar").css("display", "none");
   });
 
-  // -------------------------------------------------------------
 
   $(document).on("click", ".btn_verPermisos", function () {
     var id_rol = $(this).data("id");
@@ -519,7 +512,6 @@ $(document).ready(function () {
     contenedor.innerHTML = "";
   });
 
-  // ----------------------------------------------------------------
 
   $(document).on("click", ".btn_modificar", function () {
     var id = $(this).data("id");
@@ -888,7 +880,6 @@ $.ajax({
 
   });
 
-  // ------------------------------------------------------------------
 
   $(document).on("click", ".btn-eliminar", function () {
     $("#id_rol").val($(this).data("id"));
@@ -1004,7 +995,7 @@ function eliminar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
       });
     } else if (accion == "warning") {
@@ -1014,7 +1005,7 @@ function eliminar() {
         icon: "warning",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
         timer: 2000,
       });
@@ -1025,7 +1016,7 @@ function eliminar() {
         icon: "error",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
       });
     } else if (accion == "pregunta") {
@@ -1035,8 +1026,8 @@ function eliminar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
-        confirmButtonBorder: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonBorder: "rgb(238, 191, 0)",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -1053,8 +1044,8 @@ function eliminar() {
         icon: "question",
         color: "white",
         showConfirmButton: true,
-        confirmButtonColor: "#2C74B3",
-        confirmButtonBorder: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
+        confirmButtonBorder: "rgb(238, 191, 0)",
         background: "#000910",
         confirmButtonText: "Confirmar",
         showCancelButton: true,
@@ -1072,7 +1063,7 @@ function eliminar() {
         icon: "success",
         color: "white",
         showConfirmButton: false,
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
         background: "#000910",
         timer: 1500,
       });

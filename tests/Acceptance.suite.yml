@@ -1,0 +1,18 @@
+# Configuracion de la suite de Aceptacion (pruebas de interfaz / flujo de usuario)
+actor: AcceptanceTester
+suite_namespace: Tests\Acceptance
+
+modules:
+    enabled:
+        # PhpBrowser: hace peticiones HTTP reales SIN navegador.
+        # Ideal para la demo: no requiere Chrome ni chromedriver.
+        # Si usas Apache en el puerto 80, cambia la URL por:
+        #   url: http://localhost/src/
+        - PhpBrowser:
+            url: http://localhost:8080/src/
+            headers:
+                Accept-Language: es
+        # Asserts: agrega assertEquals, assertTrue, etc. al Actor.
+        - Asserts
+
+# Si se ejecuta con --env chrome, se sobrescribe con WebDriver (tests/_envs/chrome.yml)

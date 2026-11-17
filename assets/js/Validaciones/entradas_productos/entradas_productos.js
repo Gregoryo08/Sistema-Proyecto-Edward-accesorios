@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let permisos = { registrar: false, modificar: false, eliminar: false, consultar: false };
     let categoriaRepuestos = null;
+    let categoriaTelefono = null;
     let listo = false;
 
     $.get("?pagina=entradas_productos&permisos=true", function (data) {
@@ -116,6 +117,9 @@ $(document).ready(function () {
                     if (p.nombre_categoria && p.nombre_categoria.toLowerCase() === 'repuestos') {
                         categoriaRepuestos = idCat;
                     }
+                    if (p.nombre_categoria && p.nombre_categoria.toLowerCase() === 'telefono') {
+                        categoriaTelefono = idCat;
+                    }
                 });
             }
             select.html(opt);
@@ -140,12 +144,13 @@ $(document).ready(function () {
         if (yaExiste) { $(this).val("").trigger("change.select2"); return; }
 
         var esRepuesto = (categoriaRepuestos !== null && id_categoria === categoriaRepuestos);
+        var esTelefono = (categoriaTelefono !== null && id_categoria === categoriaTelefono);
 
         var columnaGarantia = esRepuesto ? `
             <td style="text-align: center; vertical-align: middle;">
                 <div class="form-check form-switch d-flex justify-content-center align-items-center gap-2">
                     <input type="checkbox" class="form-check-input toggle-garantia" role="switch" style="width: 40px; height: 20px; cursor: pointer;">
-                    <input type="number" class="form-control input-garantia d-none" style="width: 70px;" placeholder="Días" min="1" max="9999" maxlength="4" disabled>
+                    <input type="number" class="form-control input-garantia d-none" style="width: 70px;" placeholder="Días" min="1" disabled>
                     <span class="badge bg-secondary badge-garantia d-none">
                         <i class="fa-solid fa-shield-halved me-1"></i><span class="dias-texto">0</span> días
                     </span>
@@ -153,10 +158,14 @@ $(document).ready(function () {
             </td>
         ` : `<td class="d-none"><input type="text" class="d-none" disabled></td>`;
 
+        var celdaCantidad = esTelefono
+            ? `<td style="text-align: center;"><textarea class="form-control input-imeis" rows="2" style="width: 240px; text-align: left;" placeholder="IMEIs (uno por línea)"></textarea></td>`
+            : `<td style="text-align: center;"><input type="text" class="form-control input-cantidad" style="width: 80px; text-align: center;" placeholder="Cant"></td>`;
+
         var nuevaFila = `<tr data-categoria="${id_categoria}">
             <td style="text-align: center;" class="id-producto">${id_producto}</td>
             <td style="text-align: center;">${productoNombre}</td>
-            <td style="text-align: center;"><input type="text" class="form-control input-cantidad" maxlength="7" inputmode="decimal" style="width: 80px; text-align: center;" placeholder="Cant"></td>
+            ${celdaCantidad}
             ${columnaGarantia}
             <td style="text-align: center;"><button type="button" class="btn btn-danger btn-sm eliminar-fila">X</button></td>
         </tr>`;
@@ -168,6 +177,7 @@ $(document).ready(function () {
 
     $(document).on("click", ".eliminar-fila", function() { $(this).closest("tr").remove(); validarBotones(); });
     $(document).on("input", ".input-cantidad", function() { $(this).val($(this).val().replace(/[^0-9.]/g, '')); validarBotones(); });
+    $(document).on("input", ".input-imeis", function() { validarBotones(); });
 
     $(document).on("change", ".toggle-garantia", function() {
         var estaActivo = $(this).is(":checked");
@@ -198,22 +208,50 @@ $(document).ready(function () {
         validarBotones();
     });
 
-    function validarBotones() {
-        var hayFilas = $("#tablaEntradaProductos tbody tr").length > 0;
-        var hayCantidades = true;
-        var hayGarantiaRequerida = false, garantiaValida = true;
+    function obtenerImeisFila(fila) {
+        var texto = fila.find(".input-imeis").val() || "";
+        return texto.split(/\r?\n/).map(function(s) { return s.trim(); }).filter(function(s) { return s !== ""; });
+    }
 
-        $(".input-cantidad").each(function() { if (!$(this).val() || parseFloat($(this).val()) <= 0) { hayCantidades = false; return false; } });
-        
-        $(".toggle-garantia").each(function() {
-            if ($(this).is(":checked")) {
-                hayGarantiaRequerida = true;
-                var dias = parseInt($(this).closest("tr").find(".input-garantia").val()) || 0;
-                if (dias <= 0) garantiaValida = false;
+    function validarBotones() {
+        if (typeof window.verificarFormularioEntrada === "function") {
+            window.verificarFormularioEntrada();
+            return;
+        }
+
+        var filas = $("#tablaEntradaProductos tbody tr");
+        var hayFilas = filas.length > 0;
+        var valido = true;
+        var imeisVistos = [];
+        var hayImeisRepetidos = false;
+
+        filas.each(function() {
+            var fila = $(this);
+            var tieneImeis = fila.find(".input-imeis").length > 0;
+
+            if (tieneImeis) {
+                var imeis = obtenerImeisFila(fila);
+                if (imeis.length === 0) { valido = false; }
+                imeis.forEach(function(imei) {
+                    if (!/^[0-9]{10,25}$/.test(imei)) { valido = false; }
+                    if (imeisVistos.indexOf(imei) !== -1) { hayImeisRepetidos = true; }
+                    imeisVistos.push(imei);
+                });
+            } else {
+                var cant = fila.find(".input-cantidad").val();
+                if (!cant || parseFloat(cant) <= 0) { valido = false; }
+            }
+
+            var toggleGarantia = fila.find(".toggle-garantia");
+            if (toggleGarantia.length > 0 && toggleGarantia.is(":checked")) {
+                var dias = parseInt(fila.find(".input-garantia").val()) || 0;
+                if (dias <= 0) { valido = false; }
             }
         });
-        
-        $("#guardarEntrada").prop("disabled", !hayFilas || !hayCantidades || (hayGarantiaRequerida && !garantiaValida));
+
+        if (hayImeisRepetidos) { valido = false; }
+
+        $("#guardarEntrada").prop("disabled", !hayFilas || !valido);
     }
 
     $(document).on("click", ".btn-ver-detalles, .btn-editar-entrada", function(e) {
@@ -233,14 +271,22 @@ $(document).ready(function () {
                         var garantiaBadge = p.dias_garantia 
                             ? `<span class="badge bg-success"><i class="fa-solid fa-shield-halved me-1"></i>${p.dias_garantia} días</span>`
                             : `<span class="badge bg-secondary">Sin garantía</span>`;
-                        
+
+                        var esTelefono = parseInt(p.es_telefono) === 1;
+                        var imeis = Array.isArray(p.imeis) ? p.imeis : [];
+                        var celdaCantidad = esTelefono
+                            ? `<div>${imeis.length} unidad(es)</div><div style="font-size: 0.72rem; font-family: monospace; word-break: break-all;">${imeis.join('<br>')}</div>`
+                            : `${p.cantidad_entrada}`;
+                        var dataImeis = JSON.stringify(imeis).replace(/"/g, '&quot;');
+
                         html += `<tr>
                             <td>${p.nombre_producto}</td>
-                            <td>${p.cantidad_entrada}</td>
+                            <td>${celdaCantidad}</td>
                             <td>${garantiaBadge}</td>
                             <td><button type="button" class="btn btn-warning btn-sm btn-modificar-detalle"
                                 data-id_entrada="${p.id_entrada_fk}" data-id_producto="${p.id_producto_fk}"
-                                data-cantidad="${p.cantidad_entrada}" data-garantia="${p.dias_garantia}">
+                                data-cantidad="${p.cantidad_entrada}" data-garantia="${p.dias_garantia}"
+                                data-es-telefono="${esTelefono ? 1 : 0}" data-imeis="${dataImeis}">
                                 <i class="fa-solid fa-pen-to-square"></i></button></td>
                         </tr>`;
                     });
@@ -255,36 +301,77 @@ $(document).ready(function () {
 
     $(document).on("click", ".btn-modificar-detalle", function() {
         var garantia = $(this).data("garentia") || $(this).data("garantia");
+        var esTelefono = parseInt($(this).attr("data-es-telefono")) === 1;
+        var imeis = $(this).attr("data-imeis");
+        if (typeof imeis === "string") { try { imeis = JSON.parse(imeis); } catch (e) { imeis = []; } }
+        if (!Array.isArray(imeis)) { imeis = []; }
+
         $("#id_entrada").val($(this).data("id_entrada"));
         $("#producto_entrada").val($(this).data("id_producto"));
         $("#cantidadOLD_entrada").val($(this).data("cantidad"));
-        $("#cantidadEntradaM").val($(this).data("cantidad"));
         $("#garantiaOLD_entrada").val(garantia || "");
         $("#garantiaEntradaM").val(garantia || "");
+
+        if (esTelefono) {
+            $("#campoCantidadModificar").hide();
+            $("#cantidadEntradaM").val(imeis.length).removeClass("is-valid is-invalid");
+            $("#imeisEntradaM").val(imeis.join("\n")).removeClass("is-valid is-invalid");
+            $("#campoImeisModificar").show();
+        } else {
+            $("#campoImeisModificar").hide();
+            $("#imeisEntradaM").val("");
+            $("#cantidadEntradaM").val($(this).data("cantidad")).removeClass("is-valid is-invalid");
+            $("#campoCantidadModificar").show();
+        }
 
         $("#modalDetalleEntrada").modal("hide");
         setTimeout(() => { $("#modalModificarEntrada").modal("show"); }, 300);
     });
 
     $(document).on("click", "#modificarDatosE2", function() {
+        var esTelefono = $("#campoImeisModificar").is(":visible");
+        var imeis = [];
+
+        if (esTelefono) {
+            imeis = ($("#imeisEntradaM").val() || "").split(/\r?\n/)
+                .map(function(s) { return s.trim(); })
+                .filter(function(s) { return s !== ""; });
+
+            var vistos = [];
+            var valido = imeis.length > 0;
+            imeis.forEach(function(i) {
+                if (!/^[0-9]{10,25}$/.test(i)) { valido = false; }
+                if (vistos.indexOf(i) !== -1) { valido = false; }
+                vistos.push(i);
+            });
+
+            if (!valido) {
+                Swal.fire({ title: "Atención", text: "Revise los IMEI: entre 10 y 25 dígitos, sin repetidos.", icon: "warning", background: "#000910", color: "white" });
+                return;
+            }
+        }
+
         var datos = {
             accion: "modificar_cantidad",
             id_entrada: $("#id_entrada").val(),
             id_producto: $("#producto_entrada").val(),
             id_producto_fk: $("#producto_entrada").val(),
             cantidadOLD: $("#cantidadOLD_entrada").val(),
-            cantidadNEW: $("#cantidadEntradaM").val(),
+            cantidadNEW: esTelefono ? imeis.length : $("#cantidadEntradaM").val(),
             garantiaNEW: $("#garantiaEntradaM").val()
         };
+        if (esTelefono) { datos.imeis = imeis; }
 
         Swal.fire({
             title: '¿Guardar Cambios?',
-            text: "Se modificará la cantidad y garantía de este producto en la entrada.",
+            text: esTelefono
+                ? "Se actualizará la lista de IMEI de este teléfono en la entrada."
+                : "Se modificará la cantidad y garantía de este producto en la entrada.",
             icon: 'question',
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#2C74B3',
+            confirmButtonColor: '#f39c12',
             cancelButtonColor: '#d63031',
             confirmButtonText: 'Sí, guardar',
             cancelButtonText: 'Cancelar'
@@ -300,12 +387,21 @@ $(document).ready(function () {
         var productos = [];
 
         $("#tablaEntradaProductos tbody tr").each(function() {
-            var id_p = $(this).find(".id-producto").text().trim();
-            var cant = $(this).find(".input-cantidad").val();
-            var toggle = $(this).find(".toggle-garantia");
-            var garantiaValue = (toggle.length > 0 && toggle.is(":checked")) ? parseInt($(this).find(".input-garantia").val()) || null : null;
-            if (id_p && cant) {
-                productos.push({ id_producto: parseInt(id_p), cantidad: parseFloat(cant), dias_garantia: garantiaValue });
+            var fila = $(this);
+            var id_p = fila.find(".id-producto").text().trim();
+            var toggle = fila.find(".toggle-garantia");
+            var garantiaValue = (toggle.length > 0 && toggle.is(":checked")) ? parseInt(fila.find(".input-garantia").val()) || null : null;
+
+            if (fila.find(".input-imeis").length > 0) {
+                var imeis = obtenerImeisFila(fila);
+                if (id_p && imeis.length > 0) {
+                    productos.push({ id_producto: parseInt(id_p), cantidad: imeis.length, dias_garantia: garantiaValue, imeis: imeis });
+                }
+            } else {
+                var cant = fila.find(".input-cantidad").val();
+                if (id_p && cant) {
+                    productos.push({ id_producto: parseInt(id_p), cantidad: parseFloat(cant), dias_garantia: garantiaValue });
+                }
             }
         });
 
@@ -323,7 +419,7 @@ $(document).ready(function () {
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#2C74B3',
+            confirmButtonColor: '#27ae60',
             cancelButtonColor: '#d63031',
             confirmButtonText: 'Sí, registrar',
             cancelButtonText: 'Cancelar'
@@ -344,7 +440,7 @@ $(document).ready(function () {
             background: '#000910',
             color: '#ffffff',
             showCancelButton: true,
-            confirmButtonColor: '#2C74B3',
+            confirmButtonColor: '#e74c3c',
             cancelButtonColor: '#636e72',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'

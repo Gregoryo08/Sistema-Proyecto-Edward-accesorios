@@ -7,23 +7,14 @@ class TasaCambioModel
     const DEFAULT_TASA = 60.00;
     const MINUTOS_EXPIRACION = 30;
 
-    /**
-     * Estrategia de rendimiento (restaurada a la versión rápida/docker):
-     * la tasa se lee y mantiene SOLO en $_SESSION (memoria), sin consultas a BD.
-     * Esto elimina el costo de las lecturas repetidas de `tasa_cambio`
-     * (antes: 3-5 SELECT por página de pago / por AJAX de tasa).
-     *
-     * El botón "BCV" del panel de administración sigue disponible y, cuando el
-     * admin lo pulsa, llama a actualizarDesdeBCV() → scrapeBCV() (llamada
-     * EXTERNA y MANUAL, nunca automática) y guarda el resultado en sesión.
-     */
+    private $ultimaFuente = null;
+
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        // Pre-cargar UNA sola vez (al inicio de la sesión) el valor persistido en BD,
-        // para no arrancar con DEFAULT_TASA. Las lecturas siguientes son 100% de sesión.
+
         if (!isset($_SESSION['tasa_dolar']) || $_SESSION['tasa_dolar'] === null) {
             $this->_cargarDesdeBdUnaVez();
         }
@@ -34,10 +25,6 @@ class TasaCambioModel
         }
     }
 
-    /**
-     * Lectura puntual (una vez por sesión) del valor persistido en BD,
-     * como respaldo de arranque. No afecta el rendimiento de las peticiones.
-     */
     private function _cargarDesdeBdUnaVez(): void
     {
         try {
@@ -50,37 +37,49 @@ class TasaCambioModel
                 $_SESSION['tasa_fuente'] = $row['fuente'] ?? 'manual';
             }
         } catch (\Exception $e) {
-            // si la tabla no existe o falla, se usa DEFAULT_TASA
+
         }
     }
 
-    /**
-     * Obtener la tasa guardada (solo sesión, sin BD).
-     */
     public function obtener(): float
     {
         return (float) ($_SESSION['tasa_dolar'] ?? self::DEFAULT_TASA);
     }
 
-    /**
-     * Actualiza la tasa consultando el BCV / APIs.
-     * Solo se invoca desde el panel de administración (acción explícita del
-     * admin), NUNCA de forma automática.
-     */
-    public function actualizarDesdeBCV(): ?float
+    public function actualizarDesdeFuentes(): ?float
     {
-        $tasaNueva = $this->scrapeBCV();
-        if ($tasaNueva !== null && $tasaNueva > 0) {
-            $this->guardar($tasaNueva, 'bcv_scrape');
-            return $tasaNueva;
+        $tasa = $this->scrapeFuentes();
+
+        if ($tasa === null) {
+            return null;
         }
+
+        $this->guardar($tasa, $this->ultimaFuente ?? 'scrape');
+
+        return $tasa;
+    }
+
+    public function scrapeFuentes(): ?float
+    {
+        $tasa = $this->scrapeBCV();
+
+        if ($tasa !== null && $tasa > 0) {
+            $this->ultimaFuente = 'bcv_scrape';
+            return $tasa;
+        }
+
+        $tasa = $this->scrapeApi();
+
+        if ($tasa !== null && $tasa > 0) {
+            $this->ultimaFuente = 'api_scrape';
+            return $tasa;
+        }
+
+        $this->ultimaFuente = null;
+
         return null;
     }
 
-    /**
-     * Guardar tasa: en sesión (lectura rápida) y en BD (persistencia para que
-     * los próximos inicios de sesión arranquen con este valor).
-     */
     public function guardar(float $tasa, ?string $fuente = null): void
     {
         $fuente = $fuente ?? 'manual';
@@ -88,7 +87,6 @@ class TasaCambioModel
         $_SESSION['tasa_fecha'] = date('Y-m-d H:i:s');
         $_SESSION['tasa_fuente'] = $fuente;
 
-        // Persistencia (opcional): una escritura por actualización, sin costo en lecturas.
         try {
             $conn = \App\Sistema\config\Conexion::getShared('sistema_edward')->getConexion();
             $stmt = $conn->prepare("
@@ -98,13 +96,10 @@ class TasaCambioModel
             ");
             $stmt->execute([$tasa, date('Y-m-d H:i:s'), $fuente]);
         } catch (\Exception $e) {
-            // si la tabla no existe, solo queda en sesión; sin romper el flujo
+
         }
     }
 
-    /**
-     * Verificar vigencia y mostrar info
-     */
     public function vigencia(): array
     {
         $fecha = $_SESSION['tasa_fecha'] ?? null;
@@ -131,39 +126,57 @@ class TasaCambioModel
         ];
     }
 
-    /**
-     * Convertir USD a Bs
-     */
     public function convertir(float $montoUSD): float
     {
         return round($montoUSD * $this->obtener(), 2);
     }
 
-    /**
-     * Obtener fecha formateada
-     */
     public function obtenerFechaActualizacion(): string
     {
         $fecha = $_SESSION['tasa_fecha'] ?? '';
         return $fecha ? date('d/m/Y h:i A', strtotime($fecha)) : 'Nunca';
     }
 
-    /**
-     * Obtener fuente de la última actualización
-     */
     public function obtenerFuente(): string
     {
         return $_SESSION['tasa_fuente'] ?? 'N/A';
     }
 
-    /**
-     * Llamar al scraper (manual, desde el panel del admin).
-     */
     public function scrapeBCV(): ?float
     {
         if (class_exists('App\\Sistema\\models\\scrape_dolar')) {
             return \App\Sistema\models\scrape_dolar::obtenerPrecioDolarBCV();
         }
         return null;
+    }
+
+    public function scrapeApi(): ?float
+    {
+        if (class_exists('App\\Sistema\\models\\scrape_dolar')) {
+            return \App\Sistema\models\scrape_dolar::obtenerPrecioDolarApi();
+        }
+        return null;
+    }
+
+    public function obtenerTasaConCache(): float
+    {
+        $cacheTtl = 3600;
+
+        if (
+            isset($_SESSION['tasa_bcv'], $_SESSION['tasa_bcv_time']) &&
+            (time() - $_SESSION['tasa_bcv_time']) < $cacheTtl
+        ) {
+            return (float) $_SESSION['tasa_bcv'];
+        }
+
+        $tasa = $this->scrapeFuentes();
+
+        if ($tasa !== null && $tasa > 0) {
+            $_SESSION['tasa_bcv'] = $tasa;
+            $_SESSION['tasa_bcv_time'] = time();
+            return (float) $tasa;
+        }
+
+        return (float) ($_SESSION['tasa_bcv'] ?? 0.0);
     }
 }

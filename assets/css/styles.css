@@ -22,7 +22,6 @@ body {
     overflow-x: hidden; 
 }
 
-/* --- NAVBAR --- */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -78,7 +77,6 @@ body {
     opacity: 1 !important; 
 }
 
-/* --- CARRITO Y AUTENTICACIÓN --- */
 .user-actions {
     display: flex;
     align-items: center;
@@ -175,7 +173,6 @@ body {
     color: #fff;
 }
 
-/* --- BOTÓN HAMBURGUESA --- */
 .burger { 
     display: none; 
     cursor: pointer; 
@@ -196,7 +193,6 @@ body {
 .burger.toggle .line2 { opacity: 0; }
 .burger.toggle .line3 { transform: rotate(45deg) translate(-5px, -6px); }
 
-/* --- HERO --- */
 .hero {
     height: 100vh;
     background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1400&q=80');
@@ -229,27 +225,23 @@ body {
 .cta-outline { padding: 14px 40px; border: 2px solid #fff; color: #fff; text-decoration: none; border-radius: 50px; font-weight: bold; transition: 0.3s; }
 .cta:hover { background: var(--accent); transform: translateY(-3px); }
 
-/* --- SECCIONES GENERALES --- */
 .section { padding: 100px 10%; }
 .gray-bg { background-color: #121212; }
 .title { color: var(--primary); margin-bottom: 10px; font-size: 32px; font-weight: 800; }
 .title.left { text-align: left; }
 .subtitle { margin-bottom: 50px; opacity: 0.7; }
 
-/* --- TARJETAS Y GRID --- */
 .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 .card { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
 .card:hover { transform: translateY(-10px); border-color: var(--primary); }
 .card-icon { font-size: 40px; color: var(--primary); margin-bottom: 20px; }
 
-/* --- GALERÍA --- */
 .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; border-radius: 15px; overflow: hidden; height: 300px; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
 .overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); display: flex; align-items: flex-end; padding: 20px; }
 .gallery-item:hover img { transform: scale(1.1); }
 
-/* --- SERVICIOS --- */
 .service-flex { display: flex; align-items: center; gap: 50px; flex-wrap: wrap; }
 .service-img, .service-text { flex: 1; min-width: 300px; }
 .service-img img { width: 100%; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
@@ -258,19 +250,15 @@ body {
 .service-list i { color: var(--primary); }
 .btn-whatsapp { background: #25d366; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; }
 
-/* --- UBICACIÓN --- */
 .location-wrapper { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; align-items: center; }
 .detail-box { background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: left; }
 .detail-box i { font-size: 30px; color: var(--primary); margin-bottom: 15px; }
 
-/* --- ANIMACIÓN REVEAL --- */
 .reveal { opacity: 0; transform: translateY(30px); transition: 1s all ease; }
 .reveal.active { opacity: 1; transform: translateY(0); }
 
-/* --- FOOTER --- */
 .footer { padding: 40px; text-align: center; border-top: 1px solid #222; opacity: 0.7; font-size: 0.9rem; }
 
-/* --- MEDIA QUERIES (MÓVIL) --- */
 @media screen and (max-width: 768px) {
     .navbar { 
         justify-content: space-between; 
@@ -335,9 +323,6 @@ body {
     }
 }
 
-/* ============================================
-/* CHAT ED-AI (Asistente Virtual)
-/* ============================================ */
 .modal-overlay {
     position: fixed;
     top: 0;

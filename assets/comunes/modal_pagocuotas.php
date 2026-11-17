@@ -20,7 +20,7 @@
                         <div class="d-flex justify-content-center align-items-center gap-3">
                             <div class="text-primary">
                                 <small class="d-block text-uppercase fw-bold">Dólares</small>
-                                <input type="text" class="form-control form-control-lg text-center fw-bold" id="monto_pago" name="monto" inputmode="decimal" maxlength="7" readonly style="width: 150px; border: none; background: transparent; font-size: 1.5rem;">
+                                <input type="text" class="form-control form-control-lg text-center fw-bold" id="monto_pago" name="monto" readonly style="width: 150px; border: none; background: transparent; font-size: 1.5rem;">
                             </div>
                             <div class="border-start ps-3 text-success">
                                 <small class="d-block text-uppercase fw-bold">Bolívares</small>
@@ -53,7 +53,7 @@
 
 
 <div class="modal fade" id="modalHistorialCuotas" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Historial de Cuotas</h5>
@@ -66,9 +66,8 @@
                             <tr>
                                 <th>N°</th>
                                 <th>Vencimiento</th>
-                                <th>Monto Cuota</th>
-                                <th>Monto Abonado</th>
                                 <th>Estado</th>
+                                <th>Monto Pagado</th>
                                 <th>Fecha Pago</th>
                                 <th>Banco/Método</th>
                             </tr>

@@ -1,0 +1,6 @@
+# language: es
+Característica: Mi primer escenario
+
+  Escenario: Ver el botón del carrito
+    Dado que abro la página del catálogo
+    Entonces debería ver el botón del carrito

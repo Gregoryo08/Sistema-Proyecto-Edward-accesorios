@@ -1,14 +1,16 @@
 <?php require_once('assets/comunes/menu.php'); ?>
 <?php require_once('assets/comunes/modal_productos.php'); ?>
 
-<main class="main m-4" id="main">
-    <section id="hero" class="hero section mt-2" style="height: auto;">
-            <h2 class="text-center mb-2">Administrar Inventario de Productos</h2>
+<main class="main mt-4" id="main">
+    <section class="section mt-2" style="height: auto;">
+        <div class="container">
+            <h2 class="text-center mb-4">Administrar Inventario de Productos</h2>
 
-            <div class="text-end mb-3">
+            <div class="text-start mb-3">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistroProducto">
-                    <i class="bi bi-bag-plus"></i> Registrar Producto
+                    <i class="bi bi-plus-circle"></i> Registrar Producto
                 </button>
+                <small class="text-muted ms-3"><i class="bi bi-info-circle"></i> Para agregar o cambiar imagen, haga clic en el ícono 🖼️ o en la foto del producto</small>
             </div>
 
             <div class="table-responsive">
@@ -17,12 +19,11 @@
                     <thead class="thead-dark">
                         <tr>
                             <th style="display: none;">ID</th>
+                            <th>Imagen</th>
                             <th>Producto</th>
                             <th>Marca</th>
                             <th>Categoría</th>
-                            <th style="display: none;">Stock minimo</th>
-                            <th>Stock Actual</th> 
-                            <th>Precio Detal</th>
+                            <th>Stock Actual</th> <th>Precio Detal</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -31,6 +32,7 @@
                         </tbody>
                 </table>
             </div>
+        </div>
     </section>
 </main>
 

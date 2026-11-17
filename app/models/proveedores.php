@@ -18,25 +18,14 @@ class proveedores extends Conexion
         parent::__construct();
     }
 
-    public function procesarSolicitud($accion, $datos = [])
-    {
-        switch ($accion) {
-            case 'existeRif': return $this->existeRif($datos['rif'] ?? null, $datos['id'] ?? null);
-            case 'registrar': return $this->registrar();
-            case 'modificar': return $this->modificar();
-            case 'eliminar': return $this->eliminar();
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
-
-    private function existeRif($rif, $id = null)
+    public function existeRif($rif, $id = null)
     {
         $conex = new Conexion("sistema");
         $sql = "SELECT COUNT(*) FROM proveedores WHERE rif_proveedor = :rif";
         if ($id) {
             $sql .= " AND rif_proveedor != :id";
         }
-        
+
         $stmt = $conex->prepare($sql);
         $params = [":rif" => $rif];
         if ($id) $params[":id"] = $id;
@@ -45,7 +34,7 @@ class proveedores extends Conexion
         return $stmt->fetchColumn() > 0;
     }
 
-    private function registrar()
+    public function registrar()
     {
 
         if (empty($this->rif_proveedor)) {
@@ -58,8 +47,11 @@ class proveedores extends Conexion
         if (empty($this->nombre_proveedor)) {
             return ["error" => "El nombre del proveedor es obligatorio."];
         }
-        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,35}$/u', $this->nombre_proveedor)) {
-            return ["error" => "El nombre debe contener solo letras y espacios, máximo 35 caracteres."];
+        if (!is_string($this->nombre_proveedor)) {
+            return ["error" => "El nombre debe ser solo texto."];
+        }
+        if (strlen($this->nombre_proveedor) < 1 || strlen($this->nombre_proveedor) > 50) {
+            return ["error" => "El nombre debe tener entre 1 y 50 caracteres."];
         }
 
         if (empty($this->telefono_proveedor)) {
@@ -72,16 +64,16 @@ class proveedores extends Conexion
         if (empty($this->correo_proveedor)) {
             return ["error" => "El correo electrónico es obligatorio."];
         }
-        if (strlen($this->correo_proveedor) > 45 || !filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
             return ["error" => "El correo electrónico no es válido."];
         }
 
-        if (strlen($this->ubicacion_proveedor) < 5 || strlen($this->ubicacion_proveedor) > 50) {
-            return ["error" => "La dirección debe tener entre 5 y 50 caracteres."];
+        if (empty($this->ubicacion_proveedor)) {
+            return ["error" => "La ubicación del proveedor es obligatoria."];
         }
 
         if ($this->existeRif($this->rif_proveedor)) {
-            return ["error" => "Este Rif ya está registrado."];
+            return ["error" => "Ya existe un proveedor con este Rif."];
         }
 
         try {
@@ -93,7 +85,7 @@ class proveedores extends Conexion
             $conex->exec("SET @usuario_actual = '{$user}'");
             $conex->exec("SET @modulo = '{$modulo}'");
 
-            $sql = "INSERT INTO proveedores(rif_proveedor, nombre_proveedor, telefono_proveedor, correo_proveedor, ubicacion_proveedor) 
+            $sql = "INSERT INTO proveedores(rif_proveedor, nombre_proveedor, telefono_proveedor, correo_proveedor, ubicacion_proveedor)
                     VALUES (:rif, :nom, :tel, :cor, :ubi)";
             $stmt = $conex->prepare($sql);
 
@@ -109,14 +101,11 @@ class proveedores extends Conexion
             return true;
         } catch (PDOException $e) {
             if (isset($conex)) $conex->rollBack();
-            if ((int) $e->getCode() === 23000) {
-                return ["error" => "Este Rif ya está registrado."];
-            }
             return ["error" => "Error al registrar el proveedor."];
         }
     }
 
-    private function modificar()
+    public function modificar()
     {
 
         if (empty($this->rif_proveedor)) {
@@ -129,8 +118,11 @@ class proveedores extends Conexion
         if (empty($this->nombre_proveedor)) {
             return ["error" => "El nombre del proveedor es obligatorio."];
         }
-        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{1,35}$/u', $this->nombre_proveedor)) {
-            return ["error" => "El nombre debe contener solo letras y espacios, máximo 35 caracteres."];
+        if (!is_string($this->nombre_proveedor)) {
+            return ["error" => "El nombre debe ser solo texto."];
+        }
+        if (strlen($this->nombre_proveedor) < 1 || strlen($this->nombre_proveedor) > 50) {
+            return ["error" => "El nombre debe tener entre 1 y 50 caracteres."];
         }
 
         if (empty($this->telefono_proveedor)) {
@@ -143,12 +135,12 @@ class proveedores extends Conexion
         if (empty($this->correo_proveedor)) {
             return ["error" => "El correo electrónico es obligatorio."];
         }
-        if (strlen($this->correo_proveedor) > 45 || !filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($this->correo_proveedor, FILTER_VALIDATE_EMAIL)) {
             return ["error" => "El correo electrónico no es válido."];
         }
 
-        if (strlen($this->ubicacion_proveedor) < 5 || strlen($this->ubicacion_proveedor) > 50) {
-            return ["error" => "La dirección debe tener entre 5 y 50 caracteres."];
+        if (empty($this->ubicacion_proveedor)) {
+            return ["error" => "La ubicación del proveedor es obligatoria."];
         }
 
         try {
@@ -160,13 +152,13 @@ class proveedores extends Conexion
             $conex->exec("SET @usuario_actual = '{$user}'");
             $conex->exec("SET @modulo = '{$modulo}'");
 
-            $sql = "UPDATE proveedores SET 
-                    nombre_proveedor = :nom, 
-                    telefono_proveedor = :tel, 
-                    correo_proveedor = :cor, 
+            $sql = "UPDATE proveedores SET
+                    nombre_proveedor = :nom,
+                    telefono_proveedor = :tel,
+                    correo_proveedor = :cor,
                     ubicacion_proveedor = :ubi
                     WHERE rif_proveedor = :rif";
-            
+
             $stmt = $conex->prepare($sql);
             $stmt->bindParam(":rif", $this->rif_proveedor, PDO::PARAM_STR);
             $stmt->bindParam(":nom", $this->nombre_proveedor, PDO::PARAM_STR);
@@ -184,7 +176,7 @@ class proveedores extends Conexion
         }
     }
 
-    private function eliminar()
+    public function eliminar()
     {
         if (empty($this->rif_proveedor)) {
             return ["error" => "El Rif del proveedor es obligatorio."];
@@ -196,16 +188,16 @@ class proveedores extends Conexion
         try {
             $conex = new Conexion("sistema");
             $conex->beginTransaction();
-            
+
             $user = $_SESSION["username"];
             $modulo = "Administrar Proveedores";
             $conex->exec("SET @usuario_actual = '{$user}'");
             $conex->exec("SET @modulo = '{$modulo}'");
-            
+
             $stmt = $conex->prepare("DELETE FROM proveedores WHERE rif_proveedor = :rif");
             $stmt->bindParam(":rif", $this->rif_proveedor, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $conex->commit();
             return true;
         } catch (PDOException $e) {

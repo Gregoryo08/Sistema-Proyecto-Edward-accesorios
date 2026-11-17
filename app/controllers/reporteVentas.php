@@ -28,12 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['permisos'])) {
 $accion = $_GET['accion'] ?? $_POST['accion'] ?? null;
 
 if ($accion !== null) {
-    
-    // VALIDACIÓN CRÍTICA: La exportación a PDF no debe enviar un header JSON
+
     if ($accion !== 'exportarPdf') {
         header('Content-Type: application/json');
     }
-    
+
     switch ($accion) {
         case 'listarVentas':
             $resultado = $obj_reporte->procesarSolicitud($accion);
@@ -45,7 +44,7 @@ if ($accion !== null) {
 
         case 'detallesVentas':
             $id_venta = $_GET['id_venta'] ?? null;
-            
+
             if ($id_venta === null) {
                 echo json_encode(["success" => false, "mensaje" => "Falta el ID de la venta."]);
                 break;
@@ -74,12 +73,12 @@ if ($accion !== null) {
             }
 
             $resultado = $obj_reporte->procesarSolicitud($accion, $id_venta, $datos);
-            
+
             echo json_encode($resultado);
             break;
 
         case 'exportarPdf':
-            // 1. Recibir los parámetros EXACTOS que envía tu jQuery por la URL
+
             $filtros = [
                 'buscar'       => $_GET['buscar'] ?? '',
                 'fecha_inicio' => $_GET['fecha_inicio'] ?? '',
@@ -88,7 +87,6 @@ if ($accion !== null) {
                 'estado'       => $_GET['estado'] ?? ''
             ];
 
-            // 2. Limpieza de filtros por si los contenedores mandan valores por defecto como "todos" o vacíos
             if ($filtros['origen'] === 'todos' || $filtros['origen'] === 'Seleccione Origen') {
                 $filtros['origen'] = '';
             }
@@ -96,15 +94,12 @@ if ($accion !== null) {
                 $filtros['estado'] = '';
             }
 
-            // 3. Llamar al modelo pasándole el array en la tercera posición ($datos)
             $data_to_pdf = $obj_reporte->procesarSolicitud('listarVentas', null, $filtros);
 
-            // 4. Renderizar la plantilla HTML
             ob_start();
-            require_once('assets/comunes/PDF/reporteVentasPDF.php'); 
+            require_once('assets/comunes/PDF/reporteVentasPDF.php');
             $html = ob_get_clean();
 
-            // 5. Compilar con Dompdf
             try {
                 $options = new \Dompdf\Options();
                 $options->set('isHtml5ParserEnabled', true);
@@ -118,25 +113,27 @@ if ($accion !== null) {
                 $dompdf->stream("Reporte_Ventas_" . date("d-m-Y") . ".pdf", array("Attachment" => false));
                 exit();
             } catch (\Exception $e) {
-                echo "<h3>Error al compilar el PDF:</h3> " . $e->getMessage();
+                header("HTTP/1.0 500 Internal Server Error");
+                error_log('reporteVentas: ' . $e->getMessage());
+                $ruta_vista = '';
+                require_once 'app/views/404.php';
             }
             break;
-            
+
         default:
-            header('Content-Type: application/json'); // Restablece por si cayó aquí por error
+            header('Content-Type: application/json');
             echo json_encode(["success" => false, "mensaje" => "Acción no permitida en este controlador."]);
             break;
     }
     exit();
 }
 
-$ruta_vista = "app/views/reporteVentas.php"; 
+$ruta_vista = "app/views/reporteVentas.php";
 
 if (file_exists($ruta_vista)) {
     require_once $ruta_vista;
 } else {
     header("HTTP/1.0 404 Not Found");
-    echo "<h3>Error 404: La vista reporteVentas no existe.</h3>";
-    echo "<p>Ruta buscada: <code>{$ruta_vista}</code></p>";
+    require_once 'app/views/404.php';
     exit();
 }

@@ -1,7 +1,3 @@
-// /src/assets/js/ecommerce/temas.js
-// =============================================
-// SISTEMA DE TEMAS DIA/NOCHE
-// =============================================
 
 (function() {
     'use strict';

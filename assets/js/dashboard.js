@@ -52,88 +52,79 @@ $(document).ready(function () {
     }
 
     function CargarActividadReciente() {
-    $.ajax({
-        url: '?pagina=principal&action=VentasRecientes',
-        method: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            const $contenedorActividad = $('.placeholder-graph');
-            $contenedorActividad.empty();
-            
-            $contenedorActividad.css({
-                'display': 'block',
-                'height': 'auto',
-                'background': 'transparent',
-                'border': 'none',
-                'padding': '0'
-            });
+        $.ajax({
+            url: '?pagina=principal&action=VentasRecientes',
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                const $contenedorActividad = $('.placeholder-graph');
+                $contenedorActividad.empty();
+                
+                $contenedorActividad.css({
+                    'display': 'block',
+                    'height': 'auto',
+                    'background': 'transparent',
+                    'border': 'none',
+                    'padding': '0'
+                });
 
-            if (data.error) {
-                $contenedorActividad.html('<div class="alert alert-danger">Error al cargar la actividad.</div>');
-                return;
-            }
+                if (data.error) {
+                    $contenedorActividad.html('<div class="alert alert-danger">Error al cargar la actividad.</div>');
+                    return;
+                }
 
-            const hoy = new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            
-            const ventasDelDia = data.filter(function (venta) {
-                let fechaVenta = venta.fecha_venta ? venta.fecha_venta.split(' ')[0] : '';
-                return fechaVenta === hoy;
-            });
+                if (data.length > 0) {
+                    let tablaHTML = `
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"># Venta</th>
+                                        <th scope="col">Cliente</th>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
 
-            if (ventasDelDia.length > 0) {
-                let tablaHTML = `
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th scope="col"># Venta</th>
-                                    <th scope="col">Cliente</th>
-                                    <th scope="col">Fecha</th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-center">
-                `;
+                    data.forEach(function (venta) {
+                        let nombre = venta.nombre ? venta.nombre : 'Cliente';
+                        let apellido = venta.apellido ? venta.apellido : 'General';
+                        
+                        let fechaObj = new Date(venta.fecha_venta);
+                        let fechaFormateada = fechaObj.toLocaleDateString('es-VE', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                        });
 
-                ventasDelDia.forEach(function (venta) {
-                    let nombre = venta.nombre ? venta.nombre : '';
-                    let apellido = venta.apellido ? venta.apellido : '';
-                    let cliente = (nombre || apellido) ? `${nombre} ${apellido}`.trim() : 'Cliente General';
-                    
-                    let fechaObj = new Date(venta.fecha_venta);
-                    let fechaFormateada = fechaObj.toLocaleDateString('es-VE', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
+                        tablaHTML += `
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">V-${venta.id_venta}</span></td>
+                                <td><span class="fw-medium">${nombre} ${apellido}</span></td>
+                                <td>${fechaFormateada}</td>
+                                <td class="fw-bold text-success">${formatCurrency(venta.total_venta)}</td>
+                            </tr>
+                        `;
                     });
 
                     tablaHTML += `
-                        <tr>
-                            <td><span class="badge bg-light text-dark border">V-${venta.id_venta}</span></td>
-                            <td><span class="fw-medium">${cliente}</span></td>
-                            <td>${fechaFormateada}</td>
-                            <td class="fw-bold text-success">${formatCurrency(venta.total_venta)}</td>
-                        </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     `;
-                });
-
-                tablaHTML += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                
-                $contenedorActividad.append(tablaHTML);
-            } else {
-                // 4. Mensaje cuando no hay ventas para el día de hoy
-                $contenedorActividad.html('<div class="text-center text-muted py-4"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No hay ventas recientes...</div>');
+                    
+                    $contenedorActividad.append(tablaHTML);
+                } else {
+                    $contenedorActividad.html('<div class="text-center text-muted py-4"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No hay ventas registradas recientemente.</div>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error(textStatus, errorThrown);
             }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error(textStatus, errorThrown);
-        }
-    });
-}
+        });
+    }
 
     CargarTotalesHoy();
     CargarIndicadores();

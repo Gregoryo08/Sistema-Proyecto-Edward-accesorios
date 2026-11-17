@@ -12,7 +12,6 @@ $(document).ready(function () {
         const $campo = $(id);
         const valor = $campo.val().trim();
         const $error = $("#error_" + id.substring(1));
-
         const valido = valor !== "";
 
         $campo.removeClass("is-valid is-invalid");
@@ -27,19 +26,6 @@ $(document).ready(function () {
         return valido;
     }
 
-    function validarReglasBanco(modificar) {
-        const sufijo = modificar ? "_modificar" : "";
-        const nombre = $("#nombre" + sufijo).val().trim();
-        const numero = $("#numero" + sufijo).val().trim();
-        const cedula = $("#cedula" + sufijo).val().trim();
-        const telefono = $("#telefono" + sufijo).val().trim();
-
-         return nombre.length >= 4 && nombre.length <= 40 && /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre) &&
-             numero.length >= 8 && numero.length <= 20 && /^[0-9]+$/.test(numero) &&
-             cedula.length >= 6 && cedula.length <= 9 && /^[0-9]+$/.test(cedula) &&
-             telefono.length >= 1 && telefono.length <= 11 && /^[0-9]+$/.test(telefono);
-    }
-
     function validarFormularioBanco(modificar) {
         const sufijo = modificar ? "_modificar" : "";
         const resultados = [
@@ -49,7 +35,7 @@ $(document).ready(function () {
               validarCampoBanco("#telefono" + sufijo, "El número de teléfono es obligatorio.")
         ];
 
-        if (resultados.every(Boolean) && validarReglasBanco(modificar)) return true;
+        if (resultados.every(Boolean)) return true;
 
         const titulos = ["Nombre requerido", "Número de cuenta requerido", "Cédula/RIF requerido", "Teléfono requerido"];
         const indicaciones = [
@@ -271,7 +257,7 @@ $(document).ready(function () {
     }
 
     function mensaje(accion, texto, funcion) {
-        const configBase = { color: "white", background: "#000910", confirmButtonColor: "#2C74B3" };
+        const configBase = { color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" };
         if (accion == "success") {
             Swal.fire({ ...configBase, title: "¡Listo!", text: "Proceso Ejecutado con Éxito!", icon: "success", timer: 1500, showConfirmButton: false });
         } else if (accion == "errorC") {

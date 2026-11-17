@@ -1,7 +1,6 @@
 $(document).ready(function () {
     let permisos = { listar: false, registrar_pago: false };
     let tasaCambio = 0;
-    let montoMaximo = 0;
     const modalPago = new bootstrap.Modal(document.getElementById('modal_pagar_cuota'));
 
     $('#btn_confirmar_pago').prop('disabled', true);
@@ -35,7 +34,7 @@ $(document).ready(function () {
     }
 
     function verificarFormulario() {
-        const campos = ['monto_pago', 'id_banco_pago', 'referencia', 'fecha_pago'];
+        const campos = ['id_banco_pago', 'referencia', 'fecha_pago'];
         let esValido = true;
         campos.forEach(id => {
             if (!$('#' + id).hasClass('is-valid')) esValido = false;
@@ -56,39 +55,6 @@ $(document).ready(function () {
 
     $('#referencia').on('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
-    });
-
-    $('#monto_pago').on('input', function() {
-        const entrada = $(this).val();
-        const contieneNegativo = entrada.includes('-');
-        let valor = entrada.replace(/[^0-9.]/g, '');
-        const partes = valor.split('.');
-        valor = partes[0].slice(0, 4);
-        if (partes.length > 1) valor += '.' + partes[1].slice(0, 2);
-        $(this).val(valor);
-
-        let val = parseFloat(valor);
-        const formatoValido = /^\d{1,4}(\.\d{1,2})?$/.test(valor);
-        if (contieneNegativo || !formatoValido || isNaN(val)) {
-            gestionarEstado('monto_pago', false, 'Use solo números, hasta 4 dígitos y 2 decimales');
-                if ($("#monto_bs").length) $("#monto_bs").text('0.00');
-        } else if (val <= 0) {
-            gestionarEstado('monto_pago', false, 'El monto debe ser mayor a 0');
-                if ($("#monto_bs").length) $("#monto_bs").text('0.00');
-        } else if (val > montoMaximo) {
-            gestionarEstado('monto_pago', false, 'Monto supera la cuota (' + montoMaximo + ')');
-            actualizarConversion(val);
-        } else {
-            gestionarEstado('monto_pago', true);
-            actualizarConversion(val);
-        }
-    });
-
-    $('#monto_pago').on('blur', function() {
-        const valor = $(this).val();
-        if (/^\d{1,4}(\.\d{1,2})?$/.test(valor)) {
-            $(this).val(parseFloat(valor).toFixed(2));
-        }
     });
 
     function inicializarTabla() {
@@ -124,9 +90,8 @@ $(document).ready(function () {
                     data: null,
                     render: function (data, type, row) {
                         let botones = "";
-                        if (permisos.registrar_pago && parseFloat(row.saldo_pendiente) > 0) {
-                            botones += `<button class="btn btn-primary btn-sm btn-pagar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Pagar</button>`;
-                            botones += ` <button class="btn btn-warning btn-sm btn-abonar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Abonar</button>`;
+                        if (permisos.registrar_pago && parseFloat(row.saldo_pendiente) > 0 && row.id_cuota) {
+                            botones = `<button class="btn btn-primary btn-sm btn-pagar" data-id="${row.id_cuota}" data-monto="${row.monto_cuota}">Pagar</button>`;
                         }
                         botones += ` <button class="btn btn-info btn-sm btn-historial" data-id="${row.id_financiamiento}">Historial</button>`;
                         return botones;
@@ -136,21 +101,11 @@ $(document).ready(function () {
         });
     }
 
-    function abrirModalPago(d, esAbono) {
+    $(document).on("click", ".btn-pagar", function () {
+        const d = $(this).data();
         $("#id_cuota_pago").val(d.id);
-        montoMaximo = parseFloat(d.monto);
-        
-        if (esAbono) {
-            $(".modal-title").text("Registrar Abono");
-            $("#monto_pago").val('').prop('readonly', false).removeClass('is-valid is-invalid');
-            if ($("#monto_bs").length) $("#monto_bs").text('0.00');
-            gestionarEstado('monto_pago', false, 'Ingrese el monto a abonar');
-        } else {
-            $(".modal-title").text("Registrar Pago Completo");
-            $("#monto_pago").val(d.monto).prop('readonly', true);
-            gestionarEstado('monto_pago', true);
-            actualizarConversion(d.monto);
-        }
+        $("#monto_pago").val(d.monto);
+        actualizarConversion(d.monto);
 
         $.get("?pagina=cliente_financiamiento&ajax=true&x=bancos", function (res) {
             const bancos = typeof res === 'string' ? JSON.parse(res) : res;
@@ -164,14 +119,6 @@ $(document).ready(function () {
             $("#fecha_pago").attr('max', hoy);
             modalPago.show();
         });
-    }
-
-    $(document).on("click", ".btn-pagar", function () {
-        abrirModalPago($(this).data(), false);
-    });
-
-    $(document).on("click", ".btn-abonar", function () {
-        abrirModalPago($(this).data(), true);
     });
 
     $('[data-bs-dismiss="modal"]').on('click', function() {
@@ -204,69 +151,26 @@ $(document).ready(function () {
         else gestionarEstado(id, false, config.error);
     });
 
-$(document).on("click", ".btn-historial", function () {
-    const id_financiamiento = $(this).data('id');
-    $.get("?pagina=cliente_financiamiento&ajax=true&x=historial&id_financiamiento=" + id_financiamiento, function (res) {
-        const data = typeof res === 'string' ? JSON.parse(res) : res;
-        let tbody = $("#tablaHistorial tbody");
-        tbody.empty();
-
-        let saldosPendientes = {};
-        data.forEach(c => {
-            let num = c.numero_cuota;
-            if (saldosPendientes[num] === undefined) {
-                saldosPendientes[num] = parseFloat(c.monto_original || c.monto_cuota || c.monto || 80);
-            }
+    $(document).on("click", ".btn-historial", function () {
+        const id_financiamiento = $(this).data('id');
+        $.get("?pagina=cliente_financiamiento&ajax=true&x=historial&id_financiamiento=" + id_financiamiento, function (res) {
+            const data = typeof res === 'string' ? JSON.parse(res) : res;
+            let tbody = $("#tablaHistorial tbody");
+            tbody.empty();
+            data.forEach((c, index) => {
+                tbody.append(`<tr>
+                    <td>${index + 1}</td>
+                    <td>${c.fecha_vencimiento}</td>
+                    <td>${c.estado_cuota}</td>
+                    <td>${c.monto_pagado || '0.00'}</td>
+                    <td>${c.fecha_pago_realizado || '-'}</td>
+                    <td>${c.nombre_metodopago || 'N/A'}</td>
+                    <td>${c.nombre_banco || 'N/A'}</td>
+                </tr>`);
+            });
+            new bootstrap.Modal(document.getElementById('modalHistorialCuotas')).show();
         });
-
-        let conteoFilas = {};
-
-        data.forEach((c, index) => {
-            let numCuotaOriginal = c.numero_cuota || (index + 1);
-            conteoFilas[numCuotaOriginal] = (conteoFilas[numCuotaOriginal] || 0) + 1;
-
-            let montoPagadoNum = parseFloat(c.monto_pagado || 0);
-            let saldoActual = saldosPendientes[numCuotaOriginal] || 80;
-
-            let etiquetaCuota = numCuotaOriginal;
-            let montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-            let montoAbonadoStr = '-';
-
-            if (c.estado_cuota === 'pendiente') {
-                etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-                montoAbonadoStr = '-';
-            } else {
-                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-
-                if (montoPagadoNum >= saldoActual) {
-                    montoAbonadoStr = 'Pago Completo';
-                    etiquetaCuota = `${numCuotaOriginal} (Completo)`;
-                } else {
-                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
-                    if (conteoFilas[numCuotaOriginal] === 1) {
-                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                    } else {
-                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                    }
-                }
-
-                saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
-            }
-
-            tbody.append(`<tr>
-                <td>${etiquetaCuota}</td>
-                <td>${c.fecha_vencimiento}</td>
-                <td>${montoCuotaStr}</td>
-                <td>${montoAbonadoStr}</td>
-                <td>${c.estado_cuota}</td>
-                <td>${c.fecha_pago_realizado || '-'}</td>
-                <td>${c.nombre_metodopago ? c.nombre_metodopago + ' / ' + (c.nombre_banco || 'N/A') : 'N/A'}</td>
-            </tr>`);
-        });
-        new bootstrap.Modal(document.getElementById('modalHistorialCuotas')).show();
     });
-});
 
     $("#btn_confirmar_pago").click(function () {
         if ($(this).prop('disabled')) return;

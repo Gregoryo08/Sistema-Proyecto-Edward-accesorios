@@ -3,20 +3,9 @@
 use App\Sistema\models\Empleados;
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\Cargos;
+use App\Sistema\models\Respuesta;
 
-if (!function_exists('procesarRespuesta')) {
-    function procesarRespuesta($respuesta, $mensajeExito)
-    {
-        if ($respuesta === true) {
-            echo json_encode(["success" => $mensajeExito]);
-        } else if (is_array($respuesta)) {
-            echo json_encode($respuesta);
-        } else {
-            echo json_encode(["error" => "Error desconocido en el servidor."]);
-        }
-        exit();
-    }
-}
+$modeloRespuesta = new Respuesta();
 
 $cedula = $_SESSION['username'];
 $rol = $_SESSION["rol"];
@@ -47,11 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['permisos'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
     $empleado = new Empleados();
     
+    
     if (ob_get_length()) ob_clean();
     
+  
     header('Content-Type: application/json; charset=utf-8');
     
-    echo json_encode($empleado->listarEmpleados(), JSON_UNESCAPED_UNICODE);
+    if (isset($_GET['x'])) {
+        echo json_encode($empleado->consultaInactivos(), JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode($empleado->listarEmpleados(), JSON_UNESCAPED_UNICODE);
+    }
+    
     
     exit();
 }
@@ -67,12 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
         case 'validarC':
             $empleado->setCedula($_POST['cedula']);
-            echo json_encode(["data" => $empleado->procesarSolicitud('validarCedula')]);
+            echo json_encode(["data" => $empleado->validarCedula()]);
             break;
 
         case 'consultar':
             $empleado->setCedula($_POST['cedula']);
-            echo json_encode($empleado->procesarSolicitud('consultar'));
+            echo json_encode($empleado->consultar());
             break;
 
         case 'registrar':
@@ -86,40 +82,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $empleado->setSexo(trim($_POST['sexo'] ?? ''));
             $empleado->setDireccion(trim($_POST['direccion'] ?? ''));
 
-            procesarRespuesta($empleado->procesarSolicitud('registrar'), "Empleado registrado exitosamente.");
+            $modeloRespuesta->json($empleado->registroEmpleado(), "Empleado registrado exitosamente.");
             break;
 
-        case 'modificar':
-            if (!isset($_POST['cedula_vieja']) || empty($_POST['cedula_vieja'])) {
-                echo json_encode(["error" => "Cédula original no proporcionada"]);
-                break;
-            }
+       case 'modificar':
+    if (!isset($_POST['cedula_vieja']) || empty($_POST['cedula_vieja'])) {
+        echo json_encode(["error" => "Cédula original no proporcionada"]);
+        break;
+    }
 
-            $empleado->setNombre(trim($_POST['nombre'] ?? ''));
-            $empleado->setApellido(trim($_POST['apellido'] ?? ''));
-            $empleado->setCorreo(trim($_POST['correo'] ?? ''));
-            $empleado->setCel(trim($_POST['telefono'] ?? ''));
-            $empleado->setCedula(trim($_POST['cedula_nueva'] ?? ''));
-            $empleado->setCargo((int)($_POST['cargo'] ?? 0));
-            
-            $fechaInput = trim($_POST['fecha_nacimiento_real'] ?? ''); 
-            $empleado->setEdad(empty($fechaInput) ? null : $fechaInput);
-            
-            $empleado->setSexo(trim($_POST['sexo'] ?? ''));
-            $empleado->setDireccion(trim($_POST['direccion'] ?? ''));
-            
-            procesarRespuesta($empleado->procesarSolicitud('modificar', [
-                'cedula' => trim($_POST["cedula_vieja"])
-            ]), "Empleado modificado exitosamente.");
-            break;
+    $empleado->setNombre(trim($_POST['nombre'] ?? ''));
+    $empleado->setApellido(trim($_POST['apellido'] ?? ''));
+    $empleado->setCorreo(trim($_POST['correo'] ?? ''));
+    $empleado->setCel(trim($_POST['telefono'] ?? ''));
+    $empleado->setCedula(trim($_POST['cedula_nueva'] ?? ''));
+    $empleado->setCargo((int)($_POST['cargo'] ?? 0));
+    
+    
+    $fechaInput = trim($_POST['fecha_nacimiento_real'] ?? ''); 
+    $empleado->setEdad(empty($fechaInput) ? null : $fechaInput);
+    
+    $empleado->setSexo(trim($_POST['sexo'] ?? ''));
+    $empleado->setDireccion(trim($_POST['direccion'] ?? ''));
+    
+    $modeloRespuesta->json($empleado->ModificarEmpleado(trim($_POST["cedula_vieja"])), "Empleado modificado exitosamente.");
+    break;
 
         case 'eliminar':
             $empleado->setCedula($_POST['id']);
             $empleado->setEstado($_POST['estado']);
-            procesarRespuesta($empleado->procesarSolicitud('eliminar'), "Empleado eliminado exitosamente.");
+            $modeloRespuesta->json($empleado->eliminarEmpleado(), "Empleado eliminado exitosamente.");
             break;
     }
     exit();
 }
 
-require_once 'app/views/empleado.php';
+include 'app/views/empleado.php';

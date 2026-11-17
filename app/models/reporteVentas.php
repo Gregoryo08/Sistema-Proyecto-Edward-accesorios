@@ -17,12 +17,12 @@ class reporteVentas extends Conexion {
             case 'listarVentas':
                 return $this->listarVentas($datos);
             case 'detallesVentas':
-                return $this->detallesVentas($id_venta, $datos);            
+                return $this->detallesVentas($id_venta, $datos);
             case 'anularVenta':
                 return $this->anularVenta($id_venta, $datos);
             default:
                 return [
-                    "success" => false, 
+                    "success" => false,
                     "mensaje" => "Acción no reconocida en el modelo de reporte ventas."
                 ];
         }
@@ -30,12 +30,12 @@ class reporteVentas extends Conexion {
 
     private function listarVentas($filtros = null){
         try {
-            $sql = "SELECT 
+            $sql = "SELECT
                         v.id_venta,
                         v.fecha_venta,
                         v.origen_venta,
                         v.total_venta,
-                        c.cedula_persona AS cedula_cliente,  
+                        c.cedula_persona AS cedula_cliente,
                         e.cedula_persona AS cedula_empleado,
                         v.estado AS estado_venta,
                         c.nombre AS nombre_cliente,
@@ -46,12 +46,12 @@ class reporteVentas extends Conexion {
                     LEFT JOIN persona c ON v.cedula_persona = c.cedula_persona
                     LEFT JOIN empleados emp ON v.cedula_empleado = emp.cedula_persona
                     LEFT JOIN persona e ON emp.cedula_persona = e.cedula_persona
-                    WHERE 1=1"; // 1=1 permite concatenar condiciones dinámicamente
+                    WHERE 1=1";
 
             $params = [];
 
             if (is_array($filtros) && !empty($filtros)) {
-                
+
                 if (!empty($filtros['fecha_inicio']) && !empty($filtros['fecha_fin'])) {
                     $sql .= " AND v.fecha_venta BETWEEN :fecha_inicio AND :fecha_fin";
                     $params[':fecha_inicio'] = $filtros['fecha_inicio'] . " 00:00:00";
@@ -69,14 +69,14 @@ class reporteVentas extends Conexion {
                 }
 
                 if (!empty($filtros['buscar'])) {
-                    $sql .= " AND (v.id_venta = :buscar_id 
-                                OR c.nombre LIKE :buscar_text 
-                                OR c.apellido LIKE :buscar_text 
+                    $sql .= " AND (v.id_venta = :buscar_id
+                                OR c.nombre LIKE :buscar_text
+                                OR c.apellido LIKE :buscar_text
                                 OR c.cedula_persona LIKE :buscar_ced
                                 OR emp.cedula_persona LIKE :buscar_emp
                                 OR e.nombre LIKE :buscar_text
                                 OR e.apellido LIKE :buscar_text)";
-                    
+
                     $params[':buscar_id']  = $filtros['buscar'];
                     $params[':buscar_text'] = "%" . $filtros['buscar'] . "%";
                     $params[':buscar_ced']  = "%" . $filtros['buscar'] . "%";
@@ -102,7 +102,7 @@ class reporteVentas extends Conexion {
                 return [];
             }
 
-            $sql = "SELECT 
+            $sql = "SELECT
                         dv.id_producto,
                         p.nombre_producto,
                         dv.cantidad,
@@ -111,7 +111,7 @@ class reporteVentas extends Conexion {
                     FROM sistema_edward.detalle_venta dv
                     INNER JOIN sistema_edward.productos p ON dv.id_producto = p.id_producto
                     WHERE dv.id_venta = :id_venta";
-                    
+
             $stmt = $this->prepare($sql);
             $stmt->execute([':id_venta' => $id_venta]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -136,7 +136,7 @@ class reporteVentas extends Conexion {
             $stmtSesion = $this->prepare($sqlSesion);
             $stmtSesion->execute([
                 ':usuario' => $datos['cedula_usuario'],
-                ':modulo'  => 'Administrar Ventas'                  
+                ':modulo'  => 'Administrar Ventas'
             ]);
 
             $sqlCheck = "SELECT estado, origen_venta, total_venta, cedula_persona FROM ventas WHERE id_venta = :id_venta FOR UPDATE";
@@ -159,8 +159,8 @@ class reporteVentas extends Conexion {
             $stmtDetalle->execute([':id_venta' => $id_venta]);
             $productosVendidos = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
 
-            $sqlStock = "UPDATE productos 
-                        SET stock_actual = stock_actual + :cantidad 
+            $sqlStock = "UPDATE productos
+                        SET stock_actual = stock_actual + :cantidad
                         WHERE id_producto = :id_producto";
             $stmtStock = $this->prepare($sqlStock);
 
@@ -171,8 +171,8 @@ class reporteVentas extends Conexion {
                 ]);
             }
 
-            $sqlAnular = "UPDATE ventas 
-                        SET estado = 'anulada' 
+            $sqlAnular = "UPDATE ventas
+                        SET estado = 'anulada'
                         WHERE id_venta = :id_venta";
             $stmtAnular = $this->prepare($sqlAnular);
             $stmtAnular->execute([':id_venta' => $id_venta]);

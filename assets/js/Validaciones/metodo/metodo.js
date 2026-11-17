@@ -65,12 +65,7 @@ $(document).ready(function () {
             ],
             pageLength: 4,
             lengthMenu: [[4, 8, 12, 16], ["4", "8", "12", "16"]],
-            columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
-                }
-            ],
+            columnDefs: [{ className: "dt-head-center", targets: "_all" }],
             language: {
                 search: "Buscar:",
                 lengthMenu: "Mostrar _MENU_ registros por página",
@@ -127,7 +122,6 @@ $(document).ready(function () {
         $("#monedaModificar").val(moneda); // Carga la moneda en el modal de modificar
         $("#estadoModificar").val(estado); // Carga el estado actual
 
-        // Para seleccionar la cuenta si es radiobutton
         if ($(`input[name='tipoCuentaModificar']`).length > 0) {
             $(`input[name='tipoCuentaModificar'][value='${cuenta}']`).prop('checked', true);
         }
@@ -225,7 +219,7 @@ $(document).ready(function () {
     const commonSwalMixin = Swal.mixin({
         color: "white",
         background: "#000910",
-        confirmButtonColor: "#2C74B3",
+        confirmButtonColor: "rgb(238, 191, 0)",
     });
 
     function showProcessingAlert() {

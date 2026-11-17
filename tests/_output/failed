@@ -1,0 +1,9 @@
+tests\Acceptance\CatalogoCest.php:verCatalogoSinIniciarSesion
+tests\Acceptance\CatalogoCest.php:verBuscadorDeProductos
+tests\Acceptance\CatalogoCest.php:verContadorDelCarrito
+tests\Acceptance\LoginCest.php:verFormularioDeAcceso
+tests\Acceptance\LoginCest.php:completarCredenciales
+tests\Acceptance\catalogo.feature:Ver el catálogo sin iniciar sesión
+tests\Acceptance\catalogo.feature:Ver la ayuda del buscador
+tests\Acceptance\login.feature:Ver el formulario de acceso
+tests\Acceptance\login.feature:Completar las credenciales

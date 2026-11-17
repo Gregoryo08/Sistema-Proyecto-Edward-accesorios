@@ -4,21 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const formSolicitarRecuperacion = document.getElementById('formSolicitarRecuperacion');
     const formRestablecerClave = document.getElementById('formRestablecerClave');
     const tokenHiddenInput = document.getElementById('tokenHiddenInput');
+    const alertMessageDiv = document.getElementById('alertMessage');
     const sectionSolicitar = document.getElementById('sectionSolicitar');
     const sectionRestablecer = document.getElementById('sectionRestablecer');
 
-    const showSwal = (title, text, icon) => {
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: icon,
-            confirmButtonColor: '#00d2ff',
-            background: '#0d1117',
-            color: '#fff',
-            customClass: {
-                popup: 'rounded-4 shadow-lg'
-            }
-        });
+    const showMessage = (message, type) => {
+        if (alertMessageDiv) {
+            alertMessageDiv.className = `alert alert-${type} mt-3 mb-4`;
+            alertMessageDiv.textContent = message;
+            alertMessageDiv.style.display = 'block';
+        }
     };
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -39,16 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (sectionRestablecer) sectionRestablecer.style.display = 'block';
                     if (tokenHiddenInput) tokenHiddenInput.value = token;
                 } else {
-                    showSwal(
-                        "Enlace Inválido",
-                        data.mensaje || "El enlace de recuperación es inválido o ha expirado.",
-                        "error"
-                    );
+                    showMessage(data.mensaje || "El enlace es inválido o ha expirado.", "danger");
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showSwal("Error", "Ocurrió un problema al verificar el enlace.", "error");
+                showMessage("Error al verificar el enlace.", "danger");
             });
     }
 
@@ -72,17 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         formData.append('accion', accion);
 
-        Swal.fire({
-            title: 'Procesando...',
-            text: 'Por favor espera un momento.',
-            background: '#0d1117',
-            color: '#fff',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
         try {
             const response = await fetch(controllerUrl, {
                 method: 'POST',
@@ -91,25 +71,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                showSwal(
-                    "¡Correo Enviado!",
-                    data.success,
-                    "success"
-                );
-
+                showMessage(data.success, "success");
                 if (data.redirect) {
                     setTimeout(() => window.location.href = data.redirect, 2000);
                 }
                 form.reset();
             } else {
-                // Maneja los distintos tipos de error retornados por PHP
-                const errorMsg = data.not_found || data.error || data.invalido || data.incompleto || "Ocurrió un error inesperado.";
-                const titleModal = data.not_found ? "Correo No Registrado" : "Atención";
-                
-                showSwal(titleModal, errorMsg, data.not_found ? "warning" : "error");
+                const errorMsg = data.error || data.invalido || data.incompleto || "Error inesperado.";
+                showMessage(errorMsg, "warning");
             }
         } catch (error) {
-            showSwal("Error de Conexión", "No se pudo establecer comunicación con el servidor.", "error");
+            showMessage("Error de conexión.", "danger");
         }
     };
 
@@ -129,20 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
             if (!passwordPattern.test(nClave.value)) {
-                showSwal(
-                    "Contraseña Débil",
-                    "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.",
-                    "warning"
-                );
+                showMessage("La clave debe tener 8 caracteres, una mayúscula y un número.", "warning");
                 return;
             }
 
             if (nClave.value !== rClave.value) {
-                showSwal(
-                    "Sin Coincidencia",
-                    "Las contraseñas ingresadas no coinciden.",
-                    "warning"
-                );
+                showMessage("Las contraseñas no coinciden.", "warning");
                 return;
             }
             

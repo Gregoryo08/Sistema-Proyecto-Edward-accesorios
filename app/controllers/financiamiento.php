@@ -203,10 +203,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     exit();
 }
 
-$vista = 'App/views/financiamiento.php';
+$vista = 'app/views/financiamiento.php';
 
 if (file_exists($vista)) {
     require_once $vista;
 } else {
-    require_once 'App/views/error_404.php';
+    require_once 'app/views/error_404.php';
 }

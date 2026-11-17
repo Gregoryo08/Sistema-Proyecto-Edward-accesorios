@@ -1,10 +1,4 @@
-/* =============================================
-   temaBase.css - Tema día/noche para páginas del ecommerce
-   (carrito, checkout, misPedidos, verPedido, datosPago,
-    confirmacion, reportarPago)
-   ============================================= */
 
-/* ---- Botón toggle (sol/luna) ---- */
 .theme-toggle-btn {
     position: fixed;
     top: 18px;
@@ -41,7 +35,6 @@ body.light-mode .theme-toggle-btn:hover {
     color: #fff;
 }
 
-/* ---- Modo oscuro (por defecto) ---- */
 body {
     background: #0f172a;
     color: #e2e8f0;
@@ -199,7 +192,6 @@ body .text-success {
     color: #4ade80 !important;
 }
 
-/* ---- Modo claro ---- */
 body.light-mode {
     background: #f0f4f8;
     color: #212529;

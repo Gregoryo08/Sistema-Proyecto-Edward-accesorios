@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Configuracion local del microservicio de logica difusa (RCI-01).
+ *
+ * Este archivo NO se versiona (esta en .gitignore). Copia este archivo como
+ * ia-local.php y ajusta la direccion del microservicio si hace falta.
+ */
+
+return array(
+    // Direccion del microservicio Flask que corre el motor difuso.
+    'IA_SERVICIO_URL' => 'http://127.0.0.1:5000',
+);

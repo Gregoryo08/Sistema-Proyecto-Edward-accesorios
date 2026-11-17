@@ -16,7 +16,7 @@ class servicio_tecnico extends Conexion
     private $diagnostico;
     private $estado;
     private $monto_total;
-    private $id_especialidad; 
+    private $id_especialidad;
 
     public function __construct()
     {
@@ -40,7 +40,7 @@ class servicio_tecnico extends Conexion
     $this->setCedula($datos['cedula'] ?? '');
     $this->setEquipo($datos['equipo'] ?? '');
     $this->setFalla_inicial($datos['falla'] ?? '');
-    $this->setId_especialidad($datos['especialidad'] ?? null); 
+    $this->setId_especialidad($datos['especialidad'] ?? null);
     return $this->registrar();
         case 'modificar':
     $this->setEquipo($datos['equipo'] ?? '');
@@ -52,9 +52,9 @@ class servicio_tecnico extends Conexion
     return $this->modificar($productos);
         case 'cobrar':
             return $this->registrarCobro(
-                $this->id_servicio, 
-                $datos['monto'] ?? 0, 
-                $datos['diagnostico'] ?? '', 
+                $this->id_servicio,
+                $datos['monto'] ?? 0,
+                $datos['diagnostico'] ?? '',
                 $datos['nota_tecnico'] ?? ''
             );
         case 'eliminar':
@@ -67,9 +67,9 @@ class servicio_tecnico extends Conexion
 public function listarProductos($filtro = '')
 {
     $conex = new conexion("sistema");
-   
+
     $sql = "SELECT id_producto, nombre_producto, stock_actual, precio_detal FROM productos WHERE estado = 1 AND stock_actual > 0 AND id_categoria = 27";
-    
+
     if (!empty($filtro)) {
         $sql .= " AND nombre_producto LIKE ?";
         $stmt = $conex->prepare($sql);
@@ -130,7 +130,7 @@ public function listarProductos($filtro = '')
     {
         $conex = new conexion("sistema");
         try {
-            $stmt = $conex->prepare("SELECT st.id_servicio, st.cedula_persona, p.nombre, p.apellido, st.equipo_descripcion, st.falla_inicial, st.estado, st.monto_total, st.fecha_registro FROM servicio_tecnico st LEFT JOIN persona p ON p.cedula_persona = st.cedula_persona");
+            $stmt = $conex->prepare("SELECT id_servicio, cedula_persona, equipo_descripcion, falla_inicial, estado, monto_total, fecha_registro FROM servicio_tecnico");
             $stmt->execute();
             $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
             unset($conex);
@@ -147,9 +147,9 @@ public function listarProductos($filtro = '')
     $conex = new conexion("sistema");
     try {
         $stmt = $conex->prepare("
-            SELECT st.*, dst.diagnostico, dst.nota_tecnico, dst.garantia_dias 
-            FROM servicio_tecnico st 
-            LEFT JOIN detalles_servicio_tecnico dst ON st.id_servicio = dst.id_servicio 
+            SELECT st.*, dst.diagnostico, dst.nota_tecnico, dst.garantia_dias
+            FROM servicio_tecnico st
+            LEFT JOIN detalles_servicio_tecnico dst ON st.id_servicio = dst.id_servicio
             WHERE st.id_servicio = :id
         ");
         $stmt->execute([":id" => $id]);
@@ -166,16 +166,16 @@ private function consultarProductos($id_servicio)
 {
     $conex = new conexion("sistema");
     $stmt = $conex->prepare("
-        SELECT 
-            sp.id_producto, 
-            p.nombre_producto, 
-            sp.cantidad, 
+        SELECT
+            sp.id_producto,
+            p.nombre_producto,
+            sp.cantidad,
             sp.precio_unitario,
             dst.diagnostico,
             dst.nota_tecnico,
             e.nombre_especialidad
-        FROM servicio_productos sp 
-        JOIN productos p ON sp.id_producto = p.id_producto 
+        FROM servicio_productos sp
+        JOIN productos p ON sp.id_producto = p.id_producto
         JOIN detalles_servicio_tecnico dst ON sp.id_servicio = dst.id_servicio
         LEFT JOIN especialidades e ON dst.id_especialidad = e.id_especialidad
         WHERE sp.id_servicio = :id
@@ -187,17 +187,10 @@ private function consultarProductos($id_servicio)
 }
     private function registrar()
 {
-    if (mb_strlen($this->equipo_descripcion) > 30) {
-        return ["error" => "El modelo/equipo no puede superar 30 caracteres."];
-    }
-    if (mb_strlen($this->falla_inicial) > 50) {
-        return ["error" => "El diagnóstico inicial no puede superar 50 caracteres."];
-    }
-
     $conex = new conexion("sistema");
     try {
         $conex->beginTransaction();
-        
+
         $user = $_SESSION["username"];
         $modulo = "Administrar Servicio Tecnico";
         $conex->exec("SET @usuario_actual = '{$user}'");
@@ -205,7 +198,7 @@ private function consultarProductos($id_servicio)
 
         $stmt = $conex->prepare("INSERT INTO servicio_tecnico (cedula_persona, equipo_descripcion, falla_inicial, estado) VALUES (:cedula, :equipo, :falla, 'Pendiente')");
         $stmt->execute([":cedula" => $this->cedula_persona, ":equipo" => $this->equipo_descripcion, ":falla" => $this->falla_inicial]);
-        
+
         $id_servicio = $conex->lastInsertId();
 
         $stmtDetalle = $conex->prepare("INSERT INTO detalles_servicio_tecnico (id_servicio, id_especialidad) VALUES (:id_servicio, :id_especial)");
@@ -223,20 +216,6 @@ private function consultarProductos($id_servicio)
 
 private function modificar($productos)
 {
-    if (!preg_match('/^\d{1,6}(\.\d{1,2})?$/', (string)$this->monto_total)) {
-        return ["error" => "El monto no puede superar 6 dígitos enteros."];
-    }
-
-    if (mb_strlen($this->equipo_descripcion) > 30) {
-        return ["error" => "El modelo/equipo no puede superar 30 caracteres."];
-    }
-    if (mb_strlen($this->falla_inicial) > 50) {
-        return ["error" => "La falla inicial no puede superar 50 caracteres."];
-    }
-    if (mb_strlen($this->diagnostico) > 40) {
-        return ["error" => "El diagnóstico técnico no puede superar 40 caracteres."];
-    }
-
     $conex = new conexion("sistema");
     try {
         $conex->beginTransaction();
@@ -257,7 +236,7 @@ private function modificar($productos)
 
         if (!empty($productos) && is_array($productos)) {
             $stmtInsert = $conex->prepare("INSERT INTO servicio_productos (id_servicio, id_producto, cantidad, precio_unitario) SELECT :id, :id_prod, :cant, precio_detal FROM productos WHERE id_producto = :id_prod");
-            
+
             foreach ($productos as $prod) {
                 $stmtInsert->execute([
                     ":id" => $this->id_servicio,
@@ -278,41 +257,29 @@ private function modificar($productos)
 }
 private function registrarCobro($id_servicio, $monto_final, $diagnostico, $nota_tecnico)
 {
-    if (!preg_match('/^\d{1,6}(\.\d{1,2})?$/', (string)$monto_final)) {
-        return ["error" => "El monto total no puede superar 6 dígitos enteros."];
-    }
-
-    if (mb_strlen($diagnostico) > 40) {
-        return ["error" => "El diagnóstico no puede superar 40 caracteres."];
-    }
-    if (mb_strlen($nota_tecnico) > 30) {
-        return ["error" => "La nota del técnico no puede superar 30 caracteres."];
-    }
-
     $conex = new conexion("sistema");
     $conex->beginTransaction();
     $user = $_SESSION["username"];
     $modulo = "Administrar Servicio Tecnico";
     $conex->exec("SET @usuario_actual = '{$user}'");
     $conex->exec("SET @modulo = '{$modulo}'");
-    
+
     try {
-        
+
         $stmt = $conex->prepare("UPDATE servicio_tecnico SET estado = 'Cobrado', monto_total = :monto WHERE id_servicio = :id");
         $stmt->execute([":monto" => $monto_final, ":id" => $id_servicio]);
 
-        
         $stmtDetalle = $conex->prepare("UPDATE detalles_servicio_tecnico SET diagnostico = :diag, nota_tecnico = :nota WHERE id_servicio = :id");
         $stmtDetalle->execute([
-            ":id"   => $id_servicio, 
-            ":diag" => $diagnostico, 
+            ":id"   => $id_servicio,
+            ":diag" => $diagnostico,
             ":nota" => $nota_tecnico
         ]);
 
         $conex->commit();
         unset($conex);
         return ["success" => true];
-        
+
     } catch (Exception $e) {
         $conex->rollBack();
         unset($conex);

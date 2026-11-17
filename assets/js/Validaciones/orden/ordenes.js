@@ -100,7 +100,6 @@ $(document).ready(function () {
         $.post('?pagina=orden', { id: id, accion: 'consultar' }, function (res) {
             try { res = (typeof res === 'string') ? JSON.parse(res) : res; } catch (e) {}
             if (res.error) { alert(res.error); return; }
-            // usar modal existente para mostrar detalles
             $('#orden_id').text(res.id_orden || '-');
             $('#orden_fecha').text(res.fecha_registro || '-');
             $('#orden_horas_estimadas').text(res.horas_estimadas || '-');
@@ -119,7 +118,6 @@ $(document).ready(function () {
         });
     });
 
-    // Nuevo registro: limpiar id oculto antes de abrir modal
     $(document).on('click', '#btnRegistrarOrden', function () {
         try {
             $('#orden_id_tecnico').val('');
@@ -130,14 +128,12 @@ $(document).ready(function () {
         } catch (e) { console.warn(e); }
     });
 
-    // Editar orden: cargar en modal para modificar
     $(document).on('click', '.btn-editarOrden', function () {
         const id = $(this).data('id');
         if (!id) return;
         $.post('?pagina=orden', { id: id, accion: 'consultar' }, function (res) {
             try { res = (typeof res === 'string') ? JSON.parse(res) : res; } catch (e) {}
             if (res.error) { Swal.fire({ title: 'Error', text: res.error, icon: 'error', color: 'white', background: '#000910' }); return; }
-            // rellenar modal tecnico
             $('#orden_id_tecnico').val(res.id_orden || '');
             $('#orden_cliente_tecnico').val(res.cliente || res.cedula_cliente || '');
             $('#orden_marca_tecnico').val(res.id_marca || '');
@@ -147,7 +143,6 @@ $(document).ready(function () {
             $('#orden_horas_estimadas_tecnico').val(res.horas_estimadas || '00:00');
             $('#orden_observaciones_tecnico').val(res.observaciones || '');
 
-            // repuestos
             const rows = $('#orden_repuestos_rows');
             rows.empty();
             const items = Array.isArray(res.repuestos) ? res.repuestos : [];
@@ -163,17 +158,14 @@ $(document).ready(function () {
                 });
             }
 
-            // totales
             $('#orden_repuestos_total_tecnico').val('$ ' + (repuestosTotal).toFixed(2));
             $('#orden_total_tecnico').val('$ ' + (Number(res.total_orden || 0)).toFixed(2));
 
-            // mostrar modal
             var modal = new bootstrap.Modal(document.getElementById('modalOrdenTecnico'));
             modal.show();
         }).fail(function () { Swal.fire({ title: 'Error', text: 'No se pudo obtener la orden', icon: 'error', color: 'white', background: '#000910' }); });
     });
 
-    // Eliminar orden
     $(document).on('click', '.btn-eliminarOrden', function () {
         const id = $(this).data('id');
         if (!id) return;

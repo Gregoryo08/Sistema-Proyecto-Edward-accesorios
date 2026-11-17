@@ -53,7 +53,6 @@ $("#tablaModulos").DataTable({
 
   $(".text-right button").css("display", "block");
 
-// -----------------------------------------------------------------------------------------------------------
 
 
 
@@ -243,7 +242,7 @@ $(document).ready(function () {
     $(document).on("click", ".btn-eliminar", function () {
       $("#id_modulo").val($(this).data("id"));
   
-      mensaje("eliminar", "Estas Seguro de Eliminar el modulo?", eliminar,"Al eliminar el modulo, se eliminaran las operaciones y roles ligados a ese Modulo, a parte de los registros en la bitacora del Modulo '" + $(this).data("nombre") + "'");
+      mensaje("eliminar", "Estas Seguro de Eliminar el Rol?", eliminar,"Al eliminar el rol, se eliminaran las operaciones y roles ligados a ese Modulo, a parte de los registros en la bitacora del Modulo '" + $(this).data("nombre") + "'");
     });
   
     function eliminar() {
@@ -303,7 +302,7 @@ $(document).ready(function () {
           icon: "error",
           color: "white",
           showConfirmButton: true,
-          confirmButtonColor: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
           background: "#000910",
         });
       } else if (accion == "warning") {
@@ -313,7 +312,7 @@ $(document).ready(function () {
           icon: "warning",
           color: "white",
           showConfirmButton: false,
-          confirmButtonColor: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
           background: "#000910",
           timer: 2000,
         });
@@ -324,7 +323,7 @@ $(document).ready(function () {
           icon: "error",
           color: "white",
           showConfirmButton: true,
-          confirmButtonColor: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
           background: "#000910",
         });
       } else if (accion == "pregunta") {
@@ -334,8 +333,8 @@ $(document).ready(function () {
           icon: "question",
           color: "white",
           showConfirmButton: true,
-          confirmButtonColor: "#2C74B3",
-          confirmButtonBorder: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
+          confirmButtonBorder: "rgb(238, 191, 0)",
           background: "#000910",
           confirmButtonText: "Confirmar",
           showCancelButton: true,
@@ -352,8 +351,8 @@ $(document).ready(function () {
           icon: "question",
           color: "white",
           showConfirmButton: true,
-          confirmButtonColor: "#2C74B3",
-          confirmButtonBorder: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
+          confirmButtonBorder: "rgb(238, 191, 0)",
           background: "#000910",
           confirmButtonText: "Confirmar",
           showCancelButton: true,
@@ -371,7 +370,7 @@ $(document).ready(function () {
           icon: "success",
           color: "white",
           showConfirmButton: false,
-          confirmButtonColor: "#2C74B3",
+          confirmButtonColor: "rgb(238, 191, 0)",
           background: "#000910",
           timer: 1500,
         });

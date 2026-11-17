@@ -1,10 +1,7 @@
 <?php
-//use App\Sistema\models\Notificacion;
+
 use App\Sistema\models\Usuarios;
 use App\Sistema\models\modulo;
-
-
-
 
 $cedula = $_SESSION['username'];
 $rol = $_SESSION["rol"];
@@ -25,15 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
     exit();
 }
 
-
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'registrar') {
     $nombre = trim($_POST["nombre"]);
 
     $obj_modulo = new modulo();
     $obj_modulo->setNombre_modulo($nombre);
-    $respuesta = $obj_modulo->procesarSolicitud('registrar');
+    $respuesta = $obj_modulo->registrar();
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);
@@ -55,9 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     echo json_encode(["success" => "Rol Registrado con Exito!"]);
     exit();
 }
-
-
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'modificar') {
     $nombre = trim($_POST["nombre"]);
@@ -66,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     $obj_modulo = new modulo();
     $obj_modulo->setId_modulo($id);
     $obj_modulo->setNombre_modulo($nombre);
-    $respuesta = $obj_modulo->procesarSolicitud('modificar');
+    $respuesta = $obj_modulo->modificar();
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);
@@ -89,15 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
     $id = (int) $_POST["id"];
 
     $obj_modulo = new modulo();
     $obj_modulo->setId_modulo($id);
-    $respuesta = $obj_modulo->procesarSolicitud('eliminar');
+    $respuesta = $obj_modulo->eliminar();
 
     if (isset($respuesta["error"])) {
         unset($obj_modulo);

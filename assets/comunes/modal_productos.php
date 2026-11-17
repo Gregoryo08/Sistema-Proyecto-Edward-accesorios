@@ -97,14 +97,13 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header text-white">
-                <h5 class="modal-title" id="modalModificarProductoLabel" style="color: black;">Modificar Datos E Imagen Del Producto</h5>
+                <h5 class="modal-title" id="modalModificarProductoLabel" style="color: black;">Modificar Datos Del Producto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formModificarProducto">
                     <input type="hidden" id="producto_id" name="id">
                     <input type="hidden" id="imagen_actualModificar" name="imagen_actual">
-                    <input type="hidden" id="quitar_imagenModificar" name="quitar_imagen" value="0">
 
                     <div class="text-center mb-4 p-3" style="background:#f0f4f8; border-radius:12px; border:2px dashed #0077b6;">
                         <label class="form-label fw-bold mb-2" style="color:#0077b6; font-size:14px;">
@@ -118,11 +117,6 @@
                         </label>
                         <input type="file" id="imagenModificar" name="imagen" accept="image/*" style="display:none;">
                         <p class="text-muted mt-2 mb-0" style="font-size:12px;">Selecciona una foto desde tu computador. El sistema la guardará con el nombre del producto.</p>
-                        <div class="mt-2" id="contenedorEliminarImagenModificar" style="display:none;">
-                            <button type="button" id="btnEliminarImagenModificar" class="btn btn-outline-danger btn-sm">
-                                <i class="bi bi-trash"></i> Eliminar imagen (volver a defecto)
-                            </button>
-                        </div>
                     </div>
                     
                     <div class="row">
@@ -250,6 +244,44 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalGestionarImagen" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: black;"><i class="bi bi-image"></i> Gestionar Imagen del Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="img_producto_id">
+                <div class="text-center mb-3">
+                    <div id="previewImgGestionar" style="min-height:150px; display:flex; align-items:center; justify-content:center; border:2px dashed #0077b6; border-radius:10px; padding:10px; background:#f0f4f8;">
+                        <img src="assets/img/productos/default.jpg" style="max-height:150px; max-width:200px; border-radius:8px; object-fit:contain;">
+                    </div>
+                    <p id="img_nombre_archivo" class="mt-2 mb-0 text-muted" style="font-size:12px;"></p>
+                </div>
+
+                <div class="mb-3 p-3 rounded border" style="background:#f8f9fa;">
+                    <h6 class="text-primary"><i class="bi bi-upload"></i> Subir nueva imagen</h6>
+                    <p class="text-muted" style="font-size:12px;">JPG, PNG, GIF o WebP. Máx. 5MB. Se guardará con el nombre del producto.</p>
+                    <input type="file" class="form-control" id="imagenGestionar" name="imagen" accept="image/*">
+                    <button type="button" class="btn btn-primary mt-2 w-100" id="btnSubirImagenProducto">
+                        <i class="bi bi-cloud-upload"></i> Subir Imagen
+                    </button>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-danger" id="btnEliminarImagenProducto">
+                        <i class="bi bi-trash"></i> Eliminar Imagen (restablecer a defecto)
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalDetallesTelefono" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -270,93 +302,3 @@
         </div>
     </div>
 </div>
-
-<style>
- body.dark-mode .modal #seccion_telefono_modificar,
-body.dark-mode .modal [id*="seccion_telefono"] {
-    background-color: #242424 !important;
-    border-color: #383838 !important;
-    color: #f8f9fa !important;
-}
-
-body.dark-mode .modal #seccion_telefono_modificar h6,
-body.dark-mode .modal [id*="seccion_telefono"] h6 {
-    color: #ffda6a !important;
-}
-
-body.dark-mode .modal-content {
-    background-color: #1a1a1a !important;
-    border: 1px solid #333 !important;
-    color: #f8f9fa !important;
-}
-
-body.dark-mode .modal-header,
-body.dark-mode .modal-footer {
-    border-color: #333 !important;
-}
-
-
-body.dark-mode .modal-title {
-    color: #f8f9fa !important;
-}
-
-
-body.dark-mode .modal .form-control,
-body.dark-mode .modal .form-select,
-body.dark-mode .modal select {
-    background-color: #212529 !important;
-    border-color: #495057 !important;
-    color: #f8f9fa !important;
-}
-
-body.dark-mode .modal .form-control:focus {
-    background-color: #212529 !important;
-    border-color: #38bdf8 !important;
-    color: #f8f9fa !important;
-    box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
-}
-
-
-body.dark-mode .modal [style*="background:#f8f9fa"],
-body.dark-mode .modal [style*="background:#f0f4f8"],
-body.dark-mode .modal [style*="background: #f8f9fa"],
-body.dark-mode .modal .bg-light {
-    background-color: #242424 !important;
-    border-color: #383838 !important;
-    color: #f8f9fa !important;
-}
-
-body.dark-mode .modal [style*="background:#fff3cd"] {
-    background-color: #332701 !important;
-    border-color: #664d03 !important;
-    color: #ffda6a !important;
-}
-
-body.dark-mode .modal [style*="background:#fff3cd"] h6 {
-    color: #ffda6a !important;
-}
-
-
-body.dark-mode .modal .list-group-item {
-    background-color: #1a1a1a !important;
-    border-color: #333 !important;
-    color: #f8f9fa !important;
-}
-
-
-body.dark-mode .modal .text-muted,
-body.dark-mode .modal span.text-muted {
-    color: #9ca3af !important;
-}
-
-body.dark-mode .modal h4,
-body.dark-mode .modal strong,
-body.dark-mode .modal code {
-    color: #f8f9fa !important;
-}
-
-
-body.dark-mode .modal .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}
-</style>

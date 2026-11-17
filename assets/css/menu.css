@@ -214,6 +214,20 @@ body.dark-mode #container_notificacion > div:last-child {
     background-color: var(--color-primary);
 }
 
+/* Opcion visible pero inhabilitada (el cliente no tiene ese servicio) */
+.dropdown.opcion-inhibida {
+    opacity: .45;
+}
+
+.dropdown.opcion-inhibida > .opcion {
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.dropdown.opcion-inhibida > .opcion:hover {
+    background-color: transparent;
+}
+
 #container_notificacion {
     border-radius: 10px;
     border: 1px solid var(--border-color) !important;

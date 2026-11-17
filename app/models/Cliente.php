@@ -17,19 +17,6 @@ class Cliente extends Persona
 
     public function __construct() { parent::__construct(); }
 
-    public function procesarSolicitud($accion, $datos = [])
-    {
-        switch ($accion) {
-            case 'validarCedula': return $this->validarCedula();
-            case 'consultar': return $this->consultarCliente();
-            case 'registrar': return $this->registroCliente();
-            case 'registrarPerfil': return $this->registrarPerfilFinanciero();
-            case 'modificar': return $this->ModificarCliente();
-            case 'eliminar': return $this->eliminarClientes($datos['estado'] ?? null);
-            default: return ["error" => "Acción no reconocida"];
-        }
-    }
-
     public function setIngresos($valor) { $this->ingresos_mensuales = $valor; }
     public function getIngresos() { return $this->ingresos_mensuales; }
     public function setResidenciaTipo($valor) { $this->tipo_residencia = $valor; }
@@ -45,7 +32,7 @@ class Cliente extends Persona
     public function setScore($valor) { $this->score_credito = $valor; }
     public function getScore() { return $this->score_credito; }
 
-    private function validarCedula()
+    public function validarCedula()
     {
         $cedula = $this->getCedula();
         $stmt = $this->prepare("SELECT COUNT(*) as conteo FROM clientes WHERE cedula_persona = :c");
@@ -53,7 +40,7 @@ class Cliente extends Persona
         return $stmt->fetch(PDO::FETCH_ASSOC)["conteo"];
     }
 
-   public function datosClientes()
+   public function datosClientesActivos()
 {
    
     $sql = "SELECT p.cedula_persona, p.nombre, p.apellido, p.sexo, p.telefono, p.correo, p.fecha_nacimiento, p.direccion,
@@ -62,27 +49,16 @@ class Cliente extends Persona
                    pf.ocupacion, pf.ingresos_mensuales, pf.score_credito 
             FROM persona p
             INNER JOIN clientes c ON p.cedula_persona = c.cedula_persona
-            LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona 
+            LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona
+            WHERE c.estado = 'activo' 
             ORDER BY p.nombre ASC";
             
     return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
-    private function registroCliente()
+    public function registroCliente()
     {
         $cedula = $this->getCedula();
-        if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $cedula)) {
-            return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
-        }
-        if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
-            return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
-        }
-
-        $stmtExiste = $this->prepare("SELECT COUNT(*) FROM persona WHERE cedula_persona = :cedula");
-        $stmtExiste->execute([":cedula" => $cedula]);
-        if ((int) $stmtExiste->fetchColumn() > 0) {
-            return ["error" => "Esta cédula ya está registrada."];
-        }
         
         try {
             $this->beginTransaction();
@@ -112,14 +88,11 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
             return true;
         } catch (PDOException $e) {
             if ($this->inTransaction()) $this->rollBack();
-            if ((int) $e->getCode() === 23000) {
-                return ["error" => "Esta cédula ya está registrada."];
-            }
             return ["error" => $e->getMessage()];
         }
     }
 
-    private function registrarPerfilFinanciero()
+    public function registrarPerfilFinanciero()
 {
     $cedula = $this->getCedula();
     try {
@@ -144,15 +117,9 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
     }
 }
 
-    private function ModificarCliente()
+  public function ModificarCliente()
 {
     $cedula = $this->getCedula();
-    if (!preg_match('/^(?:[VE]-?)?\d{7,8}$/', (string) $cedula)) {
-        return ["error" => "La cédula debe tener entre 7 y 8 dígitos."];
-    }
-    if (!preg_match('/^\d{10,11}$/', (string) $this->getCel())) {
-        return ["error" => "El teléfono debe tener entre 6 y 7 dígitos después de la operadora."];
-    }
     try {
         $this->beginTransaction();
         
@@ -176,14 +143,11 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
         return true;
     } catch (PDOException $e) {
         if ($this->inTransaction()) $this->rollBack();
-        if ((int) $e->getCode() === 23000) {
-            return ["error" => "Esta cédula ya está registrada."];
-        }
         return ["error" => $e->getMessage()];
     }
 }
 
-    private function eliminarClientes($estado)
+    public function eliminarClientes($estado)
     {
         $cedula = $this->getCedula();
         try {
@@ -208,7 +172,26 @@ $this->prepare($sqlCliente)->execute([":cedula" => $cedula]);
         }
     }
 
-    private function consultarCliente()
+    public function consultaInactivos()
+    {
+        $sql = "SELECT p.cedula_persona, p.nombre, p.apellido, p.sexo, p.telefono, p.correo, p.fecha_nacimiento, p.direccion,
+                       c.estado, pf.tipo_residencia, pf.carga_familiar, pf.estado_civil, pf.profesion, 
+                       pf.ocupacion, pf.ingresos_mensuales, pf.score_credito 
+                FROM persona p 
+                INNER JOIN clientes c ON p.cedula_persona = c.cedula_persona 
+                LEFT JOIN perfiles_financiamiento pf ON p.cedula_persona = pf.cedula_persona 
+                WHERE c.estado = 'inactivo' 
+                ORDER BY p.nombre ASC";
+
+        $stmt = $this->prepare($sql);
+        
+        if (!($stmt->execute())) {
+            return ["error" => "Error al cargar clientes inactivos!"];
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function consultarCliente()
     {
         $cedula = $this->getCedula();
         if (empty($cedula)) return ["incompleto" => "ID vacío!"];

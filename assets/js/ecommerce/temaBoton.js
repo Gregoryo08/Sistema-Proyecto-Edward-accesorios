@@ -1,10 +1,3 @@
-// /src/assets/js/ecommerce/temaBoton.js
-// =============================================
-// TEMA DIA/NOCHE - BOTON (sol/luna)
-// Usado en catálogo y login/registro ecommerce.
-// El botón #themeToggle lleva data-icon-oscuro y
-// data-icon-claro con las clases de los iconos.
-// =============================================
 (function() {
     'use strict';
 

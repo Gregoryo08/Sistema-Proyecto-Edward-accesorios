@@ -1,159 +1,48 @@
 <?php
 
-use App\Sistema\models\Usuarios;
-use App\Sistema\models\bancos;
+use App\Sistema\models\EcommerceModel;
 
-
-$cedula = $_SESSION['username'];
-$rol = $_SESSION["rol"];
-
-if (!(isset($cedula) && isset($rol))) {
-    header("Location: ?pagina=iniciarSesion");
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-$obj_usuario = new Usuarios();
-$modulo_actual = "Administrar Bancos";
-
-if (!$obj_usuario->tienePermiso($modulo_actual, "listar")) {
-    header("Location: ?pagina=principal");
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['permisos'])) {
-    echo json_encode([
-        "registrar" => $obj_usuario->tienePermiso($modulo_actual, "registrar"),
-        "modificar" => $obj_usuario->tienePermiso($modulo_actual, "modificar"),
-        "eliminar"  => $obj_usuario->tienePermiso($modulo_actual, "eliminar")
-    ]);
-    exit();
-}
-
+$modelo = new EcommerceModel();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
-    $obj_bancos = new bancos();
-    $registros = $obj_bancos->listar();
-
-    echo json_encode($registros);
+    $productos = $modelo->ejecutar('producto.obtenerActivos');
+    echo json_encode(is_array($productos) ? $productos : []);
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'consultar') {
-    $cedula = (int) trim($_POST["id"]);
-
-    $obj_bancos = new bancos();
-    $obj_bancos->setCedula_cuenta($cedula);
-    $registros = $obj_bancos->procesarSolicitud('consultar');
-
-    echo json_encode($registros);
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['categorias']) && $_GET['categorias'] === 'true') {
+    $categorias = $modelo->ejecutar('producto.obtenerCategorias');
+    echo json_encode(is_array($categorias) ? $categorias : []);
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'validar') {
-    $cedula = (int) trim($_POST["cedula"]);
-    $nombre = trim($_POST["banco"]);
+$mostrarOpcionesCliente = false;
+$nombreCliente = '';
 
-    $obj_bancos = new bancos();
-    $obj_bancos->setCedula_cuenta($cedula);
-    $obj_bancos->setNombre_banco($nombre);
-    $registros = $obj_bancos->procesarSolicitud('validar');
-
-    echo json_encode($registros);
-    exit();
+if (!empty($_SESSION['cliente_cedula']) || !empty($_SESSION['cliente_nombre']) || !empty($_SESSION['cliente_logueado'])) {
+    $mostrarOpcionesCliente = true;
+    $nombreCliente = $_SESSION['cliente_nombre'] ?? $_SESSION['cliente_cedula'] ?? '';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'registrar') {
-    $nombre = trim($_POST['nombre']);
-    $numero = trim($_POST['numero']);
-    $telefono = trim($_POST['telefono']);
-    $cedula = (int) trim($_POST['cedula']);
-
-    $obj_bancos = new bancos();
-    $obj_bancos->setNombre_banco($nombre);
-    $obj_bancos->setNumero_cuenta($numero);
-    $obj_bancos->setTelefono($telefono);
-    $obj_bancos->setCedula_cuenta($cedula);
-
-    $respuesta = $obj_bancos->procesarSolicitud('registrar');
-
-    if (isset($respuesta["error"])) {
-        echo json_encode(["error" => $respuesta["error"]]);
-        exit();
-    }
-    if (isset($respuesta["incompleto"])) {
-        echo json_encode(["incompleto" => $respuesta["incompleto"], "input" => $respuesta["input"]]);
-        exit();
-    }
-    if (isset($respuesta["invalido"])) {
-        echo json_encode(["invalido" => $respuesta["invalido"], "input" => $respuesta["input"]]);
-        exit();
-    }
-
-    echo json_encode(["success" => "Banco registrado exitosamente."]);
-    unset($obj_bancos);
-    exit();
+$productos = $modelo->ejecutar('producto.obtenerActivos');
+if (empty($productos)) {
+    $productos = [];
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'modificar') {
-    $nombre = trim($_POST['nombre']);
-    $numero = trim($_POST['numero']);
-    $cedula = (int) trim($_POST['cedula']);
-    $telefono = trim($_POST["telefono"]);
-    $id_banco = (int) trim($_POST["id"]);
-
-    $obj_bancos = new bancos();
-    $obj_bancos->setNombre_banco($nombre);
-    $obj_bancos->setNumero_cuenta($numero);
-    $obj_bancos->setCedula_cuenta($cedula);
-    $obj_bancos->setId_banco($id_banco);
-    $obj_bancos->setTelefono($telefono);
-    $respuesta = $obj_bancos->procesarSolicitud('modificar');
-
-    if (isset($respuesta["error"])) {
-        echo json_encode(["error" => $respuesta["error"]]);
-        unset($obj_bancos);
-        exit();
-    }
-    if (isset($respuesta["incompleto"])) {
-        echo json_encode(["incompleto" => $respuesta["incompleto"], "input" => $respuesta["input"]]);
-        unset($obj_bancos);
-        exit();
-    }
-    if (isset($respuesta["invalido"])) {
-        echo json_encode(["invalido" => $respuesta["invalido"], "input" => $respuesta["input"]]);
-        unset($obj_bancos);
-        exit();
-    }
-
-    echo json_encode(["success" => "Banco modificado exitosamente."]);
-    unset($obj_bancos);
-    exit();
+$categorias = $modelo->ejecutar('producto.obtenerCategorias');
+if (!is_array($categorias)) {
+    $categorias = [];
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
-    $id_banco = (int) trim($_POST["id"]);
-    $tipo = trim($_POST["tipo"]);
-
-    $obj_bancos = new bancos();
-    $obj_bancos->setId_banco($id_banco);
-    $respuesta = $obj_bancos->procesarSolicitud('eliminar', ['tipo' => $tipo]);
-
-    if (isset($respuesta["error"])) {
-        echo json_encode(["error" => $respuesta["error"]]);
-        exit();
-    }
-
-    echo json_encode(["success" => "Servicio Eliminado exitosamente."]);
-    unset($obj_bancos);
-    exit();
-}
-
-
-$vista = 'app/views/bancos.php';
+$vista = 'app/views/catalogo.php';
 
 if (file_exists($vista)) {
     require_once $vista;
 } else {
-    require_once 'App/views/error_404.php';
+    require_once 'app/views/error_404.php';
 }
 ?>

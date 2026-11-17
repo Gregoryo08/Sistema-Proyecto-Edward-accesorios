@@ -26,7 +26,7 @@ if ($action === 'DatosDashboardCliente') {
 }
 
 $cedula = $_SESSION['username'] ?? $_SESSION['cliente_cedula'] ?? null;
-$rol = $_SESSION["rol"] ?? '6';
+$rol = $_SESSION["rol"] ?? null;
 $_SESSION["rol"] = $rol;
 
 if ($cedula) {
@@ -34,7 +34,7 @@ if ($cedula) {
 }
 
 if (!$cedula) {
-    header("Location: ?pagina=loginEcommerce");
+    header("Location: ?pagina=login_principal");
     exit();
 }
 

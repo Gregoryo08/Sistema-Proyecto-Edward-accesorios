@@ -5,7 +5,7 @@ Options -Indexes
 RewriteEngine On
 
 # Obtener la carpeta actual como base
-RewriteBase /sistemaL/sistema
+RewriteBase /
 
 # Bloquear acceso directo a carpetas internas y redirigir al index del sistema
 RewriteCond %{REQUEST_URI} /(models|controllers|views|config) [NC]

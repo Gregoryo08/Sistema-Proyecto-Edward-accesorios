@@ -1,8 +1,3 @@
-// /src/assets/js/ecommerce/carritoContador.js
-// =============================================
-// Actualiza el contador del carrito (#cartCount) desde localStorage
-// Usado en misPedidos.php y verPedido.php
-// =============================================
 
 function actualizarContadorCarrito() {
     try {

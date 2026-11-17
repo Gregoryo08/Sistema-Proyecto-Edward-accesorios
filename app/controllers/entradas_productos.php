@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
             if (method_exists($obj_proveedor, 'listar')) {
                 echo json_encode($obj_proveedor->listar());
             } else {
-                
+                echo json_encode($obj_proveedor->listarProveedor());
             }
             break;
     }
@@ -159,6 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
                     $objeto_entrada->setId_entrada((int)$id_nueva_entrada);
                     $objeto_entrada->setId_producto((int)$prod['id_producto']);
                     $objeto_entrada->setCantidad((float)$prod['cantidad']);
+                    $objeto_entrada->setImeis(isset($prod['imeis']) && is_array($prod['imeis']) ? $prod['imeis'] : []);
                     
                     $garantia = isset($prod['dias_garantia']) ? trim($prod['dias_garantia']) : '';
                     $objeto_entrada->setDiasGarantia(!empty($garantia) ? (int)$garantia : 0);
@@ -190,8 +191,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         case 'modificar_cantidad':
             $objeto_entrada->setId_entrada((int)$_POST['id_entrada']);
             $objeto_entrada->setId_producto((int)$_POST['id_producto']);
-            $objeto_entrada->setCantidad((float)$_POST['cantidadNEW']);
+            $objeto_entrada->setCantidad(isset($_POST['cantidadNEW']) ? (float)$_POST['cantidadNEW'] : 0);
             $objeto_entrada->setCantidadOLD((float)$_POST['cantidadOLD']);
+            $objeto_entrada->setImeis(isset($_POST['imeis']) && is_array($_POST['imeis']) ? $_POST['imeis'] : []);
             
             $garantiaNEW = trim($_POST['garantiaNEW'] ?? '');
             $objeto_entrada->setDiasGarantia(!empty($garantiaNEW) ? (int)$garantiaNEW : 0);
@@ -207,10 +209,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     exit();
 }
 
-$vista = 'App/views/entradas_productos.php';
+$vista = 'app/views/entradas_productos.php';
 if (file_exists($vista)) {
-    require_once $vista;
+    include $vista;
 } else {
-    require_once 'App/views/error_404.php';
+    include 'app/views/error_404.php';
 }
 

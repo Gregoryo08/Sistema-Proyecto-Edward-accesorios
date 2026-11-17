@@ -1,144 +1,122 @@
 <?php
-// /src/app/controllers/guardarPedido.php
-namespace App\Sistema\Controllers;
-
-use App\Sistema\models\PedidoModel;
-use App\Sistema\models\ProductoModel;
-use App\Sistema\models\ClienteEcommerce;
-
-header('Content-Type: application/json');
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 1. Forzar cabecera JSON obligatoria para checkout.js
+header('Content-Type: application/json');
+
+use App\Sistema\models\EcommerceModel;
+
+// 2. Validar sesión del cliente
+$cedulaSesion = $_SESSION['cedula'] ?? $_SESSION['cliente_cedula'] ?? $_SESSION['cliente_logueado'] ?? null;
+
+if (empty($cedulaSesion)) {
+    echo json_encode([
+        'success' => false, 
+        'error' => 'Debe iniciar sesión para procesar el pedido.'
+    ]);
+    exit();
+}
+
+// 3. Leer el JSON enviado por AJAX desde checkout.js
+$inputJSON = file_get_contents('php://input');
+$data = json_decode($inputJSON, true);
+
+if (empty($data) && !empty($_POST)) {
+    $data = $_POST;
+}
+
+if (empty($data)) {
+    echo json_encode([
+        'success' => false, 
+        'error' => 'No se recibieron datos válidos del formulario.'
+    ]);
+    exit();
+}
+
+// 4. Extraer los datos enviados por el frontend
+$cliente     = $data['cliente'] ?? [];
+$nombre      = $cliente['nombre'] ?? $data['nombre'] ?? 'Cliente';
+$email       = $cliente['email'] ?? $data['email'] ?? '';
+$telefono    = $cliente['telefono'] ?? $data['telefono'] ?? '';
+$cedula      = !empty($cliente['cedula']) ? $cliente['cedula'] : (!empty($data['cedula']) ? $data['cedula'] : $cedulaSesion);
+$tipoEntrega = $data['entrega'] ?? 'retiro';
+$direccion   = $data['direccion'] ?? '';
+$costoEnvio  = floatval($data['costo_envio'] ?? 0);
+$subtotal    = 0;
+
+$carrito     = $data['carrito'] ?? [];
+foreach ($carrito as $item) {
+    $subtotal += (floatval($item['precio']) * intval($item['cantidad']));
+}
+
+$total       = $subtotal + $costoEnvio;
+if (isset($data['total']) && floatval($data['total']) > 0) {
+    $total = floatval($data['total']);
+}
+
+$metodoPago  = $data['metodo_pago'] ?? 'transferencia';
+
 try {
-    // Verificar que el cliente está logueado
-    $clienteEcommerce = new ClienteEcommerce();
-    if (!$clienteEcommerce->ejecutar('estaLogueado')) {
-        echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión']);
-        exit;
-    }
+    $modelo = new EcommerceModel();
+    
+    // Iniciar transacción usando las funciones del modelo[cite: 4]
+    $modelo->PedidoiniciarTransaccion();
 
-    // Obtener datos del POST
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!$data || empty($data['carrito'])) {
-        echo json_encode(['success' => false, 'error' => 'Carrito vacío']);
-        exit;
-    }
-
-    // Datos del cliente desde sesión
-    $cedula = $_SESSION['cliente_cedula'];
-    $nombre = $_SESSION['cliente_nombre'] ?? 'Cliente';
-    $telefono = $_SESSION['cliente_telefono'] ?? '';
-    $email = $_SESSION['cliente_correo'] ?? '';
-
-    // Datos del pedido
-    $carrito = $data['carrito'];
-    $_SESSION['carrito'] = $carrito;
-    $total = floatval($data['total'] ?? 0);
-    $metodo_pago = $data['metodo_pago'] ?? 'transferencia';
-    $banco_emisor = $data['banco_emisor'] ?? null;
-    $tipo_entrega = $data['entrega'] ?? 'retiro';
-    $direccion_entrega = $data['direccion'] ?? null;
-    $costoEnvio = floatval($data['costo_envio'] ?? 0);
-
-    // Validar
-    if ($total <= 0) {
-        echo json_encode(['success' => false, 'error' => 'Total inválido']);
-        exit;
-    }
-    if ($tipo_entrega === 'delivery' && empty($direccion_entrega)) {
-        echo json_encode(['success' => false, 'error' => 'Dirección de entrega requerida']);
-        exit;
-    }
-
-    // Validar montos contra BD
-    $productoModel = new ProductoModel();
-    $subtotal = 0;
-    foreach ($carrito as $item) {
-        $producto = $productoModel->ejecutar('obtenerPorId', ['id' => $item['id']]);
-        if (!$producto) {
-            echo json_encode(['success' => false, 'error' => 'Producto no encontrado: ' . $item['id']]);
-            exit;
-        }
-        $precioEsperado = floatval($producto['precio_detal']);
-        $precioRecibido = floatval($item['precio']);
-        if (abs($precioEsperado - $precioRecibido) > 0.01) {
-            echo json_encode(['success' => false, 'error' => 'Precio incorrecto para: ' . $producto['nombre_producto']]);
-            exit;
-        }
-        $cantidad = intval($item['cantidad']);
-        if ($cantidad < 1) {
-            echo json_encode(['success' => false, 'error' => 'Cantidad inválida para: ' . $producto['nombre_producto']]);
-            exit;
-        }
-        $subtotal += $precioEsperado * $cantidad;
-    }
-    // Mismo criterio que CarritoModel::calcularTotal (envío gratis desde $100)
-    if ($tipo_entrega === 'delivery') {
-        $costoEnvio = $subtotal >= 100 ? 0 : 10;
-    } else {
-        $costoEnvio = 0;
-    }
-    $totalEsperado = $subtotal + $costoEnvio;
-    if (abs($total - $totalEsperado) > 0.01) {
-        echo json_encode(['success' => false, 'error' => 'El total no coincide con los productos' . ' (esperado: ' . number_format($totalEsperado, 2) . ')']);
-        exit;
-    }
-
-    // Guardar pedido
-    $pedidoModel = new PedidoModel();
-    $pedidoModel->iniciarTransaccion();
-
-    $id_pedido = $pedidoModel->crear(
+    // 5. Usar el método Pedidocrear del modelo que sí incluye nombre, teléfono, correo y subtotal[cite: 4]
+    $idPedidoGenerado = $modelo->Pedidocrear(
         $cedula,
         $nombre,
         $telefono,
         $email,
         $subtotal,
         $costoEnvio,
-        $totalEsperado,
-        $metodo_pago
+        $total,
+        $metodoPago
     );
 
-    if (!$id_pedido) {
-        throw new \Exception('Error al crear el pedido');
+    if ($idPedidoGenerado && is_numeric($idPedidoGenerado)) {
+        
+        // Si hay dirección de delivery, guardarla con el método del modelo[cite: 4]
+        if ($tipoEntrega === 'delivery' && !empty($direccion)) {
+            $modelo->PedidoactualizarDireccionEntrega($idPedidoGenerado, $direccion);
+        }
+
+        // 6. Registrar cada ítem del carrito usando el método PedidoagregarDetalle[cite: 4]
+        foreach ($carrito as $item) {
+            $idProducto = $item['id'] ?? $item['id_producto'] ?? 0;
+            $cantidad   = intval($item['cantidad'] ?? 1);
+            $precio     = floatval($item['precio'] ?? 0);
+            $subtItem   = $cantidad * $precio;
+
+            if ($idProducto > 0) {
+                $modelo->PedidoagregarDetalle($idPedidoGenerado, $idProducto, $cantidad, $precio, $subtItem);
+            }
+        }
+
+        // Confirmar transacción de forma segura[cite: 4]
+        $modelo->PedidoconfirmarTransaccion();
+
+        // Responder con éxito y el ID del pedido para que checkout.js redirija limpiamente
+        echo json_encode([
+            'success'   => true,
+            'id_pedido' => $idPedidoGenerado
+        ]);
+    } else {
+        $modelo->PedidorevertirTransaccion();
+        echo json_encode([
+            'success' => false, 
+            'error'   => 'No se pudo registrar el pedido en la base de datos.'
+        ]);
     }
-
-    // Si es delivery, actualizar dirección
-    if ($tipo_entrega === 'delivery' && !empty($direccion_entrega)) {
-        $pedidoModel->actualizarDireccionEntrega($id_pedido, $direccion_entrega);
-    }
-
-    // Guardar detalles
-    foreach ($carrito as $item) {
-            $pedidoModel->agregarDetalle(
-                $id_pedido,
-                $item['id'],
-                $item['cantidad'],
-                $item['precio'],
-                $item['precio'] * $item['cantidad']
-             );
-    }
-
-    // Guardar datos de pago
-    $datosPago = [
-        'metodo' => $metodo_pago,
-        'banco_emisor' => $banco_emisor,
-        'tipo_entrega' => $tipo_entrega,
-        'fecha' => date('Y-m-d H:i:s')
-    ];
-    $pedidoModel->actualizarDatosPago($id_pedido, json_encode($datosPago));
-
-    $pedidoModel->confirmarTransaccion();
-
-    echo json_encode(['success' => true, 'id_pedido' => $id_pedido]);
-
 } catch (\Exception $e) {
-    if (isset($pedidoModel)) {
-        $pedidoModel->revertirTransaccion();
+    if (isset($modelo)) {
+        $modelo->PedidorevertirTransaccion();
     }
-    error_log("Error en guardarPedido: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false, 
+        'error'   => 'Error en el servidor: ' . $e->getMessage()
+    ]);
 }
+exit();

@@ -9,136 +9,134 @@ $(document).ready(function () {
         inicializarTablaFinanciamiento();
     });
 
-   function inicializarTablaFinanciamiento() {
-    $("#financiamientotabla").DataTable({
-        destroy: true,
-        ajax: {
-            url: "?pagina=financiamiento&ajax=true&x=listado",
-            dataSrc: ""
-        },
-        columns: [
-            { data: "id_financiamiento", visible: false },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    return `${row.nombre} ${row.apellido} <br><small class="text-muted">${row.cedula_persona}</small>`;
-                }
+    function inicializarTablaFinanciamiento() {
+        $("#financiamientotabla").DataTable({
+            destroy: true,
+            ajax: {
+                url: "?pagina=financiamiento&ajax=true&x=listado",
+                dataSrc: ""
             },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    return `${row.nombre_producto} <br><small class="text-muted">${row.imei}</small>`;
-                }
-            },
-            {
-                data: "monto_total",
-                render: function (data) { return `$${parseFloat(data).toFixed(2)}`; }
-            },
-            {
-                data: "saldo_pendiente",
-                render: function (data) {
-                    let monto = parseFloat(data).toFixed(2);
-                    let color = monto > 0 ? 'text-danger fw-bold' : 'text-success fw-bold';
-                    return `<span class="${color}">$${monto}</span>`;
-                }
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    let montoCuota = parseFloat(row.monto_cuota).toFixed(2);
-                    return `<b class="text-primary">$${montoCuota}</b> <br> 
-                    <span class="badge badge-cuotas">${row.pagadas} / ${row.cantidad_cuotas}</span>`;
-                }
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    if (!row.proximo_vencimiento) return '<span class="badge bg-success">PAGADO</span>';
-                    let dias = parseInt(row.dias_restantes);
-                    let clase = "text-dark";
-                    let texto = `En ${dias} días`;
-
-                    if (dias < 0) {
-                        clase = "text-danger fw-bold";
-                        texto = `ATRASADO (${Math.abs(dias)} d)`;
-                    } else if (dias === 0) {
-                        clase = "text-warning fw-bold";
-                        texto = "VENCE HOY";
+            columns: [
+                { data: "id_financiamiento", visible: false },
+                {
+                    data: null,
+                    render: function (data, type, row) { return `${row.nombre} ${row.apellido}`; }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `${row.nombre_producto} <br><small class="text-muted">${row.imei}</small>`;
                     }
-                    return `<span class="${clase}">${texto}</span><br><small class="text-muted">${row.proximo_vencimiento}</small>`;
+                },
+                {
+                    data: "monto_total",
+                    render: function (data) { return `$${parseFloat(data).toFixed(2)}`; }
+                },
+                {
+                    data: "saldo_pendiente",
+                    render: function (data) {
+                        let monto = parseFloat(data).toFixed(2);
+                        let color = monto > 0 ? 'text-danger fw-bold' : 'text-success fw-bold';
+                        return `<span class="${color}">$${monto}</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        let montoCuota = parseFloat(row.monto_cuota).toFixed(2);
+                        return `<b class="text-primary">$${montoCuota}</b> <br> 
+                        <span class="badge badge-cuotas">${row.pagadas} / ${row.cantidad_cuotas}</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        if (!row.proximo_vencimiento) return '<span class="badge bg-success">PAGADO</span>';
+                        let dias = parseInt(row.dias_restantes);
+                        let clase = "text-dark";
+                        let texto = `En ${dias} días`;
+
+                        if (dias < 0) {
+                            clase = "text-danger fw-bold";
+                            texto = `ATRASADO (${Math.abs(dias)} d)`;
+                        } else if (dias === 0) {
+                            clase = "text-warning fw-bold";
+                            texto = "VENCE HOY";
+                        }
+                        return `<span class="${clase}">${texto}</span><br><small class="text-muted">${row.proximo_vencimiento}</small>`;
+                    }
+                },
+                {
+                    data: "estado_equipo",
+                    render: function (data) {
+                        let color = (data === 'activo') ? 'success' : 'danger';
+                        return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
+                    }
+                },
+                {
+                    data: "estado_financiamiento",
+                    render: function (data) {
+                        let color = (data === 'vigente') ? 'primary' : (data === 'finalizado' ? 'success' : (data === 'anulado' ? 'secondary' : 'warning'));
+                        return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        let btnSeguimiento = permisos.registrar_pago ? 
+                            `<button class="btn btn-primary btn-sm btn-seguimiento" data-id="${row.id_financiamiento}"><i class="bi bi-list-check"></i></button>` : '';
+
+                        let btnModificar = permisos.modificar ? 
+                            `<button class="btn btn-outline-primary btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
+
+                        let btnBloqueo = permisos.modificar ? 
+                            `<button class="btn btn-outline-${row.estado_equipo === 'activo' ? 'danger' : 'success'} btn-sm btn-cambiar-estado" data-id="${row.id_financiamiento}" data-estado="${row.estado_equipo === 'activo' ? 'bloqueado' : 'activo'}" title="${row.estado_equipo === 'activo' ? 'Bloquear' : 'Desbloquear'}"><i class="bi ${row.estado_equipo === 'activo' ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i></button>` : '';
+
+                        let btnFinalizar = permisos.modificar && (row.estado_financiamiento === 'vigente') ?
+                            `<button class="btn btn-outline-dark btn-sm btn-finalizar-contrato" data-id="${row.id_financiamiento}" title="Finalizar"><i class="bi bi-check-all"></i></button>` : '';
+
+                        let btnAnular = permisos.modificar && (row.pagadas == 0 && row.estado_financiamiento === 'vigente') ?
+                            `<button class="btn btn-outline-danger btn-sm btn-anular" data-id="${row.id_financiamiento}" title="Anular"><i class="bi bi-trash"></i></button>` : '';
+
+                        let acciones = [];
+                        if (btnSeguimiento) acciones.push(btnSeguimiento);
+                        if (btnModificar) acciones.push(btnModificar);
+                        if (btnBloqueo) acciones.push(btnBloqueo);
+                        if (btnFinalizar) acciones.push(btnFinalizar);
+                        if (btnAnular) acciones.push(btnAnular);
+
+                        return `<div class="btn-group" role="group">
+                                    ${acciones.join('')}
+                                </div>`;
+                    }
                 }
-            },
-            {
-                data: "estado_equipo",
-                render: function (data) {
-                    let color = (data === 'activo') ? 'success' : 'danger';
-                    return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
-                }
-            },
-            {
-                data: "estado_financiamiento",
-                render: function (data) {
-                    let color = (data === 'vigente') ? 'primary' : (data === 'finalizado' ? 'success' : (data === 'anulado' ? 'secondary' : 'warning'));
-                    return `<span class="badge bg-${color}">${data.toUpperCase()}</span>`;
-                }
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    let btnSeguimiento = permisos.registrar_pago ? 
-                        `<button class="btn btn-primary btn-sm btn-seguimiento" data-id="${row.id_financiamiento}"><i class="bi bi-list-check"></i></button>` : '';
-
-                    let btnModificar = permisos.modificar ? 
-                        `<button class="btn btn-outline-warning btn-sm btn-modificar" data-id="${row.id_financiamiento}" title="Modificar"><i class="bi bi-pencil-square"></i></button>` : '';
-
-                    let btnBloqueo = permisos.modificar ? 
-                        `<button class="btn btn-outline-${row.estado_equipo === 'activo' ? 'danger' : 'success'} btn-sm btn-cambiar-estado" data-id="${row.id_financiamiento}" data-estado="${row.estado_equipo === 'activo' ? 'bloqueado' : 'activo'}" title="${row.estado_equipo === 'activo' ? 'Bloquear' : 'Desbloquear'}"><i class="bi ${row.estado_equipo === 'activo' ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i></button>` : '';
-
-                    let btnFinalizar = permisos.modificar && (row.estado_financiamiento === 'vigente') ?
-                        `<button class="btn btn-outline-dark btn-sm btn-finalizar-contrato" data-id="${row.id_financiamiento}" title="Finalizar"><i class="bi bi-check-all"></i></button>` : '';
-
-                    let btnAnular = permisos.modificar && (row.pagadas == 0 && row.estado_financiamiento === 'vigente') ?
-                        `<button class="btn btn-outline-danger btn-sm btn-anular" data-id="${row.id_financiamiento}" title="Anular"><i class="bi bi-trash"></i></button>` : '';
-
-                    let acciones = [];
-                    if (btnSeguimiento) acciones.push(btnSeguimiento);
-                    if (btnModificar) acciones.push(btnModificar);
-                    if (btnBloqueo) acciones.push(btnBloqueo);
-                    if (btnFinalizar) acciones.push(btnFinalizar);
-                    if (btnAnular) acciones.push(btnAnular);
-
-                    return `<div class="btn-group" role="group">
-                            ${acciones.join('')}
-                        </div>`;
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
                 }
             }
-        ],
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay datos disponibles en la tabla",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "infoPostFix": "",
-            "thousands": ",",
-            "lengthMenu": "Mostrar _MENU_ registros",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron registros coincidentes",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            },
-            "aria": {
-                "sortAscending": ": activar para ordenar la columna ascendente",
-                "sortDescending": ": activar para ordenar la columna descendente"
-            }
-        }
-    });
-}
+        });
+    }
 
 
 
@@ -224,10 +222,7 @@ $.get("?pagina=financiamiento&ajax=true&x=clientes", function (res) {
 
     $.get("?pagina=financiamiento&ajax=true&x=bancos", function (res) {
         const bancos = typeof res === 'string' ? JSON.parse(res) : res;
-        let select = $("#id_banco_pago");
-        if (select.length === 0) {
-            select = $("#id_banco");
-        }
+        let select = $("#id_banco");
         select.empty().append('<option value="" selected disabled>Seleccione banco...</option>');
         bancos.forEach(b => select.append(`<option value="${b.id_banco}">${b.nombre_banco}</option>`));
     });
@@ -289,88 +284,35 @@ $(document).on("click", ".btn-seguimiento", function () {
     cargarCatalogos();
     
     $.post("?pagina=financiamiento", { accion: "consultarCuotas", id: id }, function (res) {
-        const data = typeof res === 'string' ? JSON.parse(res) : res;
+        const cuotas = typeof res === 'string' ? JSON.parse(res) : res;
         let html = "";
         
-        let montoGeneralFila = parseFloat(fila?.monto_cuota || fila?.monto || 80);
-        let saldosPendientes = {};
-        data.forEach(c => {
+        cuotas.forEach(c => {
             const estado = (c.estado_cuota || "").toLowerCase();
-            if (estado === 'rechazado') return;
-            
-            let num = c.numero_cuota;
-            if (saldosPendientes[num] === undefined) {
-                let baseVal = parseFloat(c.monto_cuota || c.monto || c.monto_original || 0);
-                saldosPendientes[num] = baseVal > 0 ? baseVal : montoGeneralFila;
-            }
-        });
-
-        let conteoFilas = {};
-
-        data.forEach((c, index) => {
-            const estado = (c.estado_cuota || "").toLowerCase();
-            
-            if (estado === 'rechazado') return;
-
             let badge = estado === 'pagado' ? 'success' : (estado === 'en_revision' ? 'danger' : 'warning');
-            let acciones = `<div class="btn-group" role="group">`;
+            let acciones = '';
             
-            if (estado === 'en_revision') {
+            
+             if (estado === 'en_revision') {
                 acciones = `
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success me-1" title="Aprobar pago" onclick="gestionarPago(${c.id_cuota}, 'aprobarPago')"><i class="bi bi-check-circle"></i></button>
-                        <button class="btn btn-sm btn-danger" title="Denegar pago" onclick="gestionarPago(${c.id_cuota}, 'negarPago')"><i class="bi bi-x-circle"></i></button>
-                    </div>
+                    <button class="btn btn-sm btn-success me-1" onclick="gestionarPago(${c.id_cuota}, 'aprobarPago')">Aprobar</button>
+                    <button class="btn btn-sm btn-danger" onclick="gestionarPago(${c.id_cuota}, 'negarPago')">Negar</button>
                 `;
             }
 
-            let bancoMetodo = '-';
-            if (c.nombre_metodopago || c.nombre_banco) {
-                bancoMetodo = `${c.nombre_metodopago || ''}${c.nombre_metodopago && c.nombre_banco ? ' / ' : ''}${c.nombre_banco || ''}`;
-                if (c.referencia) {
-                    bancoMetodo += ` <small class="text-muted">(Ref: ${c.referencia})</small>`;
-                }
-            }
-
-            let numCuotaOriginal = c.numero_cuota || (index + 1);
-            conteoFilas[numCuotaOriginal] = (conteoFilas[numCuotaOriginal] || 0) + 1;
-
-            let saldoActual = saldosPendientes[numCuotaOriginal] || montoGeneralFila;
-            let montoPagadoNum = parseFloat(c.monto_pagado || c.monto_abonado || 0);
-
-            let etiquetaCuota = numCuotaOriginal;
-            let montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-            let montoAbonadoStr = '-';
-
-            if (estado === 'pendiente') {
-                etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-                montoAbonadoStr = '-';
-            } else {
-                montoCuotaStr = `$${saldoActual.toFixed(2)}`;
-
-                if (montoPagadoNum >= saldoActual) {
-                    montoAbonadoStr = 'Pago Completo';
-                    etiquetaCuota = `${numCuotaOriginal} (Completo)`;
-                } else {
-                    montoAbonadoStr = `$${montoPagadoNum.toFixed(2)}`;
-                    if (conteoFilas[numCuotaOriginal] === 1) {
-                        etiquetaCuota = `${numCuotaOriginal} (Abono)`;
-                    } else {
-                        etiquetaCuota = `${numCuotaOriginal} (Restante)`;
-                    }
-                }
-
-                saldosPendientes[numCuotaOriginal] = Math.max(0, saldoActual - montoPagadoNum);
-            }
+            let detallePago = (estado === 'pagado' || estado === 'en_revision') ?
+                `<small>
+                    <b>${c.nombre_metodopago || 'N/A'}</b>
+                    ${c.nombre_banco ? '<br>' + c.nombre_banco : ''}
+                    ${c.referencia ? '<br><span class="text-muted">Ref: ' + c.referencia + '</span>' : ''}
+                </small>` : '-';
 
             html += `<tr>
-                <td>${etiquetaCuota}</td>
-                <td>${c.fecha_vencimiento || '-'}</td>
-                <td>${montoCuotaStr}</td>
-                <td>${montoAbonadoStr}</td>
-                <td><span class="badge bg-${badge}">${estado}</span></td>
-                <td>${bancoMetodo}</td>
+                <td>${c.numero_cuota}</td>
+                <td>${c.fecha_vencimiento}</td>
+                <td>$${parseFloat(c.monto_pagado || 0).toFixed(2)}</td>
+                <td><span class="badge bg-${badge}">${estado.toUpperCase()}</span></td>
+                <td>${detallePago}</td>
                 <td>${c.fecha_pago_realizado || '-'}</td>
                 <td>${acciones}</td>
             </tr>`;
@@ -380,6 +322,7 @@ $(document).on("click", ".btn-seguimiento", function () {
         new bootstrap.Modal('#modalSeguimientoPagos').show();
     });
 });
+
 window.gestionarPago = function(id_cuota, accion) {
     $.post("?pagina=financiamiento", { accion: accion, id_cuota: id_cuota }, function(res) {
         if (res.success) {
@@ -446,7 +389,7 @@ window.gestionarPago = function(id_cuota, accion) {
     });
 
    function procesarPeticion(datos, modalId) {
-    if (modalId !== "ninguno" && modalId !== "#modalRegistrarPago") {
+    if (modalId !== "ninguno") {
         const form = $(modalId + " form");
         let esValido = true;
         let mensajeError = "";

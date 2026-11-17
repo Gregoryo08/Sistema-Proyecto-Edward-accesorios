@@ -7,9 +7,9 @@
         <div>
             <h2 class="text-center">Administrar Bancos</h2>
 
-            <div class="text-end m-3">
+            <div class="text-right">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalBancos">
-                    <i class="bi bi-bank"></i> Registrar banco
+                    Registrar
                 </button>
 
             </div>
@@ -46,39 +46,6 @@
     </section>
 
 </main>
-<style>
-   
-select.dt-input, 
-input.dt-input {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-    border: 1px solid #ced4da !important;
-    padding: 4px 8px !important;
-}
-
-
-[data-bs-theme="dark"] select.dt-input, 
-[data-bs-theme="dark"] input.dt-input,
-body.dark-mode select.dt-input, 
-body.dark-mode input.dt-input,
-.dark select.dt-input {
-    background-color: #212529 !important;
-    color: #ffffff !important;
-    border-color: #495057 !important;
-}
-select.dt-input option {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-}
-
-
-[data-bs-theme="dark"] select.dt-input option,
-body.dark-mode select.dt-input option,
-.dark select.dt-input option {
-    background-color: #212529 !important;
-    color: #ffffff !important;
-}
-</style>
 
 <?php require_once('assets/comunes/footer.php'); ?>
 

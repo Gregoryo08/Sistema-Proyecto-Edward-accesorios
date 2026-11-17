@@ -1,7 +1,10 @@
 <?php
+
 require_once('assets/comunes/menu.php');
-require_once('assets/comunes/modal_servicio_tecnico.php');
+
 ?>
+<?php require_once('assets/comunes/modal_servicio_tecnico.php'); ?>
+
 
 <main class="main m-4" id="main">
 
@@ -18,18 +21,17 @@ require_once('assets/comunes/modal_servicio_tecnico.php');
 
             <div class="table-responsive">
                 <div class="table-container">
-                    <table id="servicioTabla" class="table table-striped table-bordered text-center align-middle w-100" >
-                        <thead class="thead-dark align-middle">
+                    <table id="servicioTabla" class="table table-striped table-bordered text-center">
+                        <thead class="thead-dark">
                             <tr>
                                 <th style="display: none;">ID</th>
-                                <th class="text-center">Cédula</th>
-                                <th class="text-center">Cliente</th> 
-                                <th class="text-center">Equipo</th>
-                                <th class="text-center">Falla</th>
-                                <th class="text-center">Estado</th>
-                                <th class="text-center">Total</th>
-                                <th class="text-center">Fecha</th>
-                                <th class="text-center">Acciones</th>
+                                <th>Cliente</th>
+                                <th>Equipo</th>
+                                <th>Falla</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -41,40 +43,6 @@ require_once('assets/comunes/modal_servicio_tecnico.php');
     </section>
 
 </main>
-
-<style>
-    
-select.dt-input, 
-input.dt-input {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-    border: 1px solid #ced4da !important;
-    padding: 4px 8px !important;
-}
-
-
-[data-bs-theme="dark"] select.dt-input, 
-[data-bs-theme="dark"] input.dt-input,
-body.dark-mode select.dt-input, 
-body.dark-mode input.dt-input,
-.dark select.dt-input {
-    background-color: #212529 !important;
-    color: #ffffff !important;
-    border-color: #495057 !important;
-}
-select.dt-input option {
-    background-color: #ffffff !important;
-    color: #212529 !important;
-}
-
-
-[data-bs-theme="dark"] select.dt-input option,
-body.dark-mode select.dt-input option,
-.dark select.dt-input option {
-    background-color: #212529 !important;
-    color: #ffffff !important;
-}
-</style>
 
 <?php require_once('assets/comunes/footer.php'); ?>
 
@@ -88,5 +56,3 @@ body.dark-mode select.dt-input option,
 </body>
 
 </html>
-
-

@@ -51,18 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
         
         $idActual = ($_POST['accion'] === 'modificarProveedor') ? trim($_POST['rif']) : null;
-        $existeRif = $objeto->procesarSolicitud('existeRif', [
-            'rif' => $objeto->getRif_proveedor(),
-            'id' => $idActual
-        ]);
-        if ($existeRif) {
-            echo json_encode(["error" => "Este Rif ya está registrado.", "input" => "rif"]);
+        if ($objeto->existeRif($objeto->getRif_proveedor(), $idActual)) {
+            echo json_encode(["invalido" => "Ya existe un proveedor con este Rif", "input" => "rif"]);
             exit();
         }
 
-        $res = $objeto->procesarSolicitud(
-            $_POST['accion'] === 'registrarProveedor' ? 'registrar' : 'modificar'
-        );
+        $res = ($_POST['accion'] === 'registrarProveedor') ? $objeto->registrar() : $objeto->modificar();
         
         if ($res === true) {
             echo json_encode(["success" => "Operación realizada"]);
@@ -74,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
 
     if ($_POST['accion'] === 'eliminarProveedor') {
         $objeto->setRif_proveedor(trim($_POST["rif"]));
-        $res = $objeto->procesarSolicitud('eliminar');
+        $res = $objeto->eliminar();
         if ($res === true) {
             echo json_encode(["success" => "Eliminado"]);
         } else {

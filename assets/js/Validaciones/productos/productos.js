@@ -61,26 +61,29 @@ $(document).ready(function () {
             ajax: { url: "?pagina=productos&ajax=true&x=productos", dataSrc: "" },
             columns: [
                 { data: "id_producto", visible: false },
+                {
+                    data: "imagen_principal",
+                    orderable: false,
+                    searchable: false,
+                    render: function (d, type, row) {
+                        let img = (d && d !== "null" && d !== "")
+                            ? "assets/img/productos/" + d
+                            : "assets/img/productos/default.jpg";
+                        return `<img src="${img}" 
+                            onerror="this.src='assets/img/productos/default.jpg'" 
+                            class="img-thumbnail-producto" 
+                            data-id="${row.id_producto}" 
+                            data-nombre="${row.nombre_producto}" 
+                            data-imagen="${d || 'default.jpg'}" 
+                            title="Click para gestionar imagen" 
+                            style="width:50px;height:50px;object-fit:cover;border-radius:8px;border:2px solid #0ef;cursor:pointer;">`;
+                    }
+                },
                 { data: "nombre_producto" },
                 { data: "nombre_marca" },
                 { data: "nombre_categoria" },
-                { data: "stock_minimo", visible: false},
-                { 
-                    data: "stock_actual",
-                    render: function (data, type, row) {
-                        let stockActual = parseInt(data) || 0;
-                        let stockMinimo = parseInt(row.stock_minimo) || 0;
-
-                        if (stockActual <= stockMinimo) {
-                            return '<span class="badge bg-warning text-capitalize" title="Advertencia: Stock bajo o en mínimo">' + stockActual + '</span>';
-                        } else {
-                            return '<span class="badge bg-primary text-capitalize">' + stockActual + '</span>';
-                        }
-                    }
-                 },
-                { data: "precio_detal", render: (d) => "$"+ parseFloat(d).toFixed(2),
-                    className: "text-success"
-                 },
+                { data: "stock_actual" },
+                { data: "precio_detal", render: (d) => parseFloat(d).toFixed(2) },
                 {
                     data: "estado",
                     render: (d) => d == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'
@@ -89,27 +92,23 @@ $(document).ready(function () {
                     data: null,
                     render: function (data, type, row) {
                         let b = '<div class="btn-group">';
-
-                        b += `<button type="button" class="btn btn-info btn-sm btn_verDetalles m-2" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-categoria="${row.nombre_categoria || ''}" data-marca="${row.nombre_marca || ''}" data-precio="${row.precio_detal}" data-sact="${row.stock_actual}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-estado="${row.estado}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-eye"></i></button>`;
+                        
+                        b += `<button type="button" class="btn btn-success btn-sm btn_gestionarImagen" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-imagen="${row.imagen_principal || 'default.jpg'}" title="Gestionar imagen"><i class="fa-solid fa-image"></i></button>`;
+                        
+                        b += `<button type="button" class="btn btn-info btn-sm btn_verDetalles" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-categoria="${row.nombre_categoria || ''}" data-marca="${row.nombre_marca || ''}" data-precio="${row.precio_detal}" data-sact="${row.stock_actual}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-estado="${row.estado}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-eye"></i></button>`;
 
                         if (row.imei) {
-                            b += `<button type="button" class="btn btn-white btn-sm btn_verTelefono m-2" data-imei="${row.imei}" data-ram="${row.memoria_ram}" data-alm="${row.almacenamiento}"><i class="bi bi-phone"></i></button>`;
+                            b += `<button type="button" class="btn btn-white btn-sm btn_verTelefono" data-imei="${row.imei}" data-ram="${row.memoria_ram}" data-alm="${row.almacenamiento}"><i class="bi bi-phone"></i></button>`;
                         }
                         
                         if (permisos.control_total || permisos.modificar) {
-                            b += `<button type="button" class="btn btn-warning btn-sm btn_modificarProducto m-2" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-marca="${row.id_marca}" data-categoria="${row.id_categoria}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-sact="${row.stock_actual}" data-precio="${row.precio_detal}" data-imei="${row.imei || ''}" data-ram="${row.memoria_ram || ''}" data-alm="${row.almacenamiento || ''}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-pen-to-square"></i></button>`;
+                            b += `<button type="button" class="btn btn-warning btn-sm btn_modificarProducto" data-id="${row.id_producto}" data-nombre="${row.nombre_producto}" data-descripcion="${row.descripcion || ''}" data-marca="${row.id_marca}" data-categoria="${row.id_categoria}" data-smin="${row.stock_minimo}" data-smax="${row.stock_maximo}" data-sact="${row.stock_actual}" data-precio="${row.precio_detal}" data-imei="${row.imei || ''}" data-ram="${row.memoria_ram || ''}" data-alm="${row.almacenamiento || ''}" data-imagen="${row.imagen_principal || ''}"><i class="fa-solid fa-pen-to-square"></i></button>`;
                         }
                         if (permisos.control_total || permisos.eliminar) {
-                            b += `<button type="button" class="btn btn-danger btn-sm btn-eliminar-prod m-2" data-id="${row.id_producto}"><i class="fa-solid fa-trash"></i></button>`;
+                            b += `<button type="button" class="btn btn-danger btn-sm btn-eliminar-prod" data-id="${row.id_producto}"><i class="fa-solid fa-trash"></i></button>`;
                         }
                         return b + '</div>';
                     }
-                }
-            ],
-            columnDefs: [
-                {
-                    targets: "_all",
-                    className: "text-center align-middle"
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
@@ -147,26 +146,104 @@ $(document).ready(function () {
         $("#modalDetallesTelefono").modal("show");
     });
 
-    // Gestión de imagen dentro del modal de modificar
-    function estadoBotonEliminarImagen(mostrar) {
-        $("#contenedorEliminarImagenModificar").toggle(mostrar);
+    $(document).on("click", ".img-thumbnail-producto", function() {
+        let btn = $(this);
+        abrirGestionarImagen(btn.data("id"), btn.data("nombre"), btn.data("imagen"));
+    });
+
+    $(document).on("click", ".btn_gestionarImagen", function() {
+        let btn = $(this);
+        abrirGestionarImagen(btn.data("id"), btn.data("nombre"), btn.data("imagen"));
+    });
+
+    function abrirGestionarImagen(id, nombre, imagen) {
+        $("#img_producto_id").val(id);
+        let img = (imagen && imagen !== "null" && imagen !== "") ? "assets/img/productos/" + imagen : "assets/img/productos/default.jpg";
+        let src = img;
+        $("#previewImgGestionar").html(`<img src="${src}" onerror="this.src='assets/img/productos/default.jpg'" style="max-height:150px; max-width:200px; border-radius:8px; object-fit:contain;">`);
+        $("#img_nombre_archivo").text(nombre ? "Producto: " + nombre : "");
+        $("#imagenGestionar").val("");
+        $("#modalGestionarImagen").modal("show");
     }
 
-    $(document).on("click", "#btnEliminarImagenModificar", function() {
-        commonSwalMixin.fire({
+    $(document).on("change", "#imagenGestionar", function() {
+        if (this.files && this.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $("#previewImgGestionar").html(`<img src="${e.target.result}" style="max-height:150px; max-width:200px; border-radius:8px; object-fit:contain;">`);
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    $("#btnSubirImagenProducto").on("click", function() {
+        let id = $("#img_producto_id").val();
+        let archivo = document.getElementById("imagenGestionar").files[0];
+        if (!archivo) {
+            showSweetAlert("invalido", "Seleccione una imagen para subir.");
+            return;
+        }
+        let fd = new FormData();
+        fd.append("accion", "subirImagen");
+        fd.append("id", id);
+        fd.append("imagen", archivo);
+        showProcessingAlert();
+        $.ajax({
+            type: "POST",
+            url: window.location.href,
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function(res) {
+                if (res.success) {
+                    Swal.close();
+                    $("#modalGestionarImagen").modal("hide");
+                    showSweetAlert("success").then(() => { $("#tablaProductos").DataTable().ajax.reload(); });
+                } else {
+                    Swal.close();
+                    $(".modal-backdrop").remove();
+                    $("body").removeClass("modal-open");
+                    showSweetAlert("invalido", res.invalido || res.error || "Error");
+                }
+            },
+            error: function() { Swal.close(); showSweetAlert("error"); }
+        });
+    });
+
+    $("#btnEliminarImagenProducto").on("click", function() {
+        let id = $("#img_producto_id").val();
+        let config = {
             title: "¿Eliminar imagen?",
             text: "La imagen se restablecerá a la de defecto.",
             icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, eliminar"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $("#quitar_imagenModificar").val("1");
-                $("#imagenModificar").val("");
-                $("#previewImagenModificar").html('<span class="text-muted">Sin imagen</span>');
-                estadoBotonEliminarImagen(false);
+            cb: function() {
+                let fd = new FormData();
+                fd.append("accion", "eliminarImagen");
+                fd.append("id", id);
+                showProcessingAlert();
+                $.ajax({
+                    type: "POST",
+                    url: window.location.href,
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.close();
+                            $("#modalGestionarImagen").modal("hide");
+                            showSweetAlert("success").then(() => { $("#tablaProductos").DataTable().ajax.reload(); });
+                        } else {
+                            Swal.close();
+                            showSweetAlert("invalido", res.invalido || res.error || "Error");
+                        }
+                    },
+                    error: function() { Swal.close(); showSweetAlert("error"); }
+                });
             }
-        });
+        };
+        commonSwalMixin.fire({ title: config.title, text: config.text, icon: config.icon, showCancelButton: true, confirmButtonText: "Sí, eliminar" }).then((result) => { if (result.isConfirmed) config.cb(); });
     });
 
     function previewImagen(input, target) {
@@ -186,9 +263,6 @@ $(document).ready(function () {
     });
 
     $(document).on("change", "#imagenModificar", function() {
-        if (this.files && this.files[0]) {
-            $("#quitar_imagenModificar").val("0");
-        }
         previewImagen(this, "#previewImagenModificar");
     });
 
@@ -235,13 +309,10 @@ $(document).ready(function () {
 
         let imgActual = btn.data("imagen") || "";
         $("#imagen_actualModificar").val(imgActual);
-        $("#quitar_imagenModificar").val("0");
-        if (imgActual && imgActual !== "null" && imgActual !== "default.jpg") {
+        if (imgActual && imgActual !== "null") {
             $("#previewImagenModificar").html(`<img src="assets/img/productos/${imgActual}" onerror="this.src='assets/img/productos/default.jpg'" style="max-height:110px; border-radius:6px;">`);
-            estadoBotonEliminarImagen(true);
         } else {
             $("#previewImagenModificar").html('<span class="text-muted">Sin imagen</span>');
-            estadoBotonEliminarImagen(false);
         }
         $("#imagenModificar").val("");
 
@@ -270,7 +341,6 @@ $(document).ready(function () {
         fd.append("ram", $("#ramModificar").val() || "");
         fd.append("almacenamiento", $("#almacenamientoModificar").val() || "");
         fd.append("imagen_actual", $("#imagen_actualModificar").val() || "");
-        fd.append("quitar_imagen", $("#quitar_imagenModificar").val() || "0");
 
         let archivo = document.getElementById("imagenModificar").files[0];
         if (archivo) fd.append("imagen", archivo);
@@ -288,9 +358,6 @@ $(document).ready(function () {
         ejecutarAjax(d, null);
     };
 
-    // =============================================
-    // AJAX HELPERS
-    // =============================================
 
     function ejecutarAjaxFormData(fd, modalId) {
         showProcessingAlert();
@@ -333,7 +400,7 @@ $(document).ready(function () {
         });
     }
 
-    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "#2C74B3" });
+    const commonSwalMixin = Swal.mixin({ color: "white", background: "#000910", confirmButtonColor: "rgb(238, 191, 0)" });
 
     function showProcessingAlert() {
         Swal.fire({ title: "Procesando!", timerProgressBar: true, didOpen: () => { Swal.showLoading(); }, background: "#000910", color: "white", allowOutsideClick: false });

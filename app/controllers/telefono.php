@@ -124,4 +124,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     exit();
 }
 
-include 'App/views/telefono.php';
+include 'app/views/telefono.php';

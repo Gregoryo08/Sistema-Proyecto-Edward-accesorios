@@ -12,8 +12,28 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="index.php">Edward<span class="text-primary">Accesorios</span></a>
-        <span class="text-white"><i class="fas fa-shopping-cart"></i> Mi Carrito</span>
+        <a class="navbar-brand" href="?pagina=web_catalogo">Edward<span class="text-primary">Accesorios</span></a>
+        
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white"><i class="fas fa-shopping-cart"></i> Mi Carrito</span>
+
+          
+            <div id="user-menu-container" class="dropdown">
+                <a href="#" class="text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" style="display: none;">
+                    <i class="fas fa-user-circle"></i> <span id="nombre-usuario">Usuario</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+                    <li><a class="dropdown-item" href="?pagina=mispedidos">Mis Pedidos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="?pagina=salida">Cerrar Sesión</a></li>
+                </ul>
+            </div>
+
+            
+            <a href="?pagina=iniciarSesion" id="btn-login" class="btn btn-outline-primary btn-sm" style="display: inline-block;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
     </div>
 </nav>
 
@@ -33,11 +53,6 @@
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/ecommerce/validaciones.js"></script>
 <script src="assets/js/ecommerce/carrito.js"></script>
-
-<button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema" data-icon-oscuro="fas fa-sun" data-icon-claro="fas fa-moon">
-    <i class="fas fa-sun" id="themeIcon"></i>
-</button>
-<script src="assets/js/ecommerce/temaBoton.js"></script>
 
 </body>
 </html>

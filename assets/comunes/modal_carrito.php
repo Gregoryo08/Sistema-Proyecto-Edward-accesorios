@@ -11,7 +11,7 @@
             <div class="modal-body pt-2 pb-3 px-4">
                 <p class="text-center mb-4" style="color: #6c757d; font-size: 0.9rem;">Inicia sesión o regístrate para continuar.</p>
                 <div class="d-grid gap-2">
-                    <a href="?pagina=loginEcommerce&destino=checkout" class="btn btn-primary btn-lg py-2 rounded-pill" style="font-size: 0.95rem;">
+                    <a href="?pagina=login_principal&destino=checkout" class="btn btn-primary btn-lg py-2 rounded-pill" style="font-size: 0.95rem;">
                         <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
                     </a>
                     <a href="?pagina=registroEcommerce&destino=checkout&register=1" class="btn btn-success btn-lg py-2 rounded-pill" style="font-size: 0.95rem;">

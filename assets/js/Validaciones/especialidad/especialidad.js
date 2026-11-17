@@ -70,7 +70,6 @@ $(document).ready(function () {
 
 
 
-//Permisos
 
 
 
@@ -82,7 +81,6 @@ $(document).ready(function () {
 
 
 
-///////////////////////////////////////////////////////////////////7
 
 
 $(document).ready(function () {
@@ -293,7 +291,7 @@ $(document).ready(function () {
 
   
   function mensaje(accion, mensaje, funcion, title) {
-    const colorPrimario = "#2C74B3"; 
+    const colorPrimario = "rgb(238, 191, 0)"; 
     const fondoOscuro = "#000910";
 
     const configBase = {

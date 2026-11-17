@@ -1,12 +1,6 @@
-// =============================================
-// REPORTE DE PAGOS ONLINE - INICIALIZACIÓN
-// =============================================
 
 console.log('✅ reporte_pagos_online.js cargado');
 
-// =============================================
-// CARGAR BANCOS (select dinámico)
-// =============================================
 
 function cargarBancos() {
     var select = document.querySelector('[name="banco_emisor"]');
@@ -32,9 +26,6 @@ function cargarBancos() {
         });
 }
 
-// =============================================
-// REAL-TIME: limpiar errores al escribir
-// =============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM cargado, inicializando reporte');
 
@@ -64,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var montoInput = document.querySelector('[name="monto"]');
     if (montoInput) {
         montoInput.addEventListener('input', function() {
-            let montoBs = parsearMontoBs(this.value);
+            let montoBs = normalizarMonto(this.value);
             var msgMonto = document.getElementById('msg-monto');
 
             var equivEl = document.getElementById('monto-usd-equiv');
@@ -84,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var totalUSDInput = document.getElementById('total-usd');
                     var totalUSD = parseFloat(totalUSDInput ? totalUSDInput.value : '0') || 0;
 
-                    if (equivUSD < (totalUSD - 0.01)) {
+                    if (equivUSD < totalUSD) {
                         msgUsdEl.style.display = 'block';
                     } else {
                         msgUsdEl.style.display = 'none';

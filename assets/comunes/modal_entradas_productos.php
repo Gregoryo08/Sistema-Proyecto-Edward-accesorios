@@ -108,17 +108,26 @@
                     <input type="hidden" id="cantidadOLD_entrada">
                     <input type="hidden" id="garantiaOLD_entrada">
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" id="campoCantidadModificar">
                         <label for="cantidadEntradaM" class="form-label fw-bold">Nueva Cantidad *</label>
-                        <input type="number" class="form-control solo-numeros" id="cantidadEntradaM" placeholder="Ingresa la nueva cantidad" min="1" max="9999.99" step="0.01" required>
+                        <input type="number" class="form-control solo-numeros" id="cantidadEntradaM" placeholder="Ingresa la nueva cantidad" min="1" required>
                         <div id="error_cantidadEntradaM" class="msg-error">Ingrese una cantidad válida mayor a 0</div>
+                    </div>
+
+                    <div class="form-group mb-3" id="campoImeisModificar" style="display: none;">
+                        <label for="imeisEntradaM" class="form-label fw-bold">
+                            <i class="bi bi-phone me-1 text-primary"></i> IMEIs del teléfono *
+                        </label>
+                        <textarea class="form-control" id="imeisEntradaM" rows="4" placeholder="Un IMEI por línea"></textarea>
+                        <div id="error_imeisEntradaM" class="msg-error">Cada IMEI debe tener entre 10 y 25 dígitos, sin repetidos</div>
+                        <small class="text-muted d-block mt-1">Solo números. Un IMEI por línea. La cantidad se calcula con los IMEI.</small>
                     </div>
 
                     <div class="form-group mb-3" id="campoGarantiaModificar" style="display: none;">
                         <label for="garantiaEntradaM" class="form-label fw-bold">
                             <i class="bi bi-shield-check me-1 text-success"></i> Garantía (días)
                         </label>
-                        <input type="number" class="form-control solo-numeros" id="garantiaEntradaM" placeholder="Días de garantía" min="1" max="9999" maxlength="4">
+                        <input type="number" class="form-control solo-numeros" id="garantiaEntradaM" placeholder="Días de garantía" min="1">
                         <div id="error_garantiaEntradaM" class="msg-error">Formato de días incorrecto</div>
                         <small class="text-muted d-block mt-1">Dejar vacío si no aplica garantía</small>
                     </div>

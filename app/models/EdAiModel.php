@@ -5,17 +5,16 @@ namespace App\Sistema\models;
 use App\Sistema\config\Conexion;
 use PDO;
 
-
 class EdAiModel
 {
     const MAX_SIMULTANEOS = 50;
-    const EXPIRA_MIN = 5; 
+    const EXPIRA_MIN = 5;
 
     private $conexionUsuario;
 
     public function __construct()
     {
-        
+
         try {
             $this->conexionUsuario = Conexion::getShared('usuario')->getConexion();
         } catch (\Exception $e) {
@@ -23,7 +22,6 @@ class EdAiModel
         }
     }
 
-   
     private function conocimientoIntranet(): array
     {
         return [
@@ -56,7 +54,6 @@ class EdAiModel
         ];
     }
 
-    
     private function conocimientoEcommerce(): array
     {
         return [
@@ -75,7 +72,6 @@ class EdAiModel
         ];
     }
 
-    
     public function responder(string $pregunta, string $contexto = 'intranet'): string
     {
         $contexto = ($contexto === 'ecommerce') ? 'ecommerce' : 'intranet';
@@ -94,7 +90,7 @@ class EdAiModel
             $score = 0;
             foreach ($claves as $clave) {
                 if (mb_strpos($pregunta, mb_strtolower($clave)) !== false) {
-                    
+
                     $score += mb_strlen($clave);
                 }
             }
@@ -115,8 +111,6 @@ class EdAiModel
             " Tambien puedes escribir 'ayuda'.";
     }
 
-    
-
     private function _limpiarCaducados(): void
     {
         if (!$this->conexionUsuario) return;
@@ -128,14 +122,13 @@ class EdAiModel
         }
     }
 
-   
     public function registrarActivo(string $token, string $usuarioId, string $contexto = 'intranet'): array
     {
         $contexto = ($contexto === 'ecommerce') ? 'ecommerce' : 'intranet';
         $this->_limpiarCaducados();
 
         if (!$this->conexionUsuario) {
-            // Si no hay BD, no bloquear al usuario (fallo abierto).
+
             return ['ok' => true, 'lleno' => false, 'activos' => 1];
         }
 
@@ -143,7 +136,7 @@ class EdAiModel
         $usuarioId = substr($usuarioId ?? '', 0, 20);
 
         try {
-            // Ya tiene slot -> renovar
+
             $stmt = $this->conexionUsuario->prepare(
                 "UPDATE chat_edai_activos SET ultimo_ping = NOW(), usuario_id = ? WHERE token = ? AND contexto = ?"
             );
@@ -152,13 +145,11 @@ class EdAiModel
                 return ['ok' => true, 'lleno' => false, 'activos' => $this->_contarActivos($contexto)];
             }
 
-            // Contar activos actuales
             $activos = $this->_contarActivos($contexto);
             if ($activos >= self::MAX_SIMULTANEOS) {
                 return ['ok' => false, 'lleno' => true, 'activos' => $activos];
             }
 
-            // Nuevo slot
             $ins = $this->conexionUsuario->prepare(
                 "INSERT IGNORE INTO chat_edai_activos (token, contexto, usuario_id) VALUES (?, ?, ?)"
             );
@@ -170,9 +161,6 @@ class EdAiModel
         }
     }
 
-    /**
-     * Libera el slot al cerrar el chat.
-     */
     public function liberarActivo(string $token, string $contexto = 'intranet'): void
     {
         if (!$this->conexionUsuario) return;

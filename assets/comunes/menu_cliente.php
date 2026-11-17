@@ -15,14 +15,14 @@
     <link rel="stylesheet" href="assets/Library/DataTables/datatables.min.css">
     <link rel="stylesheet" href="assets/Library/SweetAlerts/sweetalert2.min.css">
     <link rel="stylesheet" href="assets/Library/Select2/dist/css/select2.min.css">
-   
+    <!-- <link rel="stylesheet" href="assets/Library/Toastr/toastr.min.css"> -->
     <link rel="stylesheet" href="assets/css/main.css">
     <script src="assets/Library/JQuery/jquery-3.7.0.min.js"></script>
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/Library/SweetAlerts/sweetalert2.all.js"></script>
     <script src="assets/Library/Select2/dist/js/select2.min.js"></script>
     <script src="assets/Library/DataTables/datatables.min.js"></script>
-    
+    <!-- <script src="assets/Library/Toastr/toastr.min.js"></script> -->
     <link rel="stylesheet" href="assets/css/preloader.css">
     <link rel="stylesheet" href="assets/css/menu.css">
     <link rel="stylesheet" href="assets/css/perfil.css">
@@ -32,8 +32,8 @@
 
    <header id="header" class="header d-flex">
     <div class="container_fluid position-relative d-flex align-items-center w-100">
-        <a href="?pagina=home" class="logo d-flex align-items-center me-auto">
-         <img src="/src/assets/img/icono.ico" alt="Edward Accesorios" style="width: 40px; height: 40px; margin-right: 10px;"> 
+        <a href="?pagina=miperfil" class="logo d-flex align-items-center me-auto">
+            <!-- <img src="/src/assets/img/icono.ico" alt="Edward Accesorios" style="width: 40px; height: 40px; margin-right: 10px;"> -->
             <h1 class="sitename">Edward Accesorios</h1>
         </a>
         
@@ -117,17 +117,21 @@
     <nav id="navmenu" class="navmenu">
         <ul class="lista_opciones">
             <li class="opcion-item">
-                <a href="?pagina=principal_cliente" class="opcion">
+                <a href="?pagina=miperfil" class="opcion">
                     <i class="bi bi-house-fill"></i>
                     <span class="textoOption">Inicio</span>
                 </a>
             </li>
 
             <?php
+            use App\Sistema\config\Acceso;
             use App\Sistema\models\Usuarios;
             if (!isset($obj_usuario)) {
                 $obj_usuario = new Usuarios();
             }
+
+            $esFinanciamiento = Acceso::esClienteFinanciamiento();
+            $esEcommerce      = Acceso::esClienteEcommerce();
             ?>
 
             <?php if (
@@ -153,28 +157,35 @@
 
            
 
-            <?php if (
-               
-                $obj_usuario->tienePermiso("Administrar Pago De Cuotas", "listar")
-            ): ?>
-                <li class="dropdown">
-                    <a href="#" class="opcion">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span class="textoOption">Financiamiento</span>
-                    </a>
+            <li class="dropdown<?= $esFinanciamiento ? '' : ' opcion-inhibida' ?>">
+                <a href="#" class="opcion"<?= $esFinanciamiento ? '' : ' aria-disabled="true" title="Tu usuario no tiene financiamiento activo"' ?>>
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <span class="textoOption">Financiamiento</span>
+                </a>
+                <?php if ($esFinanciamiento): ?>
                     <ul class="listOptionSlice">
-                       
-                         <?php if ($obj_usuario->tienePermiso("Administrar Pago De Cuotas", "listar")): ?>
-                            <li><a href="?pagina=cliente_financiamiento"><i class="bi bi-arrow-return-right"></i> Pago De Cuotas</a></li>
-                        <?php endif; ?>
+                        <li><a href="?pagina=cliente_financiamiento"><i class="bi bi-arrow-return-right"></i> Pago De Cuotas</a></li>
                     </ul>
-                </li>
-            <?php endif; ?>
+                <?php endif; ?>
+            </li>
+
+            <li class="dropdown<?= $esEcommerce ? '' : ' opcion-inhibida' ?>">
+                <a href="#" class="opcion"<?= $esEcommerce ? '' : ' aria-disabled="true" title="Tu usuario no tiene compras en línea"' ?>>
+                    <i class="bi bi-bag-check"></i>
+                    <span class="textoOption">Compras online</span>
+                </a>
+                <?php if ($esEcommerce): ?>
+                    <ul class="listOptionSlice">
+                        <li><a href="?pagina=misPedidos"><i class="bi bi-arrow-return-right"></i> Mis Pedidos</a></li>
+                    </ul>
+                <?php endif; ?>
+            </li>
 
         </ul>
     </nav>
 
-    <script src="assets/js/menu.js"></script>
+    <script>window.TASA_CAMBIO_URL = '?pagina=tasaEcommerce&action=obtener';</script>
+    <script src="assets/js/menu.js?v=2"></script>
 
     <!-- ============ ED-AI ASISTENTE (INTRANET) ============ -->
     <div class="edai-chat" id="edaiChat">
@@ -217,7 +228,6 @@ body.dark-mode .btn-usuario {
   border: 1px solid #3a3a3c !important;
 }
 
-/* ============ ED-AI CHAT ============ */
 .edai-chat { position: fixed; right: 22px; bottom: 22px; z-index: 1060; }
 .edai-fab {
   width: 58px; height: 58px; border-radius: 50%;

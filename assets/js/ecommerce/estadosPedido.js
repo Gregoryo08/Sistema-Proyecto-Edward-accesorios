@@ -1,8 +1,5 @@
-// /src/assets/js/ecommerce/estadosPedido.js
-// Lógica de estados de pedidos (Gustavo)
 
 const EstadoPedido = {
-    // Mapeo de estados a colores
     colores: {
         'por aprobar': 'secondary',
         'pendiente pago': 'warning',
@@ -12,7 +9,6 @@ const EstadoPedido = {
         'entregado': 'success'
     },
     
-    // Mapeo de estados a íconos
     iconos: {
         'por aprobar': 'fa-clock',
         'pendiente pago': 'fa-exclamation-triangle',
@@ -22,7 +18,6 @@ const EstadoPedido = {
         'entregado': 'fa-check-double'
     },
     
-    // Mensajes por estado
     mensajes: {
         'por aprobar': {
             titulo: 'Pedido en revisión',
@@ -74,7 +69,6 @@ const EstadoPedido = {
     }
 };
 
-// Exportar para usar en otros archivos
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = EstadoPedido;
 }
