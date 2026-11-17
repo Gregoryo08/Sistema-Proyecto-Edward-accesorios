@@ -139,4 +139,66 @@ $(document).ready(function () {
         });
         if (!valido) e.preventDefault();
     });
+
+    $('#btnValidarCedula').on('click', function () {
+        var $btn = $(this);
+        
+        // Si ya fue validado, no hace nada y se sale de la función
+        if ($btn.text().trim() === 'Validado') {
+            return;
+        }
+
+        var cedula = $('#cedula').val();
+        if (!cedula) {
+            Swal.fire({
+                title: "Atención",
+                text: "Por favor, ingrese una cédula primero.",
+                icon: "warning",
+                background: "#000910",
+                color: "white"
+            });
+            return;
+        }
+
+        $btn.prop('disabled', true).css({ "opacity": "0.5", "cursor": "not-allowed" }).text('Validando...');
+
+        $.ajax({
+            type: "POST",
+            url: "",
+            data: { "accion": "consultarCedula", "cedula": cedula },
+            dataType: "json",
+            success: function (res) {
+                if (res.existe) {
+                    Swal.fire({
+                        title: "Cédula registrada",
+                        text: "Esta cédula ya se encuentra en el sistema.",
+                        icon: "info",
+                        background: "#000910",
+                        color: "white"
+                    });
+                    $btn.prop('disabled', false).css({ "opacity": "1", "cursor": "pointer" }).text('Validar');
+                } else {
+                    Swal.fire({
+                        title: "Disponible",
+                        text: "La cédula está disponible para el registro.",
+                        icon: "success",
+                        background: "#000910",
+                        color: "white"
+                    });
+                    // Se fuerza el estado disabled y se cambia el texto a Validado
+                    $btn.prop('disabled', true).css({ "opacity": "0.5", "cursor": "not-allowed" }).text('Validado');
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: "Error",
+                    text: "Error de comunicación con el servidor.",
+                    icon: "error",
+                    background: "#000910",
+                    color: "white"
+                });
+                $btn.prop('disabled', false).css({ "opacity": "1", "cursor": "pointer" }).text('Validar');
+            }
+        });
+    });
 });

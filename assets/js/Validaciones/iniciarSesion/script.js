@@ -4,12 +4,10 @@ const loginLink = document.querySelector('.login-link');
 const recoverLink = document.querySelector('.recover-link');
 const backLogin = document.querySelector('.back-to-login');
 
-
 registerLink.onclick = () => { wrapper.classList.add('active'); };
 loginLink.onclick = () => { wrapper.classList.remove('active'); };
 recoverLink.onclick = () => { wrapper.classList.add('show-recover'); };
 backLogin.onclick = () => { wrapper.classList.remove('show-recover'); };
-
 
 const setError = (element, message) => {
     const inputBox = element.parentElement;
@@ -54,14 +52,12 @@ const validateForm = (form) => {
     return isFormValid;
 };
 
-
 document.querySelectorAll('form').forEach(form => {
     form.onsubmit = (e) => {
         if (!validateForm(form)) {
             e.preventDefault();
         }
     };
-
     
     form.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
@@ -71,30 +67,6 @@ document.querySelectorAll('form').forEach(form => {
         });
     });
 });
-
-$(document).ready(function() {
-    $('#btnValidarCedula').on('click', function() {
-        const $btn = $(this);
-        const cedula = $('#cedula').val().trim();
-
-        if (!cedula) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campo vacío',
-                text: 'Por favor ingresa un número de cédula para validar.',
-                confirmButtonColor: '#00d4ff'
-            });
-            return;
-        }
-
-        $btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Validando...');
-
-        setTimeout(function() {
-            $btn.prop('disabled', false).html('Validar');
-        }, 1500);
-    });
-});
-
 
 window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#formRegistro') {
