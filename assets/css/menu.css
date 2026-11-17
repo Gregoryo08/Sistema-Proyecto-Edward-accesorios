@@ -90,6 +90,12 @@ body.dark-mode #container_notificacion > div:last-child {
     color: white;
 }
 
+.dropdown-menu #boton-ayuda,
+.dropdown-menu #boton-ayuda:hover {
+    border: 0;
+    box-shadow: none;
+}
+
 .navmenu {
     position: fixed;
     top: 0;

@@ -74,7 +74,15 @@ body {
     padding: 8px 20px; 
     border-radius: 50px; 
     font-weight: 600 !important; 
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    letter-spacing: 0.3px;
     opacity: 1 !important; 
+}
+
+.nav-links a.btn-sistema:hover {
+    color: #fff !important;
+    font-size: 1.05rem;
+    font-weight: 700 !important;
 }
 
 .user-actions {

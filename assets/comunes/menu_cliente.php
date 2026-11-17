@@ -86,6 +86,7 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
         <li><button class="dropdown-item" id="boton-ayuda">Ayuda</button></li>
+        <li><a class="dropdown-item" href="?pagina=pagina_principal">Volver a la Tienda</a></li>
         <li><a class="dropdown-item text-danger" href="?pagina=cerrarSesionCliente">Cerrar Sesión</a></li>
     </ul>
 </div>
