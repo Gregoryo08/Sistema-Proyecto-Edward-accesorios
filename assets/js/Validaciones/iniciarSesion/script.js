@@ -72,6 +72,29 @@ document.querySelectorAll('form').forEach(form => {
     });
 });
 
+$(document).ready(function() {
+    $('#btnValidarCedula').on('click', function() {
+        const $btn = $(this);
+        const cedula = $('#cedula').val().trim();
+
+        if (!cedula) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campo vacío',
+                text: 'Por favor ingresa un número de cédula para validar.',
+                confirmButtonColor: '#00d4ff'
+            });
+            return;
+        }
+
+        $btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Validando...');
+
+        setTimeout(function() {
+            $btn.prop('disabled', false).html('Validar');
+        }, 1500);
+    });
+});
+
 
 window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#formRegistro') {

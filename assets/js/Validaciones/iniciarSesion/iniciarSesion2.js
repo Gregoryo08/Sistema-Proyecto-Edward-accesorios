@@ -61,9 +61,9 @@ $(document).ready(function () {
         } else if (name === 'correo') {
             esValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) && valor.length <= 30;
             mensajeError = "Correo inválido";
-        } else if (name === 'residencia') {
-            esValido = valor && valor.length > 0 && valor.length <= 30;
-            mensajeError = "Campo requerido";
+        } else if (name === 'direccion') {
+            esValido = valor && valor.trim().length > 0 && valor.length <= 150;
+            mensajeError = "Dirección obligatoria (máx. 150 caracteres)";
         } else if (name === 'fecha_nacimiento') {
             esValido = valor !== "" && esMayorDeEdad(valor);
             mensajeError = "Debes ser mayor de 18 años";
@@ -116,8 +116,10 @@ $(document).ready(function () {
             this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13);
         } else if (name === 'nombre' || name === 'apellido') {
             this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚ\s]/g, '').slice(0, 30);
-        } else if (name === 'correo' || name === 'residencia') {
+        } else if (name === 'correo') {
             if(this.value.length > 30) this.value = this.value.slice(0, 30);
+        } else if (name === 'direccion') {
+            if(this.value.length > 150) this.value = this.value.slice(0, 150);
         }
         validarFormato($(this));
     });

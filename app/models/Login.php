@@ -149,8 +149,7 @@ class login
             return ['status' => 'ERROR', 'msj' => $e->getMessage()];
         }
     }
-
-    public function registrarCliente($datos)
+public function registrarCliente($datos)
     {
         $fechaNacimiento = new \DateTime($datos['fecha_nacimiento']);
         $hoy = new \DateTime();
@@ -173,22 +172,21 @@ class login
             $conexGeneral->beginTransaction();
             $conexUser->beginTransaction();
 
-            $stmtPersona = $conexGeneral->prepare("INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, direccion, fecha_nacimiento, sexo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmtPersona = $conexGeneral->prepare("INSERT INTO persona (cedula_persona, nombre, apellido, correo, telefono, fecha_nacimiento, sexo, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmtPersona->execute([
                 $datos['cedula'],
                 $datos['nombre'],
                 $datos['apellido'],
                 $datos['correo'],
                 $datos['telefono'],
-                $datos['residencia'],
                 $datos['fecha_nacimiento'],
-                $datos['sexo']
+                $datos['sexo'],
+                $datos['direccion']
             ]);
 
-            $stmtCliente = $conexGeneral->prepare("INSERT INTO clientes (cedula_persona, residencia, estado) VALUES (?, ?, 'activo')");
+            $stmtCliente = $conexGeneral->prepare("INSERT INTO clientes (cedula_persona, estado) VALUES (?, 'activo')");
             $stmtCliente->execute([
-                $datos['cedula'],
-                $datos['residencia']
+                $datos['cedula']
             ]);
 
             $hash = password_hash($datos['clave'], PASSWORD_DEFAULT);
@@ -204,7 +202,7 @@ class login
             return ["error" => "Error interno: " . $e->getMessage()];
         }
     }
-
+    
   private function procesarLogin($usuario, $clave)
     {
         try {

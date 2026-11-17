@@ -47,9 +47,9 @@ $(document).ready(function () {
             "apellido": $(this).find('input[name="apellido"]').val(),
             "correo": $(this).find('input[name="correo"]').val(),
             "telefono": $(this).find('input[name="telefono"]').val(),
+            "direccion": $(this).find('input[name="direccion"]').val(),
             "fecha_nacimiento": $(this).find('input[name="fecha_nacimiento"]').val(),
             "sexo": $(this).find('select[name="sexo"]').val(),
-            "residencia": $(this).find('input[name="residencia"]').val(),
             "clave": $(this).find('input[name="clave"]').val(),
             "accion": "registrar"
         };
@@ -88,6 +88,61 @@ $(document).ready(function () {
                     background: "#000910",
                     color: "white"
                 });
+            }
+        });
+    });
+
+    $('#btnValidarCedula').on('click', function () {
+        var cedula = $('#cedula').val();
+        if (!cedula) {
+            Swal.fire({
+                title: "Atención",
+                text: "Por favor, ingrese una cédula primero.",
+                icon: "warning",
+                background: "#000910",
+                color: "white"
+            });
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Validando...');
+
+        $.ajax({
+            type: "POST",
+            url: "",
+            data: { "accion": "consultarCedula", "cedula": cedula },
+            dataType: "json",
+            success: function (res) {
+                if (res.existe) {
+                    Swal.fire({
+                        title: "Cédula registrada",
+                        text: "Esta cédula ya se encuentra en el sistema.",
+                        icon: "info",
+                        background: "#000910",
+                        color: "white"
+                    });
+                    $btn.prop('disabled', false).text('Validar');
+                } else {
+                    Swal.fire({
+                        title: "Disponible",
+                        text: "La cédula está disponible para el registro.",
+                        icon: "success",
+                        background: "#000910",
+                        color: "white"
+                    });
+                    $btn.text('Validado');
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: "Error",
+                    text: "Error de comunicación con el servidor.",
+                    icon: "error",
+                    background: "#000910",
+                    color: "white"
+                });
+                $btn.prop('disabled', false).text('Validar');
             }
         });
     });

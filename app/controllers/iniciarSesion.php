@@ -139,9 +139,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
         'apellido' => trim($_POST['apellido'] ?? ''),
         'correo' => trim($_POST['correo'] ?? ''),
         'telefono' => trim($_POST['telefono'] ?? ''),
+        'direccion' => trim($_POST['direccion'] ?? ''),
         'fecha_nacimiento' => trim($_POST['fecha_nacimiento'] ?? ''),
         'sexo' => trim($_POST['sexo'] ?? ''),
-        'residencia' => trim($_POST['residencia'] ?? ''),
         'clave' => trim($_POST['clave'] ?? '')
     ];
     if (empty($datos['cedula']) || empty($datos['nombre']) || empty($datos['apellido'])) {
