@@ -18,19 +18,17 @@
 </head>
 
 <body>
-    
-   
 
     <div class="wrapper">
-        
-        
+        <!-- Botón de Volver fijo en la esquina superior izquierda de la tarjeta principal -->
+        <a href="?pagina=pagina_principal" class="btn-volver-fijo">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+
         <span class="bg-animate"></span>
         <span class="bg-animate2"></span>
 
         <div class="form-box login">
-            <a href="?pagina=pagina_principal" class="btn-volver">
-                <i class="fas fa-arrow-left"></i> Volver
-            </a>
             <h2 class="animation" style="--i:0;">Login</h2>
 
             <form id="loginForm" method="POST" onsubmit="return false;">
@@ -67,84 +65,84 @@
         </div>
 
         <div class="form-box register">
-    <h2 class="animation" style="--i:17;">Registro</h2>
+            <h2 class="animation" style="--i:17;">Registro</h2>
 
-    <form id="formRegistro">
-        <div class="form-scroll-container animation" style="--i:18;">
-            <div class="cedula-group">
-                <div class="input-box">
-                    <input type="text" name="cedula" id="cedula" required>
-                    <label>Cédula</label>
-                    <i class="bx bx-id-card"></i>
-                    <small class="error-msg">Obligatorio</small>
+            <form id="formRegistro">
+                <div class="form-scroll-container animation" style="--i:18;">
+                    <div class="cedula-group">
+                        <div class="input-box">
+                            <input type="text" name="cedula" id="cedula" required>
+                            <label>Cédula</label>
+                            <i class="bx bx-id-card"></i>
+                            <small class="error-msg">Obligatorio</small>
+                        </div>
+                        <button type="button" id="btnValidarCedula" class="btn-validar">Validar</button>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" name="nombre" id="nombre" required>
+                        <label>Nombre</label>
+                        <i class="bx bx-user"></i>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" name="apellido" id="apellido" required>
+                        <label>Apellido</label>
+                        <i class="bx bx-user"></i>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="email" name="correo" id="correo" maxlength="30" required>
+                        <label>Correo</label>
+                        <i class="bx bx-envelope"></i>
+                        <small class="error-msg">Formato inválido</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="tel" name="telefono" id="telefono" required>
+                        <label>Teléfono</label>
+                        <i class="bx bx-phone"></i>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" name="residencia" id="residencia" required>
+                        <label>Dirección (Residencia)</label>
+                        <i class="bx bx-map"></i>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
+                        <label class="active">Fecha de Nacimiento</label>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <select name="sexo" id="sexo" required>
+                            <option value="" disabled selected>Seleccione su sexo</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                        </select>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" name="clave" id="reg_pass" maxlength="30" required>
+                        <label>Contraseña</label>
+                        <i class="bx bx-show" id="toggleReg" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                        <small class="error-msg">Obligatorio</small>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" id="conf_pass" name="confirmar_clave" maxlength="30" required>
+                        <label>Confirmar Contraseña</label>
+                        <i class="bx bx-show" id="toggleConf" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                        <small class="error-msg">Debe coincidir</small>
+                    </div>
+                    <div class="input-box animation" style="--i:2.2; display: flex; justify-content: center;">
+                        <div class="g-recaptcha" data-sitekey="6LfgnqstAAAAAIUCJUsYquqH2iNKSZoOhjMYKlaa"></div>
+                    </div>
                 </div>
-                <button type="button" id="btnValidarCedula" class="btn-validar">Validar</button>
-            </div>
-            <div class="input-box">
-                <input type="text" name="nombre" id="nombre" required>
-                <label>Nombre</label>
-                <i class="bx bx-user"></i>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="text" name="apellido" id="apellido" required>
-                <label>Apellido</label>
-                <i class="bx bx-user"></i>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="email" name="correo" id="correo" maxlength="30" required>
-                <label>Correo</label>
-                <i class="bx bx-envelope"></i>
-                <small class="error-msg">Formato inválido</small>
-            </div>
-            <div class="input-box">
-                <input type="tel" name="telefono" id="telefono" required>
-                <label>Teléfono</label>
-                <i class="bx bx-phone"></i>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="text" name="residencia" id="residencia" required>
-                <label>Dirección (Residencia)</label>
-                <i class="bx bx-map"></i>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
-                <label class="active">Fecha de Nacimiento</label>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <select name="sexo" id="sexo" required>
-                    <option value="" disabled selected>Seleccione su sexo</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                </select>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="password" name="clave" id="reg_pass" maxlength="30" required>
-                <label>Contraseña</label>
-                <i class="bx bx-show" id="toggleReg" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
-                <small class="error-msg">Obligatorio</small>
-            </div>
-            <div class="input-box">
-                <input type="password" id="conf_pass" name="confirmar_clave" maxlength="30" required>
-                <label>Confirmar Contraseña</label>
-                <i class="bx bx-show" id="toggleConf" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
-                <small class="error-msg">Debe coincidir</small>
-            </div>
-            <div class="input-box animation" style="--i:2.2; display: flex; justify-content: center;">
-                <div class="g-recaptcha" data-sitekey="6LfgnqstAAAAAIUCJUsYquqH2iNKSZoOhjMYKlaa"></div>
-            </div>
+                <button type="submit" class="btn animation" style="--i:24;" disabled>Registrarse</button>
+                <div class="logreg-link animation" style="--i:25;">
+                    <p>¿Ya tienes cuenta? <a href="#" class="login-link">Login</a></p>
+                </div>
+            </form>
         </div>
-        <button type="submit" class="btn animation" style="--i:24;" disabled>Registrarse</button>
-        <div class="logreg-link animation" style="--i:25;">
-            <p>¿Ya tienes cuenta? <a href="#" class="login-link">Login</a></p>
-        </div>
-    </form>
-</div>
 
         <div class="info-text register">
             <h2 class="animation" style="--i:17;">¡Hola, Amigo!</h2>
@@ -216,47 +214,83 @@
                 $btn.text('Registrando...').prop('disabled', true);
             });
         });
-
-        
     </script>
 
     <style>
-.cedula-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    margin: 30px 0;
-}
+        /* Estilo para el botón de volver fijo y elegante en la esquina de la tarjeta */
+        .btn-volver-fijo {
+            padding-top: 15px;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #0ef;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
 
-.cedula-group .input-box {
-    flex: 1;
-    margin: 0 !important;
-}
+        .btn-volver-fijo:hover {
+            color: #fff;
+            transform: translateX(-3px);
+        }
 
-.btn-validar {
-    height: 50px;
-    padding: 0 20px;
-    background: #0ef;
-    border: 2px solid #0ef;
-    outline: none;
-    border-radius: 40px;
-    cursor: pointer;
-    font-size: 1em;
-    color: #fff;
-    font-weight: 600;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-    transition: 0.5s;
-    white-space: nowrap;
-}
+        .form-scroll-container {
+            padding-bottom: 50px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
 
-.btn-validar:hover {
-    background: transparent;
-    color: #0ef;
-}
+        .form-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
 
+        .form-scroll-container::-webkit-scrollbar-thumb {
+            background: #0ef;
+            border-radius: 10px;
+        }
+
+        .cedula-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            margin: 30px 0;
+        }
+
+        .cedula-group .input-box {
+            flex: 1;
+            margin: 0 !important;
+        }
+
+        .btn-validar {
+            height: 50px;
+            padding: 0 20px;
+            background: #0ef;
+            border: 2px solid #0ef;
+            outline: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1em;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+            transition: 0.5s;
+            white-space: nowrap;
+        }
+
+        .btn-validar:hover {
+            background: transparent;
+            color: #0ef;
+        }
 
         .theme-toggle-btn {
+            
             position: fixed;
             top: 25px;
             right: 25px;

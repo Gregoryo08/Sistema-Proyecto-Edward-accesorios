@@ -4,13 +4,13 @@ const loginLink = document.querySelector('.login-link');
 const recoverLink = document.querySelector('.recover-link');
 const backLogin = document.querySelector('.back-to-login');
 
-// Cambios de pantalla
+
 registerLink.onclick = () => { wrapper.classList.add('active'); };
 loginLink.onclick = () => { wrapper.classList.remove('active'); };
 recoverLink.onclick = () => { wrapper.classList.add('show-recover'); };
 backLogin.onclick = () => { wrapper.classList.remove('show-recover'); };
 
-// Funciones de validación
+
 const setError = (element, message) => {
     const inputBox = element.parentElement;
     const errorDisplay = inputBox.querySelector('.error-msg');
@@ -54,7 +54,7 @@ const validateForm = (form) => {
     return isFormValid;
 };
 
-// Eventos de envío y escritura
+
 document.querySelectorAll('form').forEach(form => {
     form.onsubmit = (e) => {
         if (!validateForm(form)) {
@@ -62,7 +62,7 @@ document.querySelectorAll('form').forEach(form => {
         }
     };
 
-    // Limpiar error mientras el usuario escribe para mejorar UX
+    
     form.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
             if (input.parentElement.classList.contains('error')) {
@@ -70,4 +70,13 @@ document.querySelectorAll('form').forEach(form => {
             }
         });
     });
+});
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash === '#formRegistro') {
+        if (registerLink) {
+            registerLink.click();
+        }
+    }
 });

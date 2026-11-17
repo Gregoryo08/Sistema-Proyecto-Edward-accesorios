@@ -74,9 +74,9 @@
                             <a href="?pagina=iniciarSesion&destino=web_Catalogo" class="btn-auth">
                                 <i class="fas fa-user"></i> Login
                             </a>
-                            <a href="?pagina=loginEcommerce&destino=web_Catalogo&register=1" class="btn-auth btn-register">
-                                <i class="fas fa-user-plus"></i> Registro
-                            </a>
+                             <a href="?pagina=iniciarSesion#formRegistro" class="btn-auth btn-register">
+                                    <i class="fas fa-user-plus"></i> Registro
+                                </a>
                         </div>
                     <?php endif; ?>
                 </div>
