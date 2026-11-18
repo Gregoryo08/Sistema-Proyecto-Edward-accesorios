@@ -20,7 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edward Accesorios | Expertos en Telefonía</title>
 
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2">
     <link rel="stylesheet" href="assets/css/ecommerce/carritoModal.css">
     <link rel="icon" href="assets/img/icono.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -262,13 +262,13 @@
 }
 
 .edai-chat { position: fixed; right: 22px; bottom: 22px; z-index: 1060; }
-.edai-fab { width: 58px; height: 58px; border-radius: 50%; background: var(--primary); color: #fff; border: none; box-shadow: 0 8px 20px rgba(37,99,235,.4); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform .2s ease; }
+.edai-fab { width: 58px; height: 58px; border-radius: 50%; background: var(--chat-blue); color: #fff; border: none; box-shadow: 0 8px 20px rgba(20,66,114,.4); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform .2s ease; }
 .edai-fab:hover { transform: scale(1.08); }
 .edai-fab-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 .edai-dot { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; background: #22c55e; border: 2px solid #fff; border-radius: 50%; }
 .edai-window { display: none; position: absolute; right: 0; bottom: 70px; width: 330px; max-width: 88vw; height: 440px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 45px rgba(0,0,0,.25); flex-direction: column; }
 .edai-window.open { display: flex; }
-.edai-header { background: var(--primary); color: #fff; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.edai-header { background: var(--chat-blue); color: #fff; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
 .edai-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
 .edai-header-info { flex: 1; line-height: 1.15; }
 .edai-header-info small { display: block; font-size: 11px; opacity: .85; }
@@ -276,10 +276,10 @@
 .edai-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; background: var(--bg-main); }
 .edai-msg { max-width: 82%; padding: 9px 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
 .edai-bot { background: var(--bg-secondary); color: var(--text-main); align-self: flex-start; border: 1px solid var(--border-color); }
-.edai-user { background: var(--primary); color: #fff; align-self: flex-end; }
+.edai-user { background: var(--chat-blue); color: #fff; align-self: flex-end; }
 .edai-footer { display: flex; gap: 6px; padding: 10px; background: var(--bg-card); border-top: 1px solid var(--border-color); }
 .edai-footer input { flex: 1; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main); border-radius: 20px; padding: 8px 14px; font-size: 13px; outline: none; }
-.edai-footer button { background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.edai-footer button { background: var(--chat-blue); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
 .section.gray-bg { background-color: var(--bg-secondary) !important; }
 .card { background-color: var(--bg-card) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }

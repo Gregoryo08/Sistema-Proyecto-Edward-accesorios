@@ -2,6 +2,7 @@ html { scroll-behavior: smooth; }
 
 :root {
     --primary: #2563eb;
+    --chat-blue: #144272;
     --dark-bg: #0b0b0b;
     --card-bg: #1a1a1a;
     --text: #ffffff;
@@ -435,7 +436,7 @@ body {
 }
 
 .chat-header {
-    background: var(--primary);
+    background: var(--chat-blue);
     padding: 12px 15px;
     display: flex;
     align-items: center;
@@ -496,7 +497,7 @@ body {
 }
 
 .chat-footer button {
-    background: var(--primary);
+    background: var(--chat-blue);
     border: none;
     color: white;
     padding: 0 15px;
@@ -513,7 +514,7 @@ body {
     align-items: center;
     position: relative;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 5px 15px rgba(20, 66, 114, 0.4);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
